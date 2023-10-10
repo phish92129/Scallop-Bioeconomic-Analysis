@@ -1,5 +1,9 @@
 ####### Input Longline and Lease Specifications ######
 
+# Required Inputs
+
+#######  Input Longline and Lease Specifications ######
+
 # Leasing Setup and fees
 Lease.Type <- 'Standard Lease'
 
@@ -10,32 +14,35 @@ Longline.Suspended.Depth = 15     #Projected Longline Depth at low tide
 
 ############## Business Model ##############
 
-Product <- 100000     # Number of individual scallop spat
+Product <- 200000     # Number of individual scallop spat
 Year.Start <- 2023     #Year of projected farm operations start: Model begins August 1st
-Consumables <- 0     # Includes general expenditures like Gear,coffee,misc  
-Owner.salary <- 0     # Predicted annual owner salary
-Insurance <- 0    #Annual Insurance Costs for vehicles, personnel, etc
+Consumables <- 500     # Includes general expenditures like Gear,coffee,misc  
+Owner.salary <- 50000     # Predicted annual owner salary
+Insurance <- 5000     #Annual Insurance Costs for vehicles, personnel, etc
 
 ####### Employment Information
-Full.Time.Employee <- 0     # Number of full time employees
+Full.Time.Employee <- 1     # Number of full time employees
 Employee.Salary <- 50000     # Annual full time employee salary
 Part.Time.Wage <- 15     # Hourly rate for part time wages
 
 ######## Production Planning
-Y0 <- 'Year 0: Wild Spat - Collected'
-Y1 <- 'Year 1: Lantern Net'
-Y2 <- 'Year 2: Ear Hanging'
-Y3 <- 'Year 3: Ear Hanging'
+Harvest.Season <- 'Summer'
+Harvest.Year <- 'Y3'
+Gear.Specification <- 'Ear Hanging'
+
+############## Costs and secondary Inputs ###########
+
+# Secondary Inputs
 
 # Y0 Product Metrics - Spat Procurement and Nursery Culture
 
-Wild.Spat.Collector <- 1000     # Number of Wild Spat estimated/collector
+Wild.Spat.Collector <- 4000     # Number of Wild Spat estimated/collector
 Spat.Site.Depth <- 150  # Assumes a Depth of 150 feet
-Seed.Net.Density <- 250     # Assumes 250/tier initial stocking density
+Seed.Net.Density <- 150     # Assumes 250/tier initial stocking density
 
 # Y1 Product Metrics - Intermediate Culture
 
-Y1.Stocking.Density <- 30     # Intermediary Culture stocking density (recommended 45-25)
+Y1.Stocking.Density <- 25     # Intermediary Culture stocking density (recommended 45-25)
 
 # Year 2/3 August 01 Y2 to August 01 Y4
 
@@ -44,23 +51,13 @@ Y1.Stocking.Density <- 30     # Intermediary Culture stocking density (recommend
 Y2.LN.Stocking.Density <- 10
 Y3.LN.Stocking.Density <- 10
 
-# Y2/Y3 Product Metrics - Lantern Net
+# Mortalities
 
-Y2.EH.Dropper.Scallops.per <- 140     # Total scallops per dropper (would relate to 70 paired)
-Y2.EH.Scallop.Spacing <- .5    # In feet
-Y2.EH.Dropper.Margins <- 10   # In feet
-
-
-# Ear Hanging - Grow-Out in Ear Hanging
-Y0.Mortality <- .1     # Estimated Wild Spat from Y0 August 01 Start Date - August 01 Y1
+Y0.Mortality <- .12   # Estimated Wild Spat from Y0 August 01 Start Date - August 01 Y1
 Y1.Mortality <- .12     # Mortality from August Y1 till August Y2
 Y2.Mortality <- .12
 Y3.Mortality <- .12
 
-
-############## Costs and secondary Inputs ###########
-
-# Secondary Inputs
 
 # General Longline
 
@@ -78,7 +75,7 @@ Longline.Spacing <- 40
 
 # Production Specs
 #Annual Shellfish license fees
-SH.License <- 0
+SH.License <- 1200
 
 # Number of spat collectors per line
 Collectors.Line <- 10    
@@ -107,6 +104,11 @@ Cement.Anchor.EH <- 100
 # Ear hanging Spacing
 EH.Spacing <- 1    # In feet
 
+
+Y2.EH.Dropper.Scallops.per <- 140     # Total scallops per dropper (would relate to 70 paired)
+Y2.EH.Scallop.Spacing <- .5    # In feet
+Y2.EH.Dropper.Margins <- 10   # In feet
+
 # Costs and secondary inputs are values that can change over time
 # But are not critical in the overall business plan
 # Inputs for change to grower may can be the unit cost (cost per unit) and Lifespan
@@ -134,7 +136,7 @@ Misc <- data.frame(
   Equipment = 'Miscellaneous Equipment',
   Unit.Cost = c(800),
   Lifespan = c(5),
-  Quantity = 1
+  Quantity =1
 )
 
 # Accounts for Head rope and mooring line
@@ -258,7 +260,7 @@ Scallop.Washer <- data.frame(
 Scallop.Grader <- data.frame(
   Equipment = 'Scallop Grader',
   Unit.Cost = 14000,
-  Quantity = 1,
+  Quantity = 0,
   Lifespan = 10
 )
 
@@ -267,7 +269,7 @@ Scallop.Grader <- data.frame(
 Power.Pack <- data.frame(
   Equipment = 'Power Pack',
   Unit.Cost = 10000,
-  Quantity = 1,
+  Quantity = 0,
   Lifespan = 10
 )
 
@@ -323,15 +325,19 @@ Settlement.Device <- data.frame(
   Task = 'Set Settlement Devices',   # Growers set settlement devices in Fall and collect in Spring for restock to Lantern Net
   Unit = 'Devices/Day',
   Task.Rate = 50,
-  Part.Time = 0     # Asssumes that task rate accounts for the amount of part time help
+  Part.Time = 0,     # Asssumes that task rate accounts for the amount of part time help
+  Timing = 'Summer'
 )
+
+
 
 # Collection of settlement devices in Spring
 Collect.Settlement.Device <- data.frame(
   Task = 'Collect Settlement Device',     
   Unit = 'Devices/Day',
   Task.Rate = 100,
-  Part.Time = 0
+  Part.Time = 0,
+  Timing ='Spring'
 )
 
 #     Processing of settlement devices to procure seed
@@ -339,7 +345,8 @@ Process.Settlement.Device <- data.frame(
   Task = 'Process Settlement Device',     
   Unit = 'Devices/Day',
   Task.Rate = 50,
-  Part.Time = 0
+  Part.Time = 0,
+  Timing = 'Spring'
 )
 
 # Restock scallops into lantern nets from settlement collectors
@@ -347,7 +354,8 @@ Spat.Stocking <- data.frame(
   Task = 'Spat Stocking',     
   Unit = 'Scallops/Day',
   Task.Rate = 200000,
-  Part.Time = 1
+  Part.Time = 1,
+  Timing = 'Spring'
 )
 
 # Restock Lantern nets 
@@ -355,7 +363,8 @@ Restock <- data.frame(
   Task = 'Restock',     
   Unit = 'Devices/Day',
   Task.Rate = 75,
-  Part.Time = 2
+  Part.Time = 2,
+  Timing = 'Summer'
 )
 
 # Spring (May) cleaning for restocked lantern nets the following year involves transfer to clean nets
@@ -363,14 +372,16 @@ Cleaning.Spring.LN <- data.frame(
   Task = 'Cleaning (Spring)',     
   Unit = 'Devices/Day',
   Task.Rate = 100,
-  Part.Time = 2
+  Part.Time = 2,
+  Timing = 'Spring'
 )
 
 Cleaning.Spring.EH <- data.frame(
   Task = 'Cleaning (Spring)',     # Assumes the farm has a cleaning machine or else task rate needs to be adjusted
   Unit = 'Devices/Day',
   Task.Rate = 275,
-  Part.Time = 1
+  Part.Time = 1,
+  Timing = 'Spring'
 )
 
 # Fall cleaning runs a similar process to Spring cleaning
@@ -378,14 +389,16 @@ Cleaning.Fall.LN <- data.frame(
   Task = 'Cleaning (Fall)',     
   Unit = 'Devices/Day',
   Task.Rate = 100,
-  Part.Time = 2
+  Part.Time = 2,
+  Timing = 'Fall'
 )
 
 Cleaning.Fall.EH <- data.frame(
   Task = 'Cleaning (Fall)',
   Unit = 'Devices/Day',
   Task.Rate = 275,
-  Part.Time = 1
+  Part.Time = 1,
+  Timing = 'Fall'
 )
 
 # Cleaning of lantern nets
@@ -393,7 +406,8 @@ Cleaning.Prev.Year <- data.frame(
   Task = 'Previous Year Net Cleaning (On Land)',     
   Unit = 'Devices/Day',
   Task.Rate = 200,
-  Part.Time = 0)
+  Part.Time = 0,
+  Timing = 'Summer')
 
 # Drilling and Pinning with Dremmel machine method, part time labor will be higher for this 
 # to account for pinning.
@@ -403,7 +417,8 @@ Labor.Dremmel <- data.frame(
   Task = 'Drilling + Pinning: Dremmel',
   Unit = 'Scallops/Day',
   Task.Rate = 8000,        # Assumes 8000 scallops pinned a day per dremmel
-  Part.Time = 2
+  Part.Time = 2,
+  Timing = 'Fall'
 )
 
 # # Drilling and Pinning with automated drilling machine method, part time labor will be higher for this 
@@ -414,7 +429,8 @@ Labor.Auto.Drill <- data.frame(
   Task = 'Drilling + Pinning: Automated Driller',
   Unit = 'Scallops/Day',
   Task.Rate = 12000,        # Assumes 12000 scallops pinned a day per Machine
-  Part.Time = 2
+  Part.Time = 2,
+  Timing = 'Fall'
 )
 
 # Automated drilling and pinning machine where scallops are drilled and pinned automatically
@@ -424,14 +440,16 @@ Labor.Auto.Full <- data.frame(
   Task = 'Drilling + Pinning: Automated',
   Unit = 'Scallops/Day',
   Task.Rate = 10000,                        # Assumes 10000 scallops pinned a day per machine
-  Part.Time = 0                             # Assumes No extra help needed unless >2 machines
+  Part.Time = 0,                             # Assumes No extra help needed unless >2 machines
+  Timing = 'Fall'
 )
 
 Dropper.Line.Construction <- data.frame(
   Task = 'Dropper Line Construction',
   Unit = 'Devices/Day',
   Task.Rate = 240,
-  Part.Time = 0
+  Part.Time = 0,
+  Timing = 'Fall'
 )
 
 ######## Fuel usage #######
@@ -544,40 +562,21 @@ Drill.Pin <- data.frame(
 
 
 
-S.Automated<-         P.L( Lease.Type,               # Can select from 'Standard Lease' 'LPA' or 'Experimental Lease'
-                  Longline.Quantity,        # Number of longlines on the farm                  
-                  Longline.Depth,           # Lease Depth (Feet) at low tide
-                  Longline.Suspended.Depth, # Projected Longline Depth at low tide  
-                  Product,                  # Number of individual scallop spat
-                  Year.Start,               # Year of projected farm operations start: Model begins August 1st
-                  Consumables,              # Includes general expenditures like Gear,coffee,misc
-                  Owner.salary,             # Predicted annual owner salary
-                  Insurance,                # Annual Insurance Costs for vehicles, personnel, etc
-                  Full.Time.Employee,       # Number of full time employees
-                  Employee.Salary,          # Annual full time employee salary
-                  Part.Time.Wage,           # Hourly rate for part time wages
-                  Y0,                       # Spat procurement type, only option is 'Year 0: Wild Spat - Collected' 
-                  # currently
-                  Y1,                       # Intermediate culture type, only option is 'Year 1: Lantern Net' 
-                  # currently
-                  Y2,                       # One year grow-out culture, options are 'Year 2: Lantern Net' 
-                  # 'Year 2: Ear Hanging'
-                  Y3,                       # Two year grow-out culture, options are 'Year 3: Lantern Net' 
-                  # 'Year 3: Ear Hanging' or 'NULL' to opt for a single year grow-out
-                  Wild.Spat.Collector,      # Number of Wild Spat estimated/collector
-                  Spat.Site.Depth,          # Depth at which spat collection lines are set
-                  Seed.Net.Density,         # Growth Assumes 250/tier initial stocking density
-                  Y1.Stocking.Density,      # Intermediary Culture stocking density (recommended 45-25)
-                  Y2.LN.Stocking.Density,   # Grow-Out Culture Stocking density (recommended 15-10)
-                  Y3.LN.Stocking.Density,   # Grow-Out Culture Stocking density (recommended 10-5)
-                  Y2.EH.Dropper.Scallops.per,     # Total scallops per dropper (assumes paired setup)
-                  Y2.EH.Scallop.Spacing,    # Spacing between scallops in feet
-                  Y2.EH.Dropper.Margins,    # Margin is the total space on either end rope without scallops in feet
-                  Y0.Mortality,             # Estimated Wild Spat from Y0 August 01 Start Date - August 01 Y1
-                  Y1.Mortality,             # Mortality from August Y1 till August Y2
-                  Y2.Mortality,             # Mortality from August Y2 till August Y3
-                  Y3.Mortality             # Mortality from August Y3 till August Y4
-                  
+S.Automated<-         P.L.Season( Lease.Type,               # Can select from 'Standard Lease' 'LPA' or 'Experimental Lease'
+                                  Longline.Quantity,        # Number of longlines on the farm                  
+                                  Longline.Depth,           # Lease Depth (Feet) at low tide
+                                  Longline.Suspended.Depth, # Projected Longline Depth at low tide  
+                                  Product,                  # Number of individual scallop spat
+                                  Year.Start,               # Year of projected farm operations start: Model begins August 1st
+                                  Consumables,              # Includes general expenditures like Gear,coffee,misc
+                                  Owner.salary,             # Predicted annual owner salary
+                                  Insurance,                # Annual Insurance Costs for vehicles, personnel, etc
+                                  Full.Time.Employee,       # Number of full time employees
+                                  Employee.Salary,          # Annual full time employee salary
+                                  Part.Time.Wage,           # Hourly rate for part time wages
+                                  Harvest.Season,
+                                  Harvest.Year,
+                                  Gear.Specification
 )
 
 
@@ -638,40 +637,21 @@ Drill.Pin <- data.frame(
 
 
 
-S.Dremmel<-         P.L( Lease.Type,               # Can select from 'Standard Lease' 'LPA' or 'Experimental Lease'
-                           Longline.Quantity,        # Number of longlines on the farm                  
-                           Longline.Depth,           # Lease Depth (Feet) at low tide
-                           Longline.Suspended.Depth, # Projected Longline Depth at low tide  
-                           Product,                  # Number of individual scallop spat
-                           Year.Start,               # Year of projected farm operations start: Model begins August 1st
-                           Consumables,              # Includes general expenditures like Gear,coffee,misc
-                           Owner.salary,             # Predicted annual owner salary
-                           Insurance,                # Annual Insurance Costs for vehicles, personnel, etc
-                           Full.Time.Employee,       # Number of full time employees
-                           Employee.Salary,          # Annual full time employee salary
-                           Part.Time.Wage,           # Hourly rate for part time wages
-                           Y0,                       # Spat procurement type, only option is 'Year 0: Wild Spat - Collected' 
-                           # currently
-                           Y1,                       # Intermediate culture type, only option is 'Year 1: Lantern Net' 
-                           # currently
-                           Y2,                       # One year grow-out culture, options are 'Year 2: Lantern Net' 
-                           # 'Year 2: Ear Hanging'
-                           Y3,                       # Two year grow-out culture, options are 'Year 3: Lantern Net' 
-                           # 'Year 3: Ear Hanging' or 'NULL' to opt for a single year grow-out
-                           Wild.Spat.Collector,      # Number of Wild Spat estimated/collector
-                           Spat.Site.Depth,          # Depth at which spat collection lines are set
-                           Seed.Net.Density,         # Growth Assumes 250/tier initial stocking density
-                           Y1.Stocking.Density,      # Intermediary Culture stocking density (recommended 45-25)
-                           Y2.LN.Stocking.Density,   # Grow-Out Culture Stocking density (recommended 15-10)
-                           Y3.LN.Stocking.Density,   # Grow-Out Culture Stocking density (recommended 10-5)
-                           Y2.EH.Dropper.Scallops.per,     # Total scallops per dropper (assumes paired setup)
-                           Y2.EH.Scallop.Spacing,    # Spacing between scallops in feet
-                           Y2.EH.Dropper.Margins,    # Margin is the total space on either end rope without scallops in feet
-                           Y0.Mortality,             # Estimated Wild Spat from Y0 August 01 Start Date - August 01 Y1
-                           Y1.Mortality,             # Mortality from August Y1 till August Y2
-                           Y2.Mortality,             # Mortality from August Y2 till August Y3
-                           Y3.Mortality             # Mortality from August Y3 till August Y4
-                           
+S.Dremmel<-         P.L.Season( Lease.Type,               # Can select from 'Standard Lease' 'LPA' or 'Experimental Lease'
+                                Longline.Quantity,        # Number of longlines on the farm                  
+                                Longline.Depth,           # Lease Depth (Feet) at low tide
+                                Longline.Suspended.Depth, # Projected Longline Depth at low tide  
+                                Product,                  # Number of individual scallop spat
+                                Year.Start,               # Year of projected farm operations start: Model begins August 1st
+                                Consumables,              # Includes general expenditures like Gear,coffee,misc
+                                Owner.salary,             # Predicted annual owner salary
+                                Insurance,                # Annual Insurance Costs for vehicles, personnel, etc
+                                Full.Time.Employee,       # Number of full time employees
+                                Employee.Salary,          # Annual full time employee salary
+                                Part.Time.Wage,           # Hourly rate for part time wages
+                                Harvest.Season,
+                                Harvest.Year,
+                                Gear.Specification
 )
 
 S.Dremmel$Technology <- 'Dremmel Drilling Only'
@@ -731,40 +711,22 @@ Drill.Pin <- data.frame(
 
 
 
-S.DP<-         P.L( Lease.Type,               # Can select from 'Standard Lease' 'LPA' or 'Experimental Lease'
-                         Longline.Quantity,        # Number of longlines on the farm                  
-                         Longline.Depth,           # Lease Depth (Feet) at low tide
-                         Longline.Suspended.Depth, # Projected Longline Depth at low tide  
-                         Product,                  # Number of individual scallop spat
-                         Year.Start,               # Year of projected farm operations start: Model begins August 1st
-                         Consumables,              # Includes general expenditures like Gear,coffee,misc
-                         Owner.salary,             # Predicted annual owner salary
-                         Insurance,                # Annual Insurance Costs for vehicles, personnel, etc
-                         Full.Time.Employee,       # Number of full time employees
-                         Employee.Salary,          # Annual full time employee salary
-                         Part.Time.Wage,           # Hourly rate for part time wages
-                         Y0,                       # Spat procurement type, only option is 'Year 0: Wild Spat - Collected' 
-                         # currently
-                         Y1,                       # Intermediate culture type, only option is 'Year 1: Lantern Net' 
-                         # currently
-                         Y2,                       # One year grow-out culture, options are 'Year 2: Lantern Net' 
-                         # 'Year 2: Ear Hanging'
-                         Y3,                       # Two year grow-out culture, options are 'Year 3: Lantern Net' 
-                         # 'Year 3: Ear Hanging' or 'NULL' to opt for a single year grow-out
-                         Wild.Spat.Collector,      # Number of Wild Spat estimated/collector
-                         Spat.Site.Depth,          # Depth at which spat collection lines are set
-                         Seed.Net.Density,         # Growth Assumes 250/tier initial stocking density
-                         Y1.Stocking.Density,      # Intermediary Culture stocking density (recommended 45-25)
-                         Y2.LN.Stocking.Density,   # Grow-Out Culture Stocking density (recommended 15-10)
-                         Y3.LN.Stocking.Density,   # Grow-Out Culture Stocking density (recommended 10-5)
-                         Y2.EH.Dropper.Scallops.per,     # Total scallops per dropper (assumes paired setup)
-                         Y2.EH.Scallop.Spacing,    # Spacing between scallops in feet
-                         Y2.EH.Dropper.Margins,    # Margin is the total space on either end rope without scallops in feet
-                         Y0.Mortality,             # Estimated Wild Spat from Y0 August 01 Start Date - August 01 Y1
-                         Y1.Mortality,             # Mortality from August Y1 till August Y2
-                         Y2.Mortality,             # Mortality from August Y2 till August Y3
-                         Y3.Mortality             # Mortality from August Y3 till August Y4
-)   
+S.DP<-         P.L.Season( Lease.Type,               # Can select from 'Standard Lease' 'LPA' or 'Experimental Lease'
+                           Longline.Quantity,        # Number of longlines on the farm                  
+                           Longline.Depth,           # Lease Depth (Feet) at low tide
+                           Longline.Suspended.Depth, # Projected Longline Depth at low tide  
+                           Product,                  # Number of individual scallop spat
+                           Year.Start,               # Year of projected farm operations start: Model begins August 1st
+                           Consumables,              # Includes general expenditures like Gear,coffee,misc
+                           Owner.salary,             # Predicted annual owner salary
+                           Insurance,                # Annual Insurance Costs for vehicles, personnel, etc
+                           Full.Time.Employee,       # Number of full time employees
+                           Employee.Salary,          # Annual full time employee salary
+                           Part.Time.Wage,           # Hourly rate for part time wages
+                           Harvest.Season,
+                           Harvest.Year,
+                           Gear.Specification
+)  
 
 S.DP$Technology <- 'Automated Drill and Pin'
 S.DP$Purchase.Method <- 'Private'
@@ -830,40 +792,21 @@ Specialized.Equipment <- data.frame(
   Cost = .0001
 )
 
-S.Automated.coop<-         P.L( Lease.Type,               # Can select from 'Standard Lease' 'LPA' or 'Experimental Lease'
-                         Longline.Quantity,        # Number of longlines on the farm                  
-                         Longline.Depth,           # Lease Depth (Feet) at low tide
-                         Longline.Suspended.Depth, # Projected Longline Depth at low tide  
-                         Product,                  # Number of individual scallop spat
-                         Year.Start,               # Year of projected farm operations start: Model begins August 1st
-                         Consumables,              # Includes general expenditures like Gear,coffee,misc
-                         Owner.salary,             # Predicted annual owner salary
-                         Insurance,                # Annual Insurance Costs for vehicles, personnel, etc
-                         Full.Time.Employee,       # Number of full time employees
-                         Employee.Salary,          # Annual full time employee salary
-                         Part.Time.Wage,           # Hourly rate for part time wages
-                         Y0,                       # Spat procurement type, only option is 'Year 0: Wild Spat - Collected' 
-                         # currently
-                         Y1,                       # Intermediate culture type, only option is 'Year 1: Lantern Net' 
-                         # currently
-                         Y2,                       # One year grow-out culture, options are 'Year 2: Lantern Net' 
-                         # 'Year 2: Ear Hanging'
-                         Y3,                       # Two year grow-out culture, options are 'Year 3: Lantern Net' 
-                         # 'Year 3: Ear Hanging' or 'NULL' to opt for a single year grow-out
-                         Wild.Spat.Collector,      # Number of Wild Spat estimated/collector
-                         Spat.Site.Depth,          # Depth at which spat collection lines are set
-                         Seed.Net.Density,         # Growth Assumes 250/tier initial stocking density
-                         Y1.Stocking.Density,      # Intermediary Culture stocking density (recommended 45-25)
-                         Y2.LN.Stocking.Density,   # Grow-Out Culture Stocking density (recommended 15-10)
-                         Y3.LN.Stocking.Density,   # Grow-Out Culture Stocking density (recommended 10-5)
-                         Y2.EH.Dropper.Scallops.per,     # Total scallops per dropper (assumes paired setup)
-                         Y2.EH.Scallop.Spacing,    # Spacing between scallops in feet
-                         Y2.EH.Dropper.Margins,    # Margin is the total space on either end rope without scallops in feet
-                         Y0.Mortality,             # Estimated Wild Spat from Y0 August 01 Start Date - August 01 Y1
-                         Y1.Mortality,             # Mortality from August Y1 till August Y2
-                         Y2.Mortality,             # Mortality from August Y2 till August Y3
-                         Y3.Mortality             # Mortality from August Y3 till August Y4
-                         
+S.Automated.coop<-         P.L.Season( Lease.Type,               # Can select from 'Standard Lease' 'LPA' or 'Experimental Lease'
+                                       Longline.Quantity,        # Number of longlines on the farm                  
+                                       Longline.Depth,           # Lease Depth (Feet) at low tide
+                                       Longline.Suspended.Depth, # Projected Longline Depth at low tide  
+                                       Product,                  # Number of individual scallop spat
+                                       Year.Start,               # Year of projected farm operations start: Model begins August 1st
+                                       Consumables,              # Includes general expenditures like Gear,coffee,misc
+                                       Owner.salary,             # Predicted annual owner salary
+                                       Insurance,                # Annual Insurance Costs for vehicles, personnel, etc
+                                       Full.Time.Employee,       # Number of full time employees
+                                       Employee.Salary,          # Annual full time employee salary
+                                       Part.Time.Wage,           # Hourly rate for part time wages
+                                       Harvest.Season,
+                                       Harvest.Year,
+                                       Gear.Specification
 )
 
 S.Automated.coop$Technology <- 'Automated Drilling Only'
@@ -923,40 +866,21 @@ Drill.Pin <- data.frame(
 
 
 
-S.Dremmel.coop<-         P.L( Lease.Type,               # Can select from 'Standard Lease' 'LPA' or 'Experimental Lease'
-                                Longline.Quantity,        # Number of longlines on the farm                  
-                                Longline.Depth,           # Lease Depth (Feet) at low tide
-                                Longline.Suspended.Depth, # Projected Longline Depth at low tide  
-                                Product,                  # Number of individual scallop spat
-                                Year.Start,               # Year of projected farm operations start: Model begins August 1st
-                                Consumables,              # Includes general expenditures like Gear,coffee,misc
-                                Owner.salary,             # Predicted annual owner salary
-                                Insurance,                # Annual Insurance Costs for vehicles, personnel, etc
-                                Full.Time.Employee,       # Number of full time employees
-                                Employee.Salary,          # Annual full time employee salary
-                                Part.Time.Wage,           # Hourly rate for part time wages
-                                Y0,                       # Spat procurement type, only option is 'Year 0: Wild Spat - Collected' 
-                                # currently
-                                Y1,                       # Intermediate culture type, only option is 'Year 1: Lantern Net' 
-                                # currently
-                                Y2,                       # One year grow-out culture, options are 'Year 2: Lantern Net' 
-                                # 'Year 2: Ear Hanging'
-                                Y3,                       # Two year grow-out culture, options are 'Year 3: Lantern Net' 
-                                # 'Year 3: Ear Hanging' or 'NULL' to opt for a single year grow-out
-                                Wild.Spat.Collector,      # Number of Wild Spat estimated/collector
-                                Spat.Site.Depth,          # Depth at which spat collection lines are set
-                                Seed.Net.Density,         # Growth Assumes 250/tier initial stocking density
-                                Y1.Stocking.Density,      # Intermediary Culture stocking density (recommended 45-25)
-                                Y2.LN.Stocking.Density,   # Grow-Out Culture Stocking density (recommended 15-10)
-                                Y3.LN.Stocking.Density,   # Grow-Out Culture Stocking density (recommended 10-5)
-                                Y2.EH.Dropper.Scallops.per,     # Total scallops per dropper (assumes paired setup)
-                                Y2.EH.Scallop.Spacing,    # Spacing between scallops in feet
-                                Y2.EH.Dropper.Margins,    # Margin is the total space on either end rope without scallops in feet
-                                Y0.Mortality,             # Estimated Wild Spat from Y0 August 01 Start Date - August 01 Y1
-                                Y1.Mortality,             # Mortality from August Y1 till August Y2
-                                Y2.Mortality,             # Mortality from August Y2 till August Y3
-                                Y3.Mortality             # Mortality from August Y3 till August Y4
-                                
+S.Dremmel.coop<-         P.L.Season( Lease.Type,               # Can select from 'Standard Lease' 'LPA' or 'Experimental Lease'
+                                     Longline.Quantity,        # Number of longlines on the farm                  
+                                     Longline.Depth,           # Lease Depth (Feet) at low tide
+                                     Longline.Suspended.Depth, # Projected Longline Depth at low tide  
+                                     Product,                  # Number of individual scallop spat
+                                     Year.Start,               # Year of projected farm operations start: Model begins August 1st
+                                     Consumables,              # Includes general expenditures like Gear,coffee,misc
+                                     Owner.salary,             # Predicted annual owner salary
+                                     Insurance,                # Annual Insurance Costs for vehicles, personnel, etc
+                                     Full.Time.Employee,       # Number of full time employees
+                                     Employee.Salary,          # Annual full time employee salary
+                                     Part.Time.Wage,           # Hourly rate for part time wages
+                                     Harvest.Season,
+                                     Harvest.Year,
+                                     Gear.Specification
 )
 
 S.Dremmel.coop$Technology <- 'Dremmel Drilling Only'
@@ -1016,7 +940,7 @@ Drill.Pin <- data.frame(
 
 
 
-S.DP.coop<-         P.L( Lease.Type,               # Can select from 'Standard Lease' 'LPA' or 'Experimental Lease'
+S.DP.coop<-         P.L.Season( Lease.Type,               # Can select from 'Standard Lease' 'LPA' or 'Experimental Lease'
                                 Longline.Quantity,        # Number of longlines on the farm                  
                                 Longline.Depth,           # Lease Depth (Feet) at low tide
                                 Longline.Suspended.Depth, # Projected Longline Depth at low tide  
@@ -1028,28 +952,9 @@ S.DP.coop<-         P.L( Lease.Type,               # Can select from 'Standard L
                                 Full.Time.Employee,       # Number of full time employees
                                 Employee.Salary,          # Annual full time employee salary
                                 Part.Time.Wage,           # Hourly rate for part time wages
-                                Y0,                       # Spat procurement type, only option is 'Year 0: Wild Spat - Collected' 
-                                # currently
-                                Y1,                       # Intermediate culture type, only option is 'Year 1: Lantern Net' 
-                                # currently
-                                Y2,                       # One year grow-out culture, options are 'Year 2: Lantern Net' 
-                                # 'Year 2: Ear Hanging'
-                                Y3,                       # Two year grow-out culture, options are 'Year 3: Lantern Net' 
-                                # 'Year 3: Ear Hanging' or 'NULL' to opt for a single year grow-out
-                                Wild.Spat.Collector,      # Number of Wild Spat estimated/collector
-                                Spat.Site.Depth,          # Depth at which spat collection lines are set
-                                Seed.Net.Density,         # Growth Assumes 250/tier initial stocking density
-                                Y1.Stocking.Density,      # Intermediary Culture stocking density (recommended 45-25)
-                                Y2.LN.Stocking.Density,   # Grow-Out Culture Stocking density (recommended 15-10)
-                                Y3.LN.Stocking.Density,   # Grow-Out Culture Stocking density (recommended 10-5)
-                                Y2.EH.Dropper.Scallops.per,     # Total scallops per dropper (assumes paired setup)
-                                Y2.EH.Scallop.Spacing,    # Spacing between scallops in feet
-                                Y2.EH.Dropper.Margins,    # Margin is the total space on either end rope without scallops in feet
-                                Y0.Mortality,             # Estimated Wild Spat from Y0 August 01 Start Date - August 01 Y1
-                                Y1.Mortality,             # Mortality from August Y1 till August Y2
-                                Y2.Mortality,             # Mortality from August Y2 till August Y3
-                                Y3.Mortality             # Mortality from August Y3 till August Y4
-                                
+                                Harvest.Season,
+                                Harvest.Year,
+                                Gear.Specification
 )
 
 S.DP.coop$Technology <- 'Automated Drill and Pin'

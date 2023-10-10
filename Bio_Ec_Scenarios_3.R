@@ -1,6 +1,6 @@
+# Required Inputs
 
-
-####### Input Longline and Lease Specifications ######
+#######  Input Longline and Lease Specifications ######
 
 # Leasing Setup and fees
 Lease.Type <- 'Standard Lease'
@@ -12,7 +12,7 @@ Longline.Suspended.Depth = 15     #Projected Longline Depth at low tide
 
 ############## Business Model ##############
 
-Product <- 100000     # Number of individual scallop spat
+Product <- 500000     # Number of individual scallop spat
 Year.Start <- 2023     #Year of projected farm operations start: Model begins August 1st
 Consumables <- 500     # Includes general expenditures like Gear,coffee,misc  
 Owner.salary <- 50000     # Predicted annual owner salary
@@ -28,15 +28,19 @@ Harvest.Season <- 'Summer'
 Harvest.Year <- 'Y1'
 Gear.Specification <- 'Lantern Net'
 
+############## Costs and secondary Inputs ###########
+
+# Secondary Inputs
+
 # Y0 Product Metrics - Spat Procurement and Nursery Culture
 
-Wild.Spat.Collector <- 2500     # Number of Wild Spat estimated/collector
+Wild.Spat.Collector <- 4000     # Number of Wild Spat estimated/collector
 Spat.Site.Depth <- 150  # Assumes a Depth of 150 feet
 Seed.Net.Density <- 250     # Assumes 250/tier initial stocking density
 
 # Y1 Product Metrics - Intermediate Culture
 
-Y1.Stocking.Density <- 30     # Intermediary Culture stocking density (recommended 45-25)
+Y1.Stocking.Density <- 25     # Intermediary Culture stocking density (recommended 45-25)
 
 # Year 2/3 August 01 Y2 to August 01 Y4
 
@@ -45,24 +49,13 @@ Y1.Stocking.Density <- 30     # Intermediary Culture stocking density (recommend
 Y2.LN.Stocking.Density <- 10
 Y3.LN.Stocking.Density <- 10
 
-# Y2/Y3 Product Metrics - Lantern Net
+# Mortalities
 
-Y2.EH.Dropper.Scallops.per <- 140     # Total scallops per dropper (would relate to 70 paired)
-Y2.EH.Scallop.Spacing <- .5    # In feet
-Y2.EH.Dropper.Margins <- 10   # In feet
-
-
-# Ear Hanging - Grow-Out in Ear Hanging
 Y0.Mortality <- .12   # Estimated Wild Spat from Y0 August 01 Start Date - August 01 Y1
 Y1.Mortality <- .12     # Mortality from August Y1 till August Y2
 Y2.Mortality <- .12
 Y3.Mortality <- .12
 
-
-
-############## Costs and secondary Inputs ###########
-
-# Secondary Inputs
 
 # General Longline
 
@@ -108,6 +101,11 @@ Cement.Anchor.EH <- 100
 
 # Ear hanging Spacing
 EH.Spacing <- 1    # In feet
+
+
+Y2.EH.Dropper.Scallops.per <- 140     # Total scallops per dropper (would relate to 70 paired)
+Y2.EH.Scallop.Spacing <- .5    # In feet
+Y2.EH.Dropper.Margins <- 10   # In feet
 
 # Costs and secondary inputs are values that can change over time
 # But are not critical in the overall business plan
@@ -520,21 +518,7 @@ S1<-         P.L.Season( Lease.Type,               # Can select from 'Standard L
                   Part.Time.Wage,           # Hourly rate for part time wages
                   Harvest.Season,
                   Harvest.Year,
-                  Gear.Specification, 
-                  Wild.Spat.Collector,      # Number of Wild Spat estimated/collector
-                  Spat.Site.Depth,          # Depth at which spat collection lines are set
-                  Seed.Net.Density,         # Growth Assumes 250/tier initial stocking density
-                  Y1.Stocking.Density,      # Intermediary Culture stocking density (recommended 45-25)
-                  Y2.LN.Stocking.Density,   # Grow-Out Culture Stocking density (recommended 15-10)
-                  Y3.LN.Stocking.Density,   # Grow-Out Culture Stocking density (recommended 10-5)
-                  Y2.EH.Dropper.Scallops.per,     # Total scallops per dropper (assumes paired setup)
-                  Y2.EH.Scallop.Spacing,    # Spacing between scallops in feet
-                  Y2.EH.Dropper.Margins,    # Margin is the total space on either end rope without scallops in feet
-                  Y0.Mortality,             # Estimated Wild Spat from Y0 August 01 Start Date - August 01 Y1
-                  Y1.Mortality,             # Mortality from August Y1 till August Y2
-                  Y2.Mortality,             # Mortality from August Y2 till August Y3
-                  Y3.Mortality             # Mortality from August Y3 till August Y4
-                  
+                  Gear.Specification
 )
 
 ####### Scenarios: Lantern Net starting from Y1 Summer - Y3 Summer
@@ -544,34 +528,20 @@ Harvest.Year <- 'Y1'
 Gear.Specification <- 'Lantern Net'
 
 S.S.Y1.LN <- P.L.Season( Lease.Type,               # Can select from 'Standard Lease' 'LPA' or 'Experimental Lease'
-                  Longline.Quantity,        # Number of longlines on the farm                  
-                  Longline.Depth,           # Lease Depth (Feet) at low tide
-                  Longline.Suspended.Depth, # Projected Longline Depth at low tide  
-                  Product,                  # Number of individual scallop spat
-                  Year.Start,               # Year of projected farm operations start: Model begins August 1st
-                  Consumables,              # Includes general expenditures like Gear,coffee,misc
-                  Owner.salary,             # Predicted annual owner salary
-                  Insurance,                # Annual Insurance Costs for vehicles, personnel, etc
-                  Full.Time.Employee,       # Number of full time employees
-                  Employee.Salary,          # Annual full time employee salary
-                  Part.Time.Wage,           # Hourly rate for part time wages
-                  Harvest.Season,
-                  Harvest.Year,
-                  Gear.Specification, 
-                  Wild.Spat.Collector,      # Number of Wild Spat estimated/collector
-                  Spat.Site.Depth,          # Depth at which spat collection lines are set
-                  Seed.Net.Density,         # Growth Assumes 250/tier initial stocking density
-                  Y1.Stocking.Density,      # Intermediary Culture stocking density (recommended 45-25)
-                  Y2.LN.Stocking.Density,   # Grow-Out Culture Stocking density (recommended 15-10)
-                  Y3.LN.Stocking.Density,   # Grow-Out Culture Stocking density (recommended 10-5)
-                  Y2.EH.Dropper.Scallops.per,     # Total scallops per dropper (assumes paired setup)
-                  Y2.EH.Scallop.Spacing,    # Spacing between scallops in feet
-                  Y2.EH.Dropper.Margins,    # Margin is the total space on either end rope without scallops in feet
-                  Y0.Mortality,             # Estimated Wild Spat from Y0 August 01 Start Date - August 01 Y1
-                  Y1.Mortality,             # Mortality from August Y1 till August Y2
-                  Y2.Mortality,             # Mortality from August Y2 till August Y3
-                  Y3.Mortality             # Mortality from August Y3 till August Y4
-                  
+                         Longline.Quantity,        # Number of longlines on the farm                  
+                         Longline.Depth,           # Lease Depth (Feet) at low tide
+                         Longline.Suspended.Depth, # Projected Longline Depth at low tide  
+                         Product,                  # Number of individual scallop spat
+                         Year.Start,               # Year of projected farm operations start: Model begins August 1st
+                         Consumables,              # Includes general expenditures like Gear,coffee,misc
+                         Owner.salary,             # Predicted annual owner salary
+                         Insurance,                # Annual Insurance Costs for vehicles, personnel, etc
+                         Full.Time.Employee,       # Number of full time employees
+                         Employee.Salary,          # Annual full time employee salary
+                         Part.Time.Wage,           # Hourly rate for part time wages
+                         Harvest.Season,
+                         Harvest.Year,
+                         Gear.Specification
 )
 
 S.S.Y1.LN$Gear <- Gear.Specification
@@ -596,21 +566,7 @@ S.F.Y2.LN <- P.L.Season( Lease.Type,               # Can select from 'Standard L
                          Part.Time.Wage,           # Hourly rate for part time wages
                          Harvest.Season,
                          Harvest.Year,
-                         Gear.Specification, 
-                         Wild.Spat.Collector,      # Number of Wild Spat estimated/collector
-                         Spat.Site.Depth,          # Depth at which spat collection lines are set
-                         Seed.Net.Density,         # Growth Assumes 250/tier initial stocking density
-                         Y1.Stocking.Density,      # Intermediary Culture stocking density (recommended 45-25)
-                         Y2.LN.Stocking.Density,   # Grow-Out Culture Stocking density (recommended 15-10)
-                         Y3.LN.Stocking.Density,   # Grow-Out Culture Stocking density (recommended 10-5)
-                         Y2.EH.Dropper.Scallops.per,     # Total scallops per dropper (assumes paired setup)
-                         Y2.EH.Scallop.Spacing,    # Spacing between scallops in feet
-                         Y2.EH.Dropper.Margins,    # Margin is the total space on either end rope without scallops in feet
-                         Y0.Mortality,             # Estimated Wild Spat from Y0 August 01 Start Date - August 01 Y1
-                         Y1.Mortality,             # Mortality from August Y1 till August Y2
-                         Y2.Mortality,             # Mortality from August Y2 till August Y3
-                         Y3.Mortality             # Mortality from August Y3 till August Y4
-                         
+                         Gear.Specification
 )
 
 S.F.Y2.LN$Gear <- Gear.Specification
@@ -635,21 +591,7 @@ S.W.Y2.LN <- P.L.Season( Lease.Type,               # Can select from 'Standard L
                          Part.Time.Wage,           # Hourly rate for part time wages
                          Harvest.Season,
                          Harvest.Year,
-                         Gear.Specification, 
-                         Wild.Spat.Collector,      # Number of Wild Spat estimated/collector
-                         Spat.Site.Depth,          # Depth at which spat collection lines are set
-                         Seed.Net.Density,         # Growth Assumes 250/tier initial stocking density
-                         Y1.Stocking.Density,      # Intermediary Culture stocking density (recommended 45-25)
-                         Y2.LN.Stocking.Density,   # Grow-Out Culture Stocking density (recommended 15-10)
-                         Y3.LN.Stocking.Density,   # Grow-Out Culture Stocking density (recommended 10-5)
-                         Y2.EH.Dropper.Scallops.per,     # Total scallops per dropper (assumes paired setup)
-                         Y2.EH.Scallop.Spacing,    # Spacing between scallops in feet
-                         Y2.EH.Dropper.Margins,    # Margin is the total space on either end rope without scallops in feet
-                         Y0.Mortality,             # Estimated Wild Spat from Y0 August 01 Start Date - August 01 Y1
-                         Y1.Mortality,             # Mortality from August Y1 till August Y2
-                         Y2.Mortality,             # Mortality from August Y2 till August Y3
-                         Y3.Mortality             # Mortality from August Y3 till August Y4
-                         
+                         Gear.Specification
 )
 
 S.W.Y2.LN$Gear <- Gear.Specification
@@ -660,7 +602,7 @@ S.W.Y2.LN$S.class <- Harvest.Season
 Harvest.Season <- 'Spring'
 Harvest.Year <- 'Y2'
 
-S.Sp.Y2.LN <- P.L.Season( Lease.Type,               # Can select from 'Standard Lease' 'LPA' or 'Experimental Lease'
+S.Sp.Y2.LN <-P.L.Season( Lease.Type,               # Can select from 'Standard Lease' 'LPA' or 'Experimental Lease'
                          Longline.Quantity,        # Number of longlines on the farm                  
                          Longline.Depth,           # Lease Depth (Feet) at low tide
                          Longline.Suspended.Depth, # Projected Longline Depth at low tide  
@@ -674,21 +616,7 @@ S.Sp.Y2.LN <- P.L.Season( Lease.Type,               # Can select from 'Standard 
                          Part.Time.Wage,           # Hourly rate for part time wages
                          Harvest.Season,
                          Harvest.Year,
-                         Gear.Specification, 
-                         Wild.Spat.Collector,      # Number of Wild Spat estimated/collector
-                         Spat.Site.Depth,          # Depth at which spat collection lines are set
-                         Seed.Net.Density,         # Growth Assumes 250/tier initial stocking density
-                         Y1.Stocking.Density,      # Intermediary Culture stocking density (recommended 45-25)
-                         Y2.LN.Stocking.Density,   # Grow-Out Culture Stocking density (recommended 15-10)
-                         Y3.LN.Stocking.Density,   # Grow-Out Culture Stocking density (recommended 10-5)
-                         Y2.EH.Dropper.Scallops.per,     # Total scallops per dropper (assumes paired setup)
-                         Y2.EH.Scallop.Spacing,    # Spacing between scallops in feet
-                         Y2.EH.Dropper.Margins,    # Margin is the total space on either end rope without scallops in feet
-                         Y0.Mortality,             # Estimated Wild Spat from Y0 August 01 Start Date - August 01 Y1
-                         Y1.Mortality,             # Mortality from August Y1 till August Y2
-                         Y2.Mortality,             # Mortality from August Y2 till August Y3
-                         Y3.Mortality             # Mortality from August Y3 till August Y4
-                         
+                         Gear.Specification
 )
 
 S.Sp.Y2.LN$Gear <- Gear.Specification
@@ -713,21 +641,7 @@ S.S.Y2.LN <- P.L.Season( Lease.Type,               # Can select from 'Standard L
                          Part.Time.Wage,           # Hourly rate for part time wages
                          Harvest.Season,
                          Harvest.Year,
-                         Gear.Specification, 
-                         Wild.Spat.Collector,      # Number of Wild Spat estimated/collector
-                         Spat.Site.Depth,          # Depth at which spat collection lines are set
-                         Seed.Net.Density,         # Growth Assumes 250/tier initial stocking density
-                         Y1.Stocking.Density,      # Intermediary Culture stocking density (recommended 45-25)
-                         Y2.LN.Stocking.Density,   # Grow-Out Culture Stocking density (recommended 15-10)
-                         Y3.LN.Stocking.Density,   # Grow-Out Culture Stocking density (recommended 10-5)
-                         Y2.EH.Dropper.Scallops.per,     # Total scallops per dropper (assumes paired setup)
-                         Y2.EH.Scallop.Spacing,    # Spacing between scallops in feet
-                         Y2.EH.Dropper.Margins,    # Margin is the total space on either end rope without scallops in feet
-                         Y0.Mortality,             # Estimated Wild Spat from Y0 August 01 Start Date - August 01 Y1
-                         Y1.Mortality,             # Mortality from August Y1 till August Y2
-                         Y2.Mortality,             # Mortality from August Y2 till August Y3
-                         Y3.Mortality             # Mortality from August Y3 till August Y4
-                         
+                         Gear.Specification
 )
 
 S.S.Y2.LN$Gear <- Gear.Specification
@@ -752,21 +666,7 @@ S.F.Y3.LN <- P.L.Season( Lease.Type,               # Can select from 'Standard L
                          Part.Time.Wage,           # Hourly rate for part time wages
                          Harvest.Season,
                          Harvest.Year,
-                         Gear.Specification, 
-                         Wild.Spat.Collector,      # Number of Wild Spat estimated/collector
-                         Spat.Site.Depth,          # Depth at which spat collection lines are set
-                         Seed.Net.Density,         # Growth Assumes 250/tier initial stocking density
-                         Y1.Stocking.Density,      # Intermediary Culture stocking density (recommended 45-25)
-                         Y2.LN.Stocking.Density,   # Grow-Out Culture Stocking density (recommended 15-10)
-                         Y3.LN.Stocking.Density,   # Grow-Out Culture Stocking density (recommended 10-5)
-                         Y2.EH.Dropper.Scallops.per,     # Total scallops per dropper (assumes paired setup)
-                         Y2.EH.Scallop.Spacing,    # Spacing between scallops in feet
-                         Y2.EH.Dropper.Margins,    # Margin is the total space on either end rope without scallops in feet
-                         Y0.Mortality,             # Estimated Wild Spat from Y0 August 01 Start Date - August 01 Y1
-                         Y1.Mortality,             # Mortality from August Y1 till August Y2
-                         Y2.Mortality,             # Mortality from August Y2 till August Y3
-                         Y3.Mortality             # Mortality from August Y3 till August Y4
-                         
+                         Gear.Specification
 )
 
 S.F.Y3.LN$Gear <- Gear.Specification
@@ -791,21 +691,7 @@ S.W.Y3.LN <- P.L.Season( Lease.Type,               # Can select from 'Standard L
                          Part.Time.Wage,           # Hourly rate for part time wages
                          Harvest.Season,
                          Harvest.Year,
-                         Gear.Specification, 
-                         Wild.Spat.Collector,      # Number of Wild Spat estimated/collector
-                         Spat.Site.Depth,          # Depth at which spat collection lines are set
-                         Seed.Net.Density,         # Growth Assumes 250/tier initial stocking density
-                         Y1.Stocking.Density,      # Intermediary Culture stocking density (recommended 45-25)
-                         Y2.LN.Stocking.Density,   # Grow-Out Culture Stocking density (recommended 15-10)
-                         Y3.LN.Stocking.Density,   # Grow-Out Culture Stocking density (recommended 10-5)
-                         Y2.EH.Dropper.Scallops.per,     # Total scallops per dropper (assumes paired setup)
-                         Y2.EH.Scallop.Spacing,    # Spacing between scallops in feet
-                         Y2.EH.Dropper.Margins,    # Margin is the total space on either end rope without scallops in feet
-                         Y0.Mortality,             # Estimated Wild Spat from Y0 August 01 Start Date - August 01 Y1
-                         Y1.Mortality,             # Mortality from August Y1 till August Y2
-                         Y2.Mortality,             # Mortality from August Y2 till August Y3
-                         Y3.Mortality             # Mortality from August Y3 till August Y4
-                         
+                         Gear.Specification
 )
 
 S.W.Y3.LN$Gear <- Gear.Specification
@@ -817,34 +703,20 @@ Harvest.Season <- 'Spring'
 Harvest.Year <- 'Y3'
 
 S.Sp.Y3.LN <- P.L.Season( Lease.Type,               # Can select from 'Standard Lease' 'LPA' or 'Experimental Lease'
-                         Longline.Quantity,        # Number of longlines on the farm                  
-                         Longline.Depth,           # Lease Depth (Feet) at low tide
-                         Longline.Suspended.Depth, # Projected Longline Depth at low tide  
-                         Product,                  # Number of individual scallop spat
-                         Year.Start,               # Year of projected farm operations start: Model begins August 1st
-                         Consumables,              # Includes general expenditures like Gear,coffee,misc
-                         Owner.salary,             # Predicted annual owner salary
-                         Insurance,                # Annual Insurance Costs for vehicles, personnel, etc
-                         Full.Time.Employee,       # Number of full time employees
-                         Employee.Salary,          # Annual full time employee salary
-                         Part.Time.Wage,           # Hourly rate for part time wages
-                         Harvest.Season,
-                         Harvest.Year,
-                         Gear.Specification, 
-                         Wild.Spat.Collector,      # Number of Wild Spat estimated/collector
-                         Spat.Site.Depth,          # Depth at which spat collection lines are set
-                         Seed.Net.Density,         # Growth Assumes 250/tier initial stocking density
-                         Y1.Stocking.Density,      # Intermediary Culture stocking density (recommended 45-25)
-                         Y2.LN.Stocking.Density,   # Grow-Out Culture Stocking density (recommended 15-10)
-                         Y3.LN.Stocking.Density,   # Grow-Out Culture Stocking density (recommended 10-5)
-                         Y2.EH.Dropper.Scallops.per,     # Total scallops per dropper (assumes paired setup)
-                         Y2.EH.Scallop.Spacing,    # Spacing between scallops in feet
-                         Y2.EH.Dropper.Margins,    # Margin is the total space on either end rope without scallops in feet
-                         Y0.Mortality,             # Estimated Wild Spat from Y0 August 01 Start Date - August 01 Y1
-                         Y1.Mortality,             # Mortality from August Y1 till August Y2
-                         Y2.Mortality,             # Mortality from August Y2 till August Y3
-                         Y3.Mortality             # Mortality from August Y3 till August Y4
-                         
+                          Longline.Quantity,        # Number of longlines on the farm                  
+                          Longline.Depth,           # Lease Depth (Feet) at low tide
+                          Longline.Suspended.Depth, # Projected Longline Depth at low tide  
+                          Product,                  # Number of individual scallop spat
+                          Year.Start,               # Year of projected farm operations start: Model begins August 1st
+                          Consumables,              # Includes general expenditures like Gear,coffee,misc
+                          Owner.salary,             # Predicted annual owner salary
+                          Insurance,                # Annual Insurance Costs for vehicles, personnel, etc
+                          Full.Time.Employee,       # Number of full time employees
+                          Employee.Salary,          # Annual full time employee salary
+                          Part.Time.Wage,           # Hourly rate for part time wages
+                          Harvest.Season,
+                          Harvest.Year,
+                          Gear.Specification
 )
 
 S.Sp.Y3.LN$Gear <- Gear.Specification
@@ -869,21 +741,7 @@ S.S.Y3.LN <- P.L.Season( Lease.Type,               # Can select from 'Standard L
                          Part.Time.Wage,           # Hourly rate for part time wages
                          Harvest.Season,
                          Harvest.Year,
-                         Gear.Specification, 
-                         Wild.Spat.Collector,      # Number of Wild Spat estimated/collector
-                         Spat.Site.Depth,          # Depth at which spat collection lines are set
-                         Seed.Net.Density,         # Growth Assumes 250/tier initial stocking density
-                         Y1.Stocking.Density,      # Intermediary Culture stocking density (recommended 45-25)
-                         Y2.LN.Stocking.Density,   # Grow-Out Culture Stocking density (recommended 15-10)
-                         Y3.LN.Stocking.Density,   # Grow-Out Culture Stocking density (recommended 10-5)
-                         Y2.EH.Dropper.Scallops.per,     # Total scallops per dropper (assumes paired setup)
-                         Y2.EH.Scallop.Spacing,    # Spacing between scallops in feet
-                         Y2.EH.Dropper.Margins,    # Margin is the total space on either end rope without scallops in feet
-                         Y0.Mortality,             # Estimated Wild Spat from Y0 August 01 Start Date - August 01 Y1
-                         Y1.Mortality,             # Mortality from August Y1 till August Y2
-                         Y2.Mortality,             # Mortality from August Y2 till August Y3
-                         Y3.Mortality             # Mortality from August Y3 till August Y4
-                         
+                         Gear.Specification
 )
 
 S.S.Y3.LN$Gear <- Gear.Specification
@@ -899,35 +757,21 @@ Harvest.Season <- 'Summer'
 Harvest.Year <- 'Y1'
 Gear.Specification <- 'Ear Hanging'
 
-S.S.Y1.EH <- P.L.Season( Lease.Type,               # Can select from 'Standard Lease' 'LPA' or 'Experimental Lease'
-                         Longline.Quantity,        # Number of longlines on the farm                  
-                         Longline.Depth,           # Lease Depth (Feet) at low tide
-                         Longline.Suspended.Depth, # Projected Longline Depth at low tide  
-                         Product,                  # Number of individual scallop spat
-                         Year.Start,               # Year of projected farm operations start: Model begins August 1st
-                         Consumables,              # Includes general expenditures like Gear,coffee,misc
-                         Owner.salary,             # Predicted annual owner salary
-                         Insurance,                # Annual Insurance Costs for vehicles, personnel, etc
-                         Full.Time.Employee,       # Number of full time employees
-                         Employee.Salary,          # Annual full time employee salary
-                         Part.Time.Wage,           # Hourly rate for part time wages
-                         Harvest.Season,
-                         Harvest.Year,
-                         Gear.Specification, 
-                         Wild.Spat.Collector,      # Number of Wild Spat estimated/collector
-                         Spat.Site.Depth,          # Depth at which spat collection lines are set
-                         Seed.Net.Density,         # Growth Assumes 250/tier initial stocking density
-                         Y1.Stocking.Density,      # Intermediary Culture stocking density (recommended 45-25)
-                         Y2.LN.Stocking.Density,   # Grow-Out Culture Stocking density (recommended 15-10)
-                         Y3.LN.Stocking.Density,   # Grow-Out Culture Stocking density (recommended 10-5)
-                         Y2.EH.Dropper.Scallops.per,     # Total scallops per dropper (assumes paired setup)
-                         Y2.EH.Scallop.Spacing,    # Spacing between scallops in feet
-                         Y2.EH.Dropper.Margins,    # Margin is the total space on either end rope without scallops in feet
-                         Y0.Mortality,             # Estimated Wild Spat from Y0 August 01 Start Date - August 01 Y1
-                         Y1.Mortality,             # Mortality from August Y1 till August Y2
-                         Y2.Mortality,             # Mortality from August Y2 till August Y3
-                         Y3.Mortality             # Mortality from August Y3 till August Y4
-                         
+S.S.Y1.EH <-P.L.Season( Lease.Type,               # Can select from 'Standard Lease' 'LPA' or 'Experimental Lease'
+                        Longline.Quantity,        # Number of longlines on the farm                  
+                        Longline.Depth,           # Lease Depth (Feet) at low tide
+                        Longline.Suspended.Depth, # Projected Longline Depth at low tide  
+                        Product,                  # Number of individual scallop spat
+                        Year.Start,               # Year of projected farm operations start: Model begins August 1st
+                        Consumables,              # Includes general expenditures like Gear,coffee,misc
+                        Owner.salary,             # Predicted annual owner salary
+                        Insurance,                # Annual Insurance Costs for vehicles, personnel, etc
+                        Full.Time.Employee,       # Number of full time employees
+                        Employee.Salary,          # Annual full time employee salary
+                        Part.Time.Wage,           # Hourly rate for part time wages
+                        Harvest.Season,
+                        Harvest.Year,
+                        Gear.Specification
 )
 
 S.S.Y1.EH$Gear <- Gear.Specification
@@ -938,35 +782,21 @@ S.S.Y1.EH$S.class <- Harvest.Season
 Harvest.Season <- 'Fall'
 Harvest.Year <- 'Y2'
 
-S.F.Y2.EH <- P.L.Season( Lease.Type,               # Can select from 'Standard Lease' 'LPA' or 'Experimental Lease'
-                         Longline.Quantity,        # Number of longlines on the farm                  
-                         Longline.Depth,           # Lease Depth (Feet) at low tide
-                         Longline.Suspended.Depth, # Projected Longline Depth at low tide  
-                         Product,                  # Number of individual scallop spat
-                         Year.Start,               # Year of projected farm operations start: Model begins August 1st
-                         Consumables,              # Includes general expenditures like Gear,coffee,misc
-                         Owner.salary,             # Predicted annual owner salary
-                         Insurance,                # Annual Insurance Costs for vehicles, personnel, etc
-                         Full.Time.Employee,       # Number of full time employees
-                         Employee.Salary,          # Annual full time employee salary
-                         Part.Time.Wage,           # Hourly rate for part time wages
-                         Harvest.Season,
-                         Harvest.Year,
-                         Gear.Specification, 
-                         Wild.Spat.Collector,      # Number of Wild Spat estimated/collector
-                         Spat.Site.Depth,          # Depth at which spat collection lines are set
-                         Seed.Net.Density,         # Growth Assumes 250/tier initial stocking density
-                         Y1.Stocking.Density,      # Intermediary Culture stocking density (recommended 45-25)
-                         Y2.LN.Stocking.Density,   # Grow-Out Culture Stocking density (recommended 15-10)
-                         Y3.LN.Stocking.Density,   # Grow-Out Culture Stocking density (recommended 10-5)
-                         Y2.EH.Dropper.Scallops.per,     # Total scallops per dropper (assumes paired setup)
-                         Y2.EH.Scallop.Spacing,    # Spacing between scallops in feet
-                         Y2.EH.Dropper.Margins,    # Margin is the total space on either end rope without scallops in feet
-                         Y0.Mortality,             # Estimated Wild Spat from Y0 August 01 Start Date - August 01 Y1
-                         Y1.Mortality,             # Mortality from August Y1 till August Y2
-                         Y2.Mortality,             # Mortality from August Y2 till August Y3
-                         Y3.Mortality             # Mortality from August Y3 till August Y4
-                         
+S.F.Y2.EH <-P.L.Season( Lease.Type,               # Can select from 'Standard Lease' 'LPA' or 'Experimental Lease'
+                        Longline.Quantity,        # Number of longlines on the farm                  
+                        Longline.Depth,           # Lease Depth (Feet) at low tide
+                        Longline.Suspended.Depth, # Projected Longline Depth at low tide  
+                        Product,                  # Number of individual scallop spat
+                        Year.Start,               # Year of projected farm operations start: Model begins August 1st
+                        Consumables,              # Includes general expenditures like Gear,coffee,misc
+                        Owner.salary,             # Predicted annual owner salary
+                        Insurance,                # Annual Insurance Costs for vehicles, personnel, etc
+                        Full.Time.Employee,       # Number of full time employees
+                        Employee.Salary,          # Annual full time employee salary
+                        Part.Time.Wage,           # Hourly rate for part time wages
+                        Harvest.Season,
+                        Harvest.Year,
+                        Gear.Specification
 )
 
 S.F.Y2.EH$Gear <- Gear.Specification
@@ -991,21 +821,7 @@ S.W.Y2.EH <- P.L.Season( Lease.Type,               # Can select from 'Standard L
                          Part.Time.Wage,           # Hourly rate for part time wages
                          Harvest.Season,
                          Harvest.Year,
-                         Gear.Specification, 
-                         Wild.Spat.Collector,      # Number of Wild Spat estimated/collector
-                         Spat.Site.Depth,          # Depth at which spat collection lines are set
-                         Seed.Net.Density,         # Growth Assumes 250/tier initial stocking density
-                         Y1.Stocking.Density,      # Intermediary Culture stocking density (recommended 45-25)
-                         Y2.LN.Stocking.Density,   # Grow-Out Culture Stocking density (recommended 15-10)
-                         Y3.LN.Stocking.Density,   # Grow-Out Culture Stocking density (recommended 10-5)
-                         Y2.EH.Dropper.Scallops.per,     # Total scallops per dropper (assumes paired setup)
-                         Y2.EH.Scallop.Spacing,    # Spacing between scallops in feet
-                         Y2.EH.Dropper.Margins,    # Margin is the total space on either end rope without scallops in feet
-                         Y0.Mortality,             # Estimated Wild Spat from Y0 August 01 Start Date - August 01 Y1
-                         Y1.Mortality,             # Mortality from August Y1 till August Y2
-                         Y2.Mortality,             # Mortality from August Y2 till August Y3
-                         Y3.Mortality             # Mortality from August Y3 till August Y4
-                         
+                         Gear.Specification
 )
 
 S.W.Y2.EH$Gear <- Gear.Specification
@@ -1030,23 +846,8 @@ S.Sp.Y2.EH <- P.L.Season( Lease.Type,               # Can select from 'Standard 
                           Part.Time.Wage,           # Hourly rate for part time wages
                           Harvest.Season,
                           Harvest.Year,
-                          Gear.Specification, 
-                          Wild.Spat.Collector,      # Number of Wild Spat estimated/collector
-                          Spat.Site.Depth,          # Depth at which spat collection lines are set
-                          Seed.Net.Density,         # Growth Assumes 250/tier initial stocking density
-                          Y1.Stocking.Density,      # Intermediary Culture stocking density (recommended 45-25)
-                          Y2.LN.Stocking.Density,   # Grow-Out Culture Stocking density (recommended 15-10)
-                          Y3.LN.Stocking.Density,   # Grow-Out Culture Stocking density (recommended 10-5)
-                          Y2.EH.Dropper.Scallops.per,     # Total scallops per dropper (assumes paired setup)
-                          Y2.EH.Scallop.Spacing,    # Spacing between scallops in feet
-                          Y2.EH.Dropper.Margins,    # Margin is the total space on either end rope without scallops in feet
-                          Y0.Mortality,             # Estimated Wild Spat from Y0 August 01 Start Date - August 01 Y1
-                          Y1.Mortality,             # Mortality from August Y1 till August Y2
-                          Y2.Mortality,             # Mortality from August Y2 till August Y3
-                          Y3.Mortality             # Mortality from August Y3 till August Y4
-                          
+                          Gear.Specification
 )
-
 S.Sp.Y2.EH$Gear <- Gear.Specification
 S.Sp.Y2.EH$Y.class <- Harvest.Year
 S.Sp.Y2.EH$S.class <- Harvest.Season
@@ -1069,21 +870,7 @@ S.S.Y2.EH <- P.L.Season( Lease.Type,               # Can select from 'Standard L
                          Part.Time.Wage,           # Hourly rate for part time wages
                          Harvest.Season,
                          Harvest.Year,
-                         Gear.Specification, 
-                         Wild.Spat.Collector,      # Number of Wild Spat estimated/collector
-                         Spat.Site.Depth,          # Depth at which spat collection lines are set
-                         Seed.Net.Density,         # Growth Assumes 250/tier initial stocking density
-                         Y1.Stocking.Density,      # Intermediary Culture stocking density (recommended 45-25)
-                         Y2.LN.Stocking.Density,   # Grow-Out Culture Stocking density (recommended 15-10)
-                         Y3.LN.Stocking.Density,   # Grow-Out Culture Stocking density (recommended 10-5)
-                         Y2.EH.Dropper.Scallops.per,     # Total scallops per dropper (assumes paired setup)
-                         Y2.EH.Scallop.Spacing,    # Spacing between scallops in feet
-                         Y2.EH.Dropper.Margins,    # Margin is the total space on either end rope without scallops in feet
-                         Y0.Mortality,             # Estimated Wild Spat from Y0 August 01 Start Date - August 01 Y1
-                         Y1.Mortality,             # Mortality from August Y1 till August Y2
-                         Y2.Mortality,             # Mortality from August Y2 till August Y3
-                         Y3.Mortality             # Mortality from August Y3 till August Y4
-                         
+                         Gear.Specification
 )
 
 S.S.Y2.EH$Gear <- Gear.Specification
@@ -1108,21 +895,7 @@ S.F.Y3.EH <- P.L.Season( Lease.Type,               # Can select from 'Standard L
                          Part.Time.Wage,           # Hourly rate for part time wages
                          Harvest.Season,
                          Harvest.Year,
-                         Gear.Specification, 
-                         Wild.Spat.Collector,      # Number of Wild Spat estimated/collector
-                         Spat.Site.Depth,          # Depth at which spat collection lines are set
-                         Seed.Net.Density,         # Growth Assumes 250/tier initial stocking density
-                         Y1.Stocking.Density,      # Intermediary Culture stocking density (recommended 45-25)
-                         Y2.LN.Stocking.Density,   # Grow-Out Culture Stocking density (recommended 15-10)
-                         Y3.LN.Stocking.Density,   # Grow-Out Culture Stocking density (recommended 10-5)
-                         Y2.EH.Dropper.Scallops.per,     # Total scallops per dropper (assumes paired setup)
-                         Y2.EH.Scallop.Spacing,    # Spacing between scallops in feet
-                         Y2.EH.Dropper.Margins,    # Margin is the total space on either end rope without scallops in feet
-                         Y0.Mortality,             # Estimated Wild Spat from Y0 August 01 Start Date - August 01 Y1
-                         Y1.Mortality,             # Mortality from August Y1 till August Y2
-                         Y2.Mortality,             # Mortality from August Y2 till August Y3
-                         Y3.Mortality             # Mortality from August Y3 till August Y4
-                         
+                         Gear.Specification
 )
 
 S.F.Y3.EH$Gear <- Gear.Specification
@@ -1147,21 +920,7 @@ S.W.Y3.EH <- P.L.Season( Lease.Type,               # Can select from 'Standard L
                          Part.Time.Wage,           # Hourly rate for part time wages
                          Harvest.Season,
                          Harvest.Year,
-                         Gear.Specification, 
-                         Wild.Spat.Collector,      # Number of Wild Spat estimated/collector
-                         Spat.Site.Depth,          # Depth at which spat collection lines are set
-                         Seed.Net.Density,         # Growth Assumes 250/tier initial stocking density
-                         Y1.Stocking.Density,      # Intermediary Culture stocking density (recommended 45-25)
-                         Y2.LN.Stocking.Density,   # Grow-Out Culture Stocking density (recommended 15-10)
-                         Y3.LN.Stocking.Density,   # Grow-Out Culture Stocking density (recommended 10-5)
-                         Y2.EH.Dropper.Scallops.per,     # Total scallops per dropper (assumes paired setup)
-                         Y2.EH.Scallop.Spacing,    # Spacing between scallops in feet
-                         Y2.EH.Dropper.Margins,    # Margin is the total space on either end rope without scallops in feet
-                         Y0.Mortality,             # Estimated Wild Spat from Y0 August 01 Start Date - August 01 Y1
-                         Y1.Mortality,             # Mortality from August Y1 till August Y2
-                         Y2.Mortality,             # Mortality from August Y2 till August Y3
-                         Y3.Mortality             # Mortality from August Y3 till August Y4
-                         
+                         Gear.Specification
 )
 
 S.W.Y3.EH$Gear <- Gear.Specification
@@ -1186,21 +945,7 @@ S.Sp.Y3.EH <- P.L.Season( Lease.Type,               # Can select from 'Standard 
                           Part.Time.Wage,           # Hourly rate for part time wages
                           Harvest.Season,
                           Harvest.Year,
-                          Gear.Specification, 
-                          Wild.Spat.Collector,      # Number of Wild Spat estimated/collector
-                          Spat.Site.Depth,          # Depth at which spat collection lines are set
-                          Seed.Net.Density,         # Growth Assumes 250/tier initial stocking density
-                          Y1.Stocking.Density,      # Intermediary Culture stocking density (recommended 45-25)
-                          Y2.LN.Stocking.Density,   # Grow-Out Culture Stocking density (recommended 15-10)
-                          Y3.LN.Stocking.Density,   # Grow-Out Culture Stocking density (recommended 10-5)
-                          Y2.EH.Dropper.Scallops.per,     # Total scallops per dropper (assumes paired setup)
-                          Y2.EH.Scallop.Spacing,    # Spacing between scallops in feet
-                          Y2.EH.Dropper.Margins,    # Margin is the total space on either end rope without scallops in feet
-                          Y0.Mortality,             # Estimated Wild Spat from Y0 August 01 Start Date - August 01 Y1
-                          Y1.Mortality,             # Mortality from August Y1 till August Y2
-                          Y2.Mortality,             # Mortality from August Y2 till August Y3
-                          Y3.Mortality             # Mortality from August Y3 till August Y4
-                          
+                          Gear.Specification
 )
 
 S.Sp.Y3.EH$Gear <- Gear.Specification
@@ -1211,35 +956,21 @@ S.Sp.Y3.EH$S.class <- Harvest.Season
 Harvest.Season <- 'Summer'
 Harvest.Year <- 'Y3'
 
-S.S.Y3.EH <- P.L.Season( Lease.Type,               # Can select from 'Standard Lease' 'LPA' or 'Experimental Lease'
-                         Longline.Quantity,        # Number of longlines on the farm                  
-                         Longline.Depth,           # Lease Depth (Feet) at low tide
-                         Longline.Suspended.Depth, # Projected Longline Depth at low tide  
-                         Product,                  # Number of individual scallop spat
-                         Year.Start,               # Year of projected farm operations start: Model begins August 1st
-                         Consumables,              # Includes general expenditures like Gear,coffee,misc
-                         Owner.salary,             # Predicted annual owner salary
-                         Insurance,                # Annual Insurance Costs for vehicles, personnel, etc
-                         Full.Time.Employee,       # Number of full time employees
-                         Employee.Salary,          # Annual full time employee salary
-                         Part.Time.Wage,           # Hourly rate for part time wages
-                         Harvest.Season,
-                         Harvest.Year,
-                         Gear.Specification, 
-                         Wild.Spat.Collector,      # Number of Wild Spat estimated/collector
-                         Spat.Site.Depth,          # Depth at which spat collection lines are set
-                         Seed.Net.Density,         # Growth Assumes 250/tier initial stocking density
-                         Y1.Stocking.Density,      # Intermediary Culture stocking density (recommended 45-25)
-                         Y2.LN.Stocking.Density,   # Grow-Out Culture Stocking density (recommended 15-10)
-                         Y3.LN.Stocking.Density,   # Grow-Out Culture Stocking density (recommended 10-5)
-                         Y2.EH.Dropper.Scallops.per,     # Total scallops per dropper (assumes paired setup)
-                         Y2.EH.Scallop.Spacing,    # Spacing between scallops in feet
-                         Y2.EH.Dropper.Margins,    # Margin is the total space on either end rope without scallops in feet
-                         Y0.Mortality,             # Estimated Wild Spat from Y0 August 01 Start Date - August 01 Y1
-                         Y1.Mortality,             # Mortality from August Y1 till August Y2
-                         Y2.Mortality,             # Mortality from August Y2 till August Y3
-                         Y3.Mortality             # Mortality from August Y3 till August Y4
-                         
+S.S.Y3.EH <-P.L.Season( Lease.Type,               # Can select from 'Standard Lease' 'LPA' or 'Experimental Lease'
+                        Longline.Quantity,        # Number of longlines on the farm                  
+                        Longline.Depth,           # Lease Depth (Feet) at low tide
+                        Longline.Suspended.Depth, # Projected Longline Depth at low tide  
+                        Product,                  # Number of individual scallop spat
+                        Year.Start,               # Year of projected farm operations start: Model begins August 1st
+                        Consumables,              # Includes general expenditures like Gear,coffee,misc
+                        Owner.salary,             # Predicted annual owner salary
+                        Insurance,                # Annual Insurance Costs for vehicles, personnel, etc
+                        Full.Time.Employee,       # Number of full time employees
+                        Employee.Salary,          # Annual full time employee salary
+                        Part.Time.Wage,           # Hourly rate for part time wages
+                        Harvest.Season,
+                        Harvest.Year,
+                        Gear.Specification
 )
 
 S.S.Y3.EH$Gear <- Gear.Specification
@@ -1293,6 +1024,24 @@ ggplot(S.Seasonal.t, aes(x = yrDate))  +
         axis.text.y = element_text(size=12),
         axis.text.x = element_text(size=12, angle = 35, hjust = .85),
         panel.border = element_rect(colour = "black", fill=NA, size=1)) 
+
+ggplot(S.Seasonal.t, aes(x = yrDate))  + 
+  geom_point(aes(color = Gear, y = MinPrice.WholeScallop))+
+  theme_minimal() +
+  theme(panel.grid.major.x=element_blank(), panel.grid.major.y=element_blank()) + #remove gridlines
+  theme(panel.grid.minor.x=element_blank(), panel.grid.minor.y=element_blank()) + #remove gridlines
+  ylab("Annual Price/Scallop Operating Expenses")+
+  labs(color = 'Gear Type')+
+  xlab("Year Month")+
+  theme(plot.title = element_blank (),
+        strip.text.x = element_text(size=12, face="bold"), legend.position = "right",
+        strip.text.y = element_text(size=12, face="bold"),axis.title.x = element_text(face="bold", size=12),
+        legend.title = element_text(size=12, face="bold"), legend.text = element_text(size = 12),
+        axis.title.y = element_text(face="bold", size=12,
+                                    margin = margin(t = 0, r = 10, b = 0, l = 0)), 
+        axis.text.y = element_text(size=12),
+        axis.text.x = element_text(size=12, angle = 35, hjust = .85),
+        panel.border = element_rect(colour = "black", fill=NA, size=1))
 
 ggplot(S.Seasonal.t, aes(x = yrDate))  + 
   geom_point(aes(color = Gear, y = MinPrice.WholeScallop))+
