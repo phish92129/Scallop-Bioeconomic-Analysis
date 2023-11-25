@@ -192,7 +192,7 @@ P.L.Season <- function(
   # Y2 Equipment # 
   
   E.Y2.LN.LanternNets <- Lantern.Net %>% 
-    mutate (Quantity = Y2.Product/(Y2.LN.Stocking.Density*LN.Tiers)) %>%  # Assumes 10 tier nets
+    mutate (Quantity = Y2.Product/(Y2.LN.Stocking.Density*LN.Tiers)) %>%  
     mutate (Cost.Basis = Unit.Cost*Quantity) %>% 
     mutate (Depreciation = Cost.Basis/Lifespan)
   
