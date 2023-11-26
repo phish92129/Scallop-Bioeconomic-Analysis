@@ -9,6 +9,7 @@ file_path <- "./Components_V2.xlsx"
 # Will be the hard coding not meant to be altered.
 
 Equipment.Data <- read_excel(file_path, sheet = 'Equipment')
+Equipment.Data$Quantity <- as.character(Equipment.Data$Quantity)
 Task.Data <- read_excel(file_path, sheet = 'Labor')
 Fuel.Data <- read_excel(file_path, sheet = 'Fuel')
 Maint.Data <- read_excel(file_path, sheet = 'Maintenance')
@@ -39,11 +40,42 @@ rm(VariableName, Value, Secondary.Data)
 #-------------------------------------------------------------------------------------------
 
 # Alright, I think I get it, so we can change the model assumptions for the analysis here
-Year = "Y0"         #c("Initial", "Y0", "Y1", "Y2", "Y3")
+# Year = "Y0"         #c("Initial", "Y0", "Y1", "Y2", "Y3")
+
+`Harvest Year` <- 'Y2'
+
+# Subset by Harvest Year, Season and Grow Out Method
+# This section creates vectors for subseting different criteria
+
+# Creates vectors for Year steps
+Y0 <- c('Y0','all')
+Y1 <- c('Y0','Y1','all')
+Y2 <- c('Y0','Y1','Y2','all')
+Y3 <- c('Y0','Y1','Y2','Y3','all')
+
+# Matches Harvest Year vector with appropriate year vector
+if(`Harvest Year` == 'Y0'){
+  `Harvest Year` <- Y0
+} else if(`Harvest Year` == 'Y1'){
+  `Harvest Year` <- Y1
+} else if(`Harvest Year` == 'Y2'){
+  `Harvest Year` <- Y2
+} else {
+  `Harvest Year` <- Y3}
+# Creates a farm strategy vector for subseting based on grow out type
+Farm.strat <- c(`Grow Out Method`,`Spat Procurement`,`Intermediate Culture`)
+# TBD creates a season vector for final labor allotment
+
+# Equipment
+# Read Equipment Outputs, subset
+Equipment <- read_excel(file_path, sheet = 'Equipment_Output')
+Equipment.subset <- Equipment[which(Equipment$Year %in% `Harvest Year`& Equipment$Type %in% Farm.strat),]
+Equipment.subset <- within(merge(Equipment.subset,Equipment.Data, by = 'Equipment'), 
+                        {Quantity <- ifelse(is.na(Quantity.y),Quantity.x,Quantity.y); Quantity.x <- NULL; Quantity.y <- NULL})
+
+
 
 #Equipment for a given period
-if (any(c(Year, 'all') %in% Task.Data$Year)){
-  Equipment.Subset <- Equipment.Data[which(Equipment.Data$Year == Year) ,]
   for (i in 1:nrow(Equipment.Subset)) {
     # Evaluate the Quantity expression for this row, and do cost.basis and depreciation too
     Equipment.Subset$Quantity[i] <- eval(parse(text = Equipment.Subset$Quantity[i]))
@@ -52,11 +84,7 @@ if (any(c(Year, 'all') %in% Task.Data$Year)){
     
     Equipment.Subset$Depreciation[i] <- Equipment.Subset$Cost.Basis[i] / Equipment.Subset$Lifespan[i]
   }
-  Equipment.Subset$Quantity <- as.numeric(Equipment.Subset$Quantity)
-}else{
-  Equipment.Subset <- data.frame(matrix(ncol = length(Equipment.Data), nrow = 0))
-  colnames(Equipment.Subset) <- colnames(Equipment.Data)
-}
+ # Equipment.Subset$Quantity <- as.numeric(Equipment.Subset$Quantity)
 
 #Tasks for a given period
 if (any(c(Year, 'all') %in% Task.Data$Year)){
