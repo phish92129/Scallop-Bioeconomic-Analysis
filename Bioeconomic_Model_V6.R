@@ -95,6 +95,10 @@ if(`Harvest Season` == 'Fall'){
 } else {
   Harvest.Season <- Summer}
 
+# Create a product to market amount (currently placeholder)
+
+Market.Product <- 50000
+
 # Creates a farm strategy vector for subseting based on grow out type
 Farm.strat <- c(`Grow Out Method`,`Spat Procurement`,`Intermediate Culture`,'Global')
 
@@ -119,6 +123,8 @@ Equipment.Subset <- within(merge(Equipment.Subset,Equipment.Data, by = 'Equipmen
   }
 # Change Quantity to numeric because I am not a good coder
 Equipment.Subset$Quantity <- as.numeric(Equipment.Subset$Quantity)
+# Subset out Specialized equipment with quantity = 0
+
 
 # Labor tasks similar to equipment but introduce seasonality
 
@@ -126,18 +132,23 @@ Equipment.Subset$Quantity <- as.numeric(Equipment.Subset$Quantity)
 Labor <- read_excel(file_path, sheet = 'Labor_Output')
 Labor.Subset <- left_join(Labor,Task.Data, by = 'Task')
                            
+# Subset by Harvest Year, Farm type, and whether a task is completed (used for the cleaning)
 Labor.Subset <- Labor.Subset[which(Labor.Subset$Year %in% Harvest.Year & Labor.Subset$Type %in% Farm.strat & Labor.Subset$Completed %in% 'Y'),]
 Labor.Subset <- Labor.Subset[!(Labor.Subset$Year == `Harvest Year` & Labor.Subset$Season != Harvest.Season), ]
 
-  for (i in 1:nrow(Task.Subset)){
-    Task.Subset$Time[i] <- eval(parse(text = Task.Subset$Time[i]))
-    Task.Subset$Trips[i] <- eval(parse(text = Task.Subset$Trips[i]))
-    Task.Subset$Hours.Paid[i] <- ifelse(Task.Subset$Trips[i] > 0, round_any(as.numeric(Task.Subset$Time[i]), 8, f=ceiling), Task.Subset$Time[i])
-    Task.Subset$Labor.Costs[i] <- Task.Subset$Hours.Paid[i] * Part.Time.Wage
+  for (i in 1:nrow(Labor.Subset)){
+    Labor.Subset$Time[i] <- as.numeric(eval(parse(text = Labor.Subset$Time[i])))
+    Labor.Subset$Trips[i] <- eval(parse(text = Labor.Subset$Trips[i]))
+    Labor.Subset$Hours.Paid[i] <- ifelse(Labor.Subset$Trips[i] > 0, round_any(as.numeric(Labor.Subset$Time[i]), 8, f=ceiling), Labor.Subset$Time[i])
+    Labor.Subset$Labor.Costs[i] <- as.numeric(Labor.Subset$Hours.Paid[i]) * `Part Time Wage` * Labor.Subset$Part.Time[i]
   }
-  Task.Subset$Time <- as.numeric(Task.Subset$Time)
-  Task.Subset$Trips <- as.numeric(Task.Subset$Trips)
+  Labor.Subset$Time <- as.numeric(Labor.Subset$Time)
+  Labor.Subset$Trips <- as.numeric(Labor.Subset$Trips)
 
+  # Subset out Specialized equipment with quantity = 0  
+  Labor.Subset <- subset(Labor.Subset, Time != Inf)
+  Equipment.Subset <- subset(Equipment.Subset, Quantity!=0)
+    
 #Fuel for a given period
 if (any(c(Year, 'all') %in% Fuel.Data$Year)){
   Fuel.Subset <- Fuel.Data[which(Fuel.Data$Year == Year| Fuel.Data$Year == 'all'),]
