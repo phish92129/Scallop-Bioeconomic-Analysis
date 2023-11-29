@@ -149,7 +149,7 @@ Labor.Subset <- Labor.Subset[!(Labor.Subset$Year == `Harvest Year` & Labor.Subse
   Labor.Subset <- subset(Labor.Subset, Time != Inf)
   Equipment.Subset <- subset(Equipment.Subset, Quantity!=0)
     
-  # Read Fuel Outputs, merge with price.gallon and fuel.trip
+  # Read Fuel Outputs, subset to relevant, and merge with price.gallon and fuel.trip
   Fuel <- read_excel(file_path, sheet = 'Fuel_Output')
   Fuel.Subset <- left_join(Fuel,Fuel.Data, by = 'Vehicle') 
   
@@ -157,19 +157,17 @@ Labor.Subset <- Labor.Subset[!(Labor.Subset$Year == `Harvest Year` & Labor.Subse
    
 #Fuel for a given period by year
   for (i in 1:nrow(Fuel.Subset)){
-    Fuel.Subset$Fuel.Cost[i] <- Fuel.Subset$Price.Gallon[i] * Fuel.Subset$Usage.Trip[i] * as.numeric((sum(Labor.Subset[which(Labor.Subset$Year == Fuel.Subset$Year[i]),6])) + Fuel.Subset$Additional.Trips[i])
+    Fuel.Subset$Fuel.Cost[i] <- Fuel.Subset$Price.Gallon[i] * Fuel.Subset$Usage.Trip[i] * as.numeric((sum(Labor.Subset[which(Labor.Subset$Year == Fuel.Subset$Year[i]),6]) + Fuel.Subset$Additional.Trips[i]))
   }
 
+  # Read Fuel Outputs, subset to relevant and ,merge with price.gallon and fuel.trip
+  Maintenance <- read_excel(file_path, sheet = 'Maintenance_Output')
+  Maintenance.Subset <- left_join(Maintenance,Maint.Data, by = 'Item') 
+  
+  Maintenance.Subset <- Maintenance.Subset[which(Maintenance.Subset$Year %in% Harvest.Year & Maintenance.Subset$Type %in% Farm.strat),]
+  
 #Maintenance for a given period
-if (any(c(Year, 'all') %in% Maint.Data$Year)){
-  Maint.Subset <- Maint.Data[which(Maint.Data$Year == Year | Maint.Data$Year == 'all'),]
-  for (i in 1:nrow(Maint.Subset)){
-    Maint.Subset$Units[i] <- eval(parse(text = Maint.Subset$Units[i]))
-    Maint.Subset$Maintenance.Costs[i] <- Maint.Subset$Cost[i] * as.numeric(Maint.Subset$Units[i])
+  for (i in 1:nrow(Maintenance.Subset)){
+    Maintenance.Subset$Maintenance.Cost[i] <- as.numeric(eval(parse(text = Maintenance.Subset$Maintenance.Cost[i])))
   }
-  Maint.Subset$Units <- as.numeric(Maint.Subset$Units)
-}else{
-  Maint.Subset <- data.frame(matrix(ncol = length(Maint.Data), nrow = 0))
-  colnames(Maint.Subset) <- colnames(Maint.Data)
-}
-
+  
