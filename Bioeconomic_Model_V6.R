@@ -128,7 +128,7 @@ Equipment.Subset$Quantity <- as.numeric(Equipment.Subset$Quantity)
 
 # Labor tasks similar to equipment but introduce seasonality
 
-# Read Equipment Outputs, subset by Harvest year and farm strategy then merge with Unit Cost, Lifespan and quantity
+# Read Labor Outputs, subset by Harvest year harvest season farm strategy then merge with tasks, rate, and part time
 Labor <- read_excel(file_path, sheet = 'Labor_Output')
 Labor.Subset <- left_join(Labor,Task.Data, by = 'Task')
                            
@@ -145,20 +145,20 @@ Labor.Subset <- Labor.Subset[!(Labor.Subset$Year == `Harvest Year` & Labor.Subse
   Labor.Subset$Time <- as.numeric(Labor.Subset$Time)
   Labor.Subset$Trips <- as.numeric(Labor.Subset$Trips)
 
-  # Subset out Specialized equipment with quantity = 0  
+  # Subset out Specialized equipment with quantity = 0 or time = Inf  
   Labor.Subset <- subset(Labor.Subset, Time != Inf)
   Equipment.Subset <- subset(Equipment.Subset, Quantity!=0)
     
-#Fuel for a given period
-if (any(c(Year, 'all') %in% Fuel.Data$Year)){
-  Fuel.Subset <- Fuel.Data[which(Fuel.Data$Year == Year| Fuel.Data$Year == 'all'),]
+  # Read Fuel Outputs, merge with price.gallon and fuel.trip
+  Fuel <- read_excel(file_path, sheet = 'Fuel_Output')
+  Fuel.Subset <- left_join(Fuel,Fuel.Data, by = 'Vehicle') 
+  
+  Fuel.Subset <- Fuel.Subset[which(Fuel.Subset$Year %in% Harvest.Year & Fuel.Subset$Type %in% Farm.strat),]
+   
+#Fuel for a given period by year
   for (i in 1:nrow(Fuel.Subset)){
-    Fuel.Subset$Fuel.Cost[i] <- Fuel.Subset$Price.Gallon[i] * Fuel.Subset$Usage.Trip[i] * (sum(Task.Subset$Trips) + Fuel.Subset$Additional.Trips[i])
+    Fuel.Subset$Fuel.Cost[i] <- Fuel.Subset$Price.Gallon[i] * Fuel.Subset$Usage.Trip[i] * as.numeric((sum(Labor.Subset[which(Labor.Subset$Year == Fuel.Subset$Year[i]),6])) + Fuel.Subset$Additional.Trips[i])
   }
-}else{
-  Fuel.Subset <- data.frame(matrix(ncol = length(Fuel.Data), nrow = 0))
-  colnames(Fuel.Subset) <- colnames(Fuel.Data)
-}
 
 #Maintenance for a given period
 if (any(c(Year, 'all') %in% Maint.Data$Year)){

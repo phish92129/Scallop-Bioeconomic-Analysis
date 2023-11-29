@@ -51,7 +51,7 @@ t.weighted <- function(x) {
 pr.temp <- sapply(pr.temp,t.weighted)
 
 # Load growth Model
-Growth <- readRDS('C:/Users/noren/OneDrive/Documents/R/Scallops/Bioec/Growth.rda')
+Growth <- readRDS('Growth.rda')
 # Ear Hanging iterative growth function
 populate_value.eh <- function(x){
   for(i in 2:length(x)){
