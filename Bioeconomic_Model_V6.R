@@ -4,6 +4,14 @@ library(dplyr) # For data manipulation
 library(plyr)  # For data manipulation and to seemingly interfere with dplyr
 library(hablar) # For the function 'retype' that assigns values to data frame columns (ie character or numeric)
 
+#Making sure that Growth_Input has been run so that we have Predicted.full in the global environment
+if (!exists("Predicted.full")) {
+  # If the variable doesn't exist, run the specific R script
+  print("Running Growth_Input.R")
+  source("./Growth_Input.R")
+  print("Completed Running Growth_Input.R")
+}
+
 # Set file path for spreadsheet
 file_path <- "./Components_V2.xlsx"
 
