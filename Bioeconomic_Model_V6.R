@@ -208,9 +208,59 @@ Labor.Subset <- Labor.Subset[!(Labor.Subset$Year == `Harvest Year` & Labor.Subse
   }
   
 # Alright, this should be the basic global data, if we add up all columns we should get the annual 
-# values once all year classes have been introduced.  The below section is the fun stuff, deliverable metrics!
+# values once all year classes have been introduced.  The below section is the fun stuff, 
+# deliverable metrics!
   
 # Metric ideas
   
-# Total lease size  
+# Total lease size and Cost
+ # Leases have three designations: Standard, LPA, and Experimental with different fees by acreage
+  # Take longline length, mooring length (distance along bottom), and Longline Spacing to calculate acreage
+  
+  
+# Labor metrics 
+  # Calculate total labor time by season, hours worked, hours paid, etc
+  
+# Economic Metrics
+  # Create a matrix to assign columns by their year class, growers might have to wait up to 4 years
+  # Prior to first sale and that leads to significant deferment of costs.
+  # Then add up total costs for all categories plus consumables == cost of goods sold.
+  
+  # Note, these are all variable costs
+  
+  # Fixed overhead costs
+  
+  # Annual costs irregardless of year and business plan
+  # Sum Insurance, Shelffish/Aq License, Lease Rent, Owner Salary, Depreciation (By year)
+  # These are fixed overhead costs, ie costs that cannot be circumvented 
+  
+  # COG + FOC = Cost of Production
+  # We calculate from here two values, 10 year break even and run rate.
+  # 10 year break even takes all 10 years of COP, sums them, and then averages by total scallop
+  # sales (Individuals & Price/lb).  Run rate assumes no initial debt for equipment purchases.
+  
+  # COP, break even, and run rate used in analysis  
+  
+  # Next allow growers to set a price (maybe in primary inputs?) or in this section if possible
+  
+  # gross profit, 10 year forecast
+  # subtract COGs from the total scallops sold each year (or total lbs sold each year) * Price (total revenue)
+  
+  # Net Profit, 10 years
+  # Subtract FOC from GP to get net profit
+  
+  # Finally, free cash flow. 10 years
+  # Free cash flow is the Net profit summed annually with depreciation removed (since it is a non-realized expense)
+  # and this will be the cash you have 'in hand' at the end of each year
+  
+# For analysis we will also be using IRR (Internal rate of return) in one instance but will mostly be using break even and run rate
+  
+  
+  
+  
+  
+  
+  
+  
+  
   
