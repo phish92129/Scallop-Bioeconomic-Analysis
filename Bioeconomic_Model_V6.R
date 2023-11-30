@@ -159,7 +159,7 @@ for (i in 1:nrow(Equipment.Subset.Global)) {
 Equipment.Subset.Global$Quantity <- as.numeric(Equipment.Subset.Global$Quantity)
 
 # bind the two frames and delete leftovers
-Equipment.Subset <- cbind(Equipment.Subset,Equipment.Subset.Global)
+Equipment.Subset <- rbind(Equipment.Subset,Equipment.Subset.Global)
 rm(Equipment.Subset.Global, Equipment.Subset.Year)
 
 # Labor tasks similar to equipment but introduce seasonality
@@ -217,6 +217,27 @@ Labor.Subset <- Labor.Subset[!(Labor.Subset$Year == `Harvest Year` & Labor.Subse
  # Leases have three designations: Standard, LPA, and Experimental with different fees by acreage
   # Take longline length, mooring length (distance along bottom), and Longline Spacing to calculate acreage
   
+  # Create data frame with Longline Quantity in it for 'reasons'
+  Lease.Footprint <- data.frame(`Longline Quantity`)
+  # total longline length is the total cost of global rope + bottom length of mooring rope (pythag)*2*number of longlines 
+  Lease.Footprint$Feet.Longline.Total <- Equipment.Subset$Quantity[Equipment.Subset$Equipment == 'Rope (1 inch)' & Equipment.Subset$Type == 'Global'] + 
+    ((`Longline Quantity`*2) * sqrt(((`Longline Depth`-`Longline Suspended Depth`)*`Mooring Length`)^2 - (`Longline Depth`-`Longline Suspended Depth`)^2))
+  Lease.Footprint$l.Feet <- Lease.Footprint$Feet.Longline.Total/`Longline Quantity`
+  Lease.Footprint$Meters.Longline.Total <- Lease.Footprint$Feet.Longline.Total * .3048
+  Lease.Footprint$A.Feet <- Lease.Footprint$l.Feet * `Longline Spacing`
+  Lease.Footprint$A.Meters <- Lease.Footprint$A.Feet * .3048
+  Lease.Footprint$Acres <- (Lease.Footprint$l.Feet*`Longline Spacing`)*.0000229568
+  
+  # Leasing fees, from DMR and updated annually with lease type, Application fee, and annual fixed fee
+  Lease.Type.M <- data.frame(     # DMR lease type
+    Type = c('Experimental Lease','LPA','Standard Lease'),     # DMR lease types
+    App.Fee = c(0,100,1500),     # Application fee (1 time)
+    Annual.Fee = c(50,100,100)     # Annual lease fee charged by the acre
+  )
+  
+  # Set lease type from Preset
+  Lease.Type.M <- subset(Lease.Type.M, Type == `Lease Type`) 
+    
   
 # Labor metrics 
   # Calculate total labor time by season, hours worked, hours paid, etc
