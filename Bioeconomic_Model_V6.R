@@ -222,10 +222,16 @@ Labor.Subset <- Labor.Subset[!(Labor.Subset$Year == `Harvest Year` & Labor.Subse
   # total longline length is the total cost of global rope + bottom length of mooring rope (pythag)*2*number of longlines 
   Lease.Footprint$Feet.Longline.Total <- Equipment.Subset$Quantity[Equipment.Subset$Equipment == 'Rope (1 inch)' & Equipment.Subset$Type == 'Global'] + 
     ((`Longline Quantity`*2) * sqrt(((`Longline Depth`-`Longline Suspended Depth`)*`Mooring Length`)^2 - (`Longline Depth`-`Longline Suspended Depth`)^2))
+  # Size of each longline in the event of multiple longlines
   Lease.Footprint$l.Feet <- Lease.Footprint$Feet.Longline.Total/`Longline Quantity`
+  # Total meters for longline length (no m/longline as most growers won't find it relevant)
   Lease.Footprint$Meters.Longline.Total <- Lease.Footprint$Feet.Longline.Total * .3048
+  # Total lease area in ft^2
   Lease.Footprint$A.Feet <- Lease.Footprint$l.Feet * `Longline Spacing`
+  # Total lease area in m^2
   Lease.Footprint$A.Meters <- Lease.Footprint$A.Feet * .3048
+  
+  # This value is the Acreage which will be the most valuable statistic for growers
   Lease.Footprint$Acres <- (Lease.Footprint$l.Feet*`Longline Spacing`)*.0000229568
   
   # Leasing fees, from DMR and updated annually with lease type, Application fee, and annual fixed fee
@@ -236,8 +242,20 @@ Labor.Subset <- Labor.Subset[!(Labor.Subset$Year == `Harvest Year` & Labor.Subse
   )
   
   # Set lease type from Preset
-  Lease.Type.M <- subset(Lease.Type.M, Type == `Lease Type`) 
-    
+  Lease.Type.M <- subset(Lease.Type.M, Type == `Lease Type`)
+  
+ # Create year month
+  
+  # Set year start to August 1, Year and create an annual date matrix
+  Year_0 <- ymd(`Starting Year`,truncated=2L) + months(7)
+  Date.Frame <- data.frame(Year = seq(0,10,by=1), 
+                           Date = seq(ymd(Year_0),ymd(Year_0 %m+% years(10)),by = 'year'))
+  Date.Frame$Date<- as.yearmon(Date.Frame$Date)
+  
+  Lease.Fee <- Date.Frame
+  Lease.Fee$Lease <- ifelse(Lease.Fee$Year == 0, 
+            Lease.Type.M$App.Fee + (Lease.Type.M$Annual.Fee*Lease.Footprint$Acres), 
+            Lease.Type.M$Annual.Fee*Lease.Footprint$Acres)
   
 # Labor metrics 
   # Calculate total labor time by season, hours worked, hours paid, etc
@@ -246,7 +264,38 @@ Labor.Subset <- Labor.Subset[!(Labor.Subset$Year == `Harvest Year` & Labor.Subse
   # Create a matrix to assign columns by their year class, growers might have to wait up to 4 years
   # Prior to first sale and that leads to significant deferment of costs.
   # Then add up total costs for all categories plus consumables == cost of goods sold.
-  
+
+COG <- Date.Frame  
+
+as.numeric((sum(Equipment.Subset[which(Equipment.Subset$Equipment == 'Lantern Net'),7]) * `Lantern Net Spacing`) + (sum(Equipment.Subset[which(Equipment.Subset$Equipment == 'Dropper Line'),7])/`Dropper Length` * `Dropper Line Spacing`))
+
+COG$Equipment <- ifelse(COG$Year == 0,sum(Equipment.Subset[which(Equipment.Subset$Year== Y0),8]),
+                   ifelse(COG$Year == 1,sum(Equipment.Subset[which(Equipment.Subset$Year== 'Y1'),8]),
+                     ifelse(COG$Year == 2, sum(Equipment.Subset[which(Equipment.Subset$Year== 'Y2'),8]),
+                        ifelse(COG$Year == 3, sum(Equipment.Subset[which(Equipment.Subset$Year== 'Y3'),8]),0))))
+                      
+COG$Labor <- ifelse(COG$Year == 0, sum(Labor.Subset[which(Labor.Subset$Year %in% Y0), 12]),
+               ifelse(COG$Year == 1, sum(Labor.Subset[which(Labor.Subset$Year %in% Y1), 12]),
+                 ifelse(COG$Year == 2, sum(Labor.Subset[which(Labor.Subset$Year %in% Y2), 12]),
+                   ifelse(COG$Year == 3, sum(Labor.Subset[which(Labor.Subset$Year %in% Y3), 12]),
+                          sum(Labor.Subset$Labor.Costs)))))    
+
+COG$Fuel <- ifelse(COG$Year == 0, sum(Fuel.Subset[which(Fuel.Subset$Year %in% Y0), 7]),
+              ifelse(COG$Year == 1, sum(Fuel.Subset[which(Fuel.Subset$Year %in% Y1), 7]),
+                ifelse(COG$Year == 2, sum(Fuel.Subset[which(Fuel.Subset$Year %in% Y2), 7]),
+                  ifelse(COG$Year == 3, sum(Fuel.Subset[which(Fuel.Subset$Year %in% Y3), 7]),
+                    sum(Fuel.Subset$Fuel.Cost))))) 
+
+COG$Maintenance <- ifelse(COG$Year == 0, sum(Maintenance.Subset[which(Maintenance.Subset$Year %in% Y0), 4]),
+                     ifelse(COG$Year == 1, sum(Maintenance.Subset[which(Maintenance.Subset$Year %in% Y1), 4]),
+                       ifelse(COG$Year == 2, sum(Maintenance.Subset[which(Maintenance.Subset$Year %in% Y2), 4]),
+                         ifelse(COG$Year == 3, sum(Maintenance.Subset[which(Maintenance.Subset$Year %in% Y3), 4]),
+                           sum(Maintenance.Subset$Fuel.Cost)))))
+
+COG$Consumables <- Consumables
+
+COG$Cost.of.Goods.Sold <- rowSums(COG[,(3:6)])
+    
   # Note, these are all variable costs
   
   # Fixed overhead costs
