@@ -85,27 +85,10 @@ Spring <- c('Fall','Winter','Spring')
 Summer <- c('Fall','Winter','Spring','Summer')
 
 # Matches Harvest Year vector with appropriate year vector
-if(`Harvest Year` == 'Y0'){
-  Harvest.Year <- Y0
-} else if(`Harvest Year` == 'Y1'){
-  Harvest.Year <- Y1
-} else if(`Harvest Year` == 'Y2'){
-  Harvest.Year <- Y2
-} else if(`Harvest Year` == 'Y3'){
-  Harvest.Year <- Y3
-}else{
-  Harvest.Year <- Y4
-}
+Harvest.Year <- switch(`Harvest Year`, 'Y0'= Y0, 'Y1' = Y1, 'Y2'= Y2, 'Y3'= Y3)
 
 # TBD creates a season vector for final labor allotment
-if(`Harvest Season` == 'Fall'){
-  Harvest.Season <- Fall
-} else if(`Harvest Season` == 'Winter'){
-  Harvest.Season <- Winter
-} else if(`Harvest Season` == 'Spring'){
-  Harvest.Season <- Spring
-} else {
-  Harvest.Season <- Summer}
+Harvest.Season <- switch(`Harvest Season`, 'Fall'= Fall, 'Winter' = Winter, 'Spring'= Spring, 'Summer'= Summer)
 
 # Create a product to market amount (currently placeholder)
 
