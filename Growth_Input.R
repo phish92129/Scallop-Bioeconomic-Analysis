@@ -6,6 +6,7 @@ library(dplyr)
 library(ggplot2)
 library(lubridate)
 library(glmmTMB)
+library(zoo)
 
 ####### Integrate growth ########
 
@@ -13,7 +14,7 @@ library(glmmTMB)
 # Format should be daily temperature (C) = Temp and Date = DT in the format 'YYYY-MM-DD'
 
 
-Temp <- read.csv('Temp.csv')
+Temp <- read.csv('./Temp.csv')
 
 
 # Convert to Celsius if required
@@ -119,7 +120,7 @@ Predicted<- Predicted %>%
   dplyr::rename('Sh_Height' = 4)
 
 
-weight <- readRDS('C:/Users/noren/OneDrive/Documents/R/Scallops/Bioec/Adductor.rda')
+weight <- readRDS('./Adductor.rda')
 
 Predicted$Adductor <- predict(weight,Predicted,allow.new.levels=TRUE,
                               type = 'response')
