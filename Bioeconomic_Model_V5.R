@@ -513,7 +513,7 @@ P.L.Season <- function(
     mutate (Quantity = (Lease.Footprint.feet/Surface.Float.Spacing)*Longline.Quantity) %>%     # spaced along head rope in feet
     mutate (Cost.Basis = Unit.Cost*Quantity) %>% 
     mutate (Depreciation = Cost.Basis/Lifespan)
-  
+
   E.Longline.Surface.Float.Dropper <- Gangion.Line %>%
     mutate (Quantity = E.Longline.Surface.Float$Quantity*Longline.Suspended.Depth) %>% 
     mutate (Cost.Basis = Unit.Cost*Quantity) %>% 

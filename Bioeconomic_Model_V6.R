@@ -59,7 +59,7 @@ rm(VariableName, Value, Secondary.Data)
 # Year = "Y0"         #c("Initial", "Y0", "Y1", "Y2", "Y3")
 
 # Example Here, primary input of harvest year switched from Y3 to Y2
-`Harvest Year` <- 'Y2'
+`Harvest Year` <- 'Y3'
 
 # Subset by Harvest Year, Season and Grow Out Method
 # This section creates vectors for subseting different criteria
@@ -69,6 +69,7 @@ Y0 <- c('Y0','all')
 Y1 <- c('Y0','Y1','all')
 Y2 <- c('Y0','Y1','Y2','all')
 Y3 <- c('Y0','Y1','Y2','Y3','all')
+Y4 <- c('Y0','Y1','Y2','Y3','Y4','all')
 
 Fall <- 'Fall'
 Winter <- c('Fall','Winter')
@@ -82,8 +83,11 @@ if(`Harvest Year` == 'Y0'){
   Harvest.Year <- Y1
 } else if(`Harvest Year` == 'Y2'){
   Harvest.Year <- Y2
-} else {
-  Harvest.Year <- Y3}
+} else if(`Harvest Year` == 'Y3'){
+  Harvest.Year <- Y3
+}else{
+  Harvest.Year <- Y4
+}
 
 # TBD creates a season vector for final labor allotment
 if(`Harvest Season` == 'Fall'){
@@ -97,7 +101,15 @@ if(`Harvest Season` == 'Fall'){
 
 # Create a product to market amount (currently placeholder)
 
-Market.Product <- 50000
+Market.Data <- read_excel(file_path, sheet = 'Market')
+for (i in 1:nrow(Market.Data)) {
+  # Evaluate the Quarterly Mortality
+  Market.Data$Market.Product[i]<- as.numeric(eval(parse(text = Market.Data$Market.Product[i])))
+}
+Market.Data$Market.Product <- as.numeric(Market.Data$Market.Product)
+Growth.Data <- subset(Predicted.full, Year == `Harvest Year`& Season == `Harvest Season`& Trial == `Grow Out Method`)
+Growth.Data <- Growth.Data[,-c(1,2,3,5)]
+Growth.Data <- left_join(Growth.Data, Market.Data, by = c('Year','Season'))
 
 # Creates a farm strategy vector for subseting based on grow out type
 Farm.strat <- c(`Grow Out Method`,`Spat Procurement`,`Intermediate Culture`,'Global')
@@ -110,21 +122,45 @@ Equipment.Subset <- Equipment[which(Equipment$Year %in% Harvest.Year& Equipment$
 Equipment.Subset <- within(merge(Equipment.Subset,Equipment.Data, by = 'Equipment'), 
                         {Quantity <- ifelse(is.na(Quantity.y),Quantity.x,Quantity.y); Quantity.x <- NULL; Quantity.y <- NULL})
 
-
+# Created an issue here getting equipment to parse correctly with other data
+# The issue comes with the Global category, which uses the total quantity of lantern nets and dropper lines
+# to calculate longline length for the cost basis.  Since it is using data in the quantity column
+# while it is iterating it can't force numeric since there is character data below it.
+# To quickly get around this I separated the two data sets and ran the code twice on both, referencing
+# the year class equipment for the global data set.  Then did a column bind of both data sets
+ 
+Equipment.Subset.Year <- subset(Equipment.Subset, Type != 'Global')
+Equipment.Subset.Global <- subset(Equipment.Subset, Type == 'Global')
 
 #Equipment for used in farm strategy and harvest year
-  for (i in 1:nrow(Equipment.Subset)) {
+  for (i in 1:nrow(Equipment.Subset.Year)) {
     # Evaluate the Quantity expression for this row, and do cost.basis and depreciation too
-    Equipment.Subset$Quantity[i] <- as.numeric(eval(parse(text = Equipment.Subset$Quantity[i])))
+    Equipment.Subset.Year$Quantity[i] <- as.numeric(eval(parse(text = Equipment.Subset.Year$Quantity[i])))
     
-    Equipment.Subset$Cost.Basis[i] <- Equipment.Subset$Unit.Cost[i] * as.numeric(eval(parse(text = Equipment.Subset$Quantity[i])))
+    Equipment.Subset.Year$Cost.Basis[i] <- Equipment.Subset.Year$Unit.Cost[i] * as.numeric(eval(parse(text = Equipment.Subset.Year$Quantity[i])))
     
-    Equipment.Subset$Depreciation[i] <- Equipment.Subset$Cost.Basis[i] / Equipment.Subset$Lifespan[i]
+    Equipment.Subset.Year$Depreciation[i] <- Equipment.Subset.Year$Cost.Basis[i] / Equipment.Subset.Year$Lifespan[i]
   }
 # Change Quantity to numeric because I am not a good coder
-Equipment.Subset$Quantity <- as.numeric(Equipment.Subset$Quantity)
-# Subset out Specialized equipment with quantity = 0
+Equipment.Subset.Year$Quantity <- as.numeric(Equipment.Subset.Year$Quantity)
+# Overwrite main data frame with year data only
+Equipment.Subset <- Equipment.Subset.Year
 
+#Equipment for used in farm strategy and harvest year
+for (i in 1:nrow(Equipment.Subset.Global)) {
+  # Evaluate the Quantity expression for this row, and do cost.basis and depreciation too
+  Equipment.Subset.Global$Quantity[i] <- as.numeric(eval(parse(text = Equipment.Subset.Global$Quantity[i])))
+  
+  Equipment.Subset.Global$Cost.Basis[i] <- Equipment.Subset.Global$Unit.Cost[i] * as.numeric(eval(parse(text = Equipment.Subset.Global$Quantity[i])))
+  
+  Equipment.Subset.Global$Depreciation[i] <- Equipment.Subset.Global$Cost.Basis[i] / Equipment.Subset.Global$Lifespan[i]
+}
+# Change Quantity to numeric because I am not a good coder
+Equipment.Subset.Global$Quantity <- as.numeric(Equipment.Subset.Global$Quantity)
+
+# bind the two frames and delete leftovers
+Equipment.Subset <- cbind(Equipment.Subset,Equipment.Subset.Global)
+rm(Equipment.Subset.Global, Equipment.Subset.Year)
 
 # Labor tasks similar to equipment but introduce seasonality
 
@@ -170,4 +206,11 @@ Labor.Subset <- Labor.Subset[!(Labor.Subset$Year == `Harvest Year` & Labor.Subse
   for (i in 1:nrow(Maintenance.Subset)){
     Maintenance.Subset$Maintenance.Cost[i] <- as.numeric(eval(parse(text = Maintenance.Subset$Maintenance.Cost[i])))
   }
+  
+# Alright, this should be the basic global data, if we add up all columns we should get the annual 
+# values once all year classes have been introduced.  The below section is the fun stuff, deliverable metrics!
+  
+# Metric ideas
+  
+# Total lease size  
   

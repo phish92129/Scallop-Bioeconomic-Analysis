@@ -127,16 +127,19 @@ Predicted.full <- Predicted
 
 Predicted.full$Month <- month(Predicted.full$yrDate)
 Predicted.full$Year <- year(Predicted.full$yrDate)
-Predicted.full$Harvest.Y <- ifelse(Predicted.full$Year == min(Predicted.full$Year),ifelse(Predicted.full$Month == 11, 'Y2','Y1'),
-                                      ifelse(Predicted.full$Year == max(Predicted.full$Year),'Y3',
-                                             ifelse(Predicted.full$Year == median(Predicted.full$Year)&Predicted.full$Month == 11, 'Y3','Y2')))
+Predicted.full$Harvest.Y <- ifelse(Predicted.full$Year == max(Predicted.full$Year),ifelse(Predicted.full$Month == 5 | Predicted.full$Month == 2, 'Y3','Y4'),
+                                      ifelse(Predicted.full$Year == min(Predicted.full$Year),'Y2',
+                                             ifelse(Predicted.full$Year == median(Predicted.full$Year)&Predicted.full$Month == 11|Predicted.full$Month == 8, 'Y3','Y2')))
 
-Predicted.full$Harvest.Time <- ifelse(Predicted.full$Month == 2,'Winter',
-                                      ifelse(Predicted.full$Month == 5,'Spring',
-                                      ifelse(Predicted.full$Month == 8, 'Summer','Fall')))
+Predicted.full$Harvest.Time <- ifelse(Predicted.full$Month == 2,'Spring',
+                                      ifelse(Predicted.full$Month == 5,'Summer',
+                                      ifelse(Predicted.full$Month == 8, 'Fall','Winter')))
 
 Predicted.full <- Predicted.full %>% 
   mutate (Sh_Height.inches = Sh_Height*0.0393701) %>% 
   mutate (Adductor.lbs = 0.00220462*Adductor) %>% 
   mutate (count.lbs = 1/Adductor.lbs)
-
+Predicted.full<- Predicted.full[,-7]
+Predicted.full<- Predicted.full %>% 
+  dplyr::rename('Year' = 7) %>%
+  dplyr::rename('Season' = 8) 
