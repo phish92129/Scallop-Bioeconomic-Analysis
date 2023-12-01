@@ -243,11 +243,6 @@ Labor.Subset <- Labor.Subset[!(Labor.Subset$Year == `Harvest Year` & Labor.Subse
                            Date = seq(ymd(Year_0),ymd(Year_0 %m+% years(10)),by = 'year'))
   Date.Frame$Date<- as.yearmon(Date.Frame$Date)
   
-  Lease.Fee <- Date.Frame
-  Lease.Fee$Lease <- ifelse(Lease.Fee$Year == 0, 
-            Lease.Type.M$App.Fee + (Lease.Type.M$Annual.Fee*Lease.Footprint$Acres), 
-            Lease.Type.M$Annual.Fee*Lease.Footprint$Acres)
-  
 # Labor metrics 
   # Calculate total labor time by season, hours worked, hours paid, etc
   
@@ -291,12 +286,48 @@ COG$Cost.of.Goods.Sold <- rowSums(COG[,(3:6)])
   
   # Fixed overhead costs
 
+FOC <- Date.Frame
 
-  
-  # Annual costs irregardless of year and business plan
-  # Sum Insurance, Shelffish/Aq License, Lease Rent, Owner Salary, Depreciation (By year)
-  # These are fixed overhead costs, ie costs that cannot be circumvented 
-  
+FOC$Lease <- ifelse(Lease.Fee$Year == 0, 
+                          Lease.Type.M$App.Fee + (Lease.Type.M$Annual.Fee*Lease.Footprint$Acres), 
+                          Lease.Type.M$Annual.Fee*Lease.Footprint$Acres)
+FOC$Insurance <- Insurance
+FOC$Aquaculture.License <- `Shellfish License`
+FOC$Owner.Salary <- `Owner Salary`
+FOC$Full.Time.Employee <- `Full Time Employee` * `Employee Salary`
+FOC$Depreciation <- ifelse(COG$Year == 0,sum(Equipment.Subset[which(Equipment.Subset$Year %in% Y0),9]),
+                      ifelse(COG$Year == 1,sum(Equipment.Subset[which(Equipment.Subset$Year %in% Y1),9]),
+                        ifelse(COG$Year == 2, sum(Equipment.Subset[which(Equipment.Subset$Year %in% Y2),9]),
+                          ifelse(COG$Year == 3, sum(Equipment.Subset[which(Equipment.Subset$Year %in% Y3),9]),
+                                 sum(Equipment.Subset$Depreciation)))))
+
+FOC$Fixed.Overhead.Costs <- rowSums(FOC[,(3:8)]) 
+
+
+
+# Annual costs irregardless of year and business plan
+# Sum Insurance, Shelffish/Aq License, Lease Rent, Owner Salary, Depreciation (By year)
+# These are fixed overhead costs, ie costs that cannot be circumvented 
+
+
+COP <- data.frame(Date.Frame,COG$Cost.of.Goods.Sold,FOC$Fixed.Overhead.Costs)
+COP$Cost.of.Production <- rowSums(COP[,3:4])
+COP$Debt <- cumsum(COP$Cost.of.Production)
+COP$Ind.Scallops <-  ifelse(COP$Year == 0 & `Harvest Year` == 'Y0', Growth.Data$Market.Product,
+                            ifelse(COP$Year == 1 & `Harvest Year` == 'Y1', Growth.Data$Market.Product,
+                                   ifelse(COP$Year == 2 & `Harvest Year` == 'Y2', Growth.Data$Market.Product,
+                                          ifelse(COP$Year == 3 & `Harvest Year` == 'Y3', Growth.Data$Market.Product,
+                                                 ifelse(COP$Year >3 & `Harvest Year` %in% Y4, Growth.Data$Market.Product,0)))))
+COP$ShellHeight.mm <- ifelse(COP$Ind.Scallops == 0, 0,Growth.Data$Sh_Height)
+COP$ShellHeight.Inches <- ifelse(COP$Ind.Scallops == 0, 0,Growth.Data$Sh_Height.inches)
+COP$Adductor <- ifelse(COP$Ind.Scallops == 0, 0,Growth.Data$Adductor)
+COP$Adductor.lbs <- ifelse(COP$Ind.Scallops == 0, 0,Growth.Data$Adductor.lbs)
+COP$count.lbs <- ifelse(COP$Ind.Scallops == 0, 0,Growth.Data$count.lbs)
+COP$Run.Rate.Whole.Scallop <- COP$Cost.of.Production/COP$Ind.Scallops
+COP$Break.Even.Whole.Scallop <- COP$Debt/cumsum(COP$Ind.Scallops)
+COP$Run.Rate.Adductor <- COP$Cost.of.Production/(COP$Ind.Scallops*COP$Adductor.lbs)
+COP$Break.Even.Adductor <- COP$Debt/cumsum((COP$Ind.Scallops*COP$Adductor.lbs))
+
   # COG + FOC = Cost of Production
   # We calculate from here two values, 10 year break even and run rate.
   # 10 year break even takes all 10 years of COP, sums them, and then averages by total scallop
@@ -305,10 +336,20 @@ COG$Cost.of.Goods.Sold <- rowSums(COG[,(3:6)])
   # COP, break even, and run rate used in analysis  
   
   # Next allow growers to set a price (maybe in primary inputs?) or in this section if possible
-  
+ # Allow entry of scallop price/individual and adductor/lbs
+ Whole.Scallop.Price <- 3.50
+ ScallopAdductor.lbs <- 30
+
   # gross profit, 10 year forecast
   # subtract COGs from the total scallops sold each year (or total lbs sold each year) * Price (total revenue)
   
+ PL <- Date.Frame
+ PL$Gross.Sales.Revenue <- Whole.Scallop.Price*COP$Ind.Scallops
+ PL$Gross.Profit <- PL$Gross.Sales.Revenue - COP$COG.Cost.of.Goods.Sold 
+ PL$Gross.Profit.Margin <- PL$Gross.Profit/PL$Gross.Sales.Revenue
+ PL$Net.Profit <- PL$Gross.Profit - COP$FOC.Fixed.Overhead.Costs
+ PL$Net.Profit.Margin <- PL$Net.Profit/PL$Gross.Sales.Revenue
+ PL$Cash.Flow.YE <- cumsum(PL$Net.Profit-FOC$Depreciation)
   # Net Profit, 10 years
   # Subtract FOC from GP to get net profit
   
@@ -316,14 +357,5 @@ COG$Cost.of.Goods.Sold <- rowSums(COG[,(3:6)])
   # Free cash flow is the Net profit summed annually with depreciation removed (since it is a non-realized expense)
   # and this will be the cash you have 'in hand' at the end of each year
   
-# For analysis we will also be using IRR (Internal rate of return) in one instance but will mostly be using break even and run rate
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+  # For analysis we will also be using IRR (Internal rate of return) 
+  # in one instance but will mostly be using break even and run rate
