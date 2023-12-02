@@ -3,6 +3,9 @@ library(readxl) # For reading excel tables
 library(dplyr) # For data manipulation
 library(plyr)  # For data manipulation and to seemingly interfere with dplyr
 library(hablar) # For the function 'retype' that assigns values to data frame columns (ie character or numeric)
+library(ggplot2)
+library(treemapify)
+library(openxlsx)
 
 #Making sure that Growth_Input has been run so that we have Predicted.full in the global environment
 if (!exists("Predicted.full")) {
@@ -44,7 +47,7 @@ for (i in 1:nrow(Primary.Parameter.Data)) {
 }
 
 # Remove extra stuff for clarity and good data practice
-rm(VariableName, Value, Primary.Parameter.Data)
+rm(VariableName, Value)
 
 # Let's add the secondary parameters
 Secondary.Data<- read_excel(file_path, sheet = 'Secondary')
@@ -58,7 +61,7 @@ for (i in 1:nrow(Secondary.Data)) {
 }
 
 # Remove extra stuff for clarity and good data practice
-rm(VariableName, Value, Secondary.Data)
+rm(VariableName, Value)
 
 #This is where the looping would go---------------------------------------------------------
 #-------------------------------------------------------------------------------------------
@@ -197,7 +200,7 @@ Labor.Subset <- Labor.Subset[!(Labor.Subset$Year == `Harvest Year` & Labor.Subse
   for (i in 1:nrow(Maintenance.Subset)){
     Maintenance.Subset$Maintenance.Cost[i] <- as.numeric(eval(parse(text = Maintenance.Subset$Maintenance.Cost[i])))
   }
-  
+  Maintenance.Subset$Maintenance.Cost <- as.numeric(Maintenance.Subset$Maintenance.Cost)
 # Alright, this should be the basic global data, if we add up all columns we should get the annual 
 # values once all year classes have been introduced.  The below section is the fun stuff, 
 # deliverable metrics!
@@ -245,6 +248,9 @@ Labor.Subset <- Labor.Subset[!(Labor.Subset$Year == `Harvest Year` & Labor.Subse
   
 # Labor metrics 
   # Calculate total labor time by season, hours worked, hours paid, etc
+  Labor.Subset$Hours.Paid<- as.numeric(Labor.Subset$Hours.Paid)
+  Labor.metrics <- aggregate(cbind(Time,Trips,Labor.Costs,Hours.Paid)~Season,data = Labor.Subset, sum)
+  Labor.metrics$Work.Days <- round(Labor.metrics$Hours.Paid/8)  
   
 # Economic Metrics
   # Create a matrix to assign columns by their year class, growers might have to wait up to 4 years
@@ -276,7 +282,7 @@ COG$Maintenance <- ifelse(COG$Year == 0, sum(Maintenance.Subset[which(Maintenanc
                      ifelse(COG$Year == 1, sum(Maintenance.Subset[which(Maintenance.Subset$Year %in% Y1), 4]),
                        ifelse(COG$Year == 2, sum(Maintenance.Subset[which(Maintenance.Subset$Year %in% Y2), 4]),
                          ifelse(COG$Year == 3, sum(Maintenance.Subset[which(Maintenance.Subset$Year %in% Y3), 4]),
-                           sum(Maintenance.Subset$Fuel.Cost)))))
+                           sum(Maintenance.Subset$Maintenance.Cost)))))
 
 COG$Consumables <- Consumables
 
@@ -288,7 +294,7 @@ COG$Cost.of.Goods.Sold <- rowSums(COG[,(3:6)])
 
 FOC <- Date.Frame
 
-FOC$Lease <- ifelse(Lease.Fee$Year == 0, 
+FOC$Lease <- ifelse(FOC$Year == 0, 
                           Lease.Type.M$App.Fee + (Lease.Type.M$Annual.Fee*Lease.Footprint$Acres), 
                           Lease.Type.M$Annual.Fee*Lease.Footprint$Acres)
 FOC$Insurance <- Insurance
@@ -343,13 +349,23 @@ COP$Break.Even.Adductor <- COP$Debt/cumsum((COP$Ind.Scallops*COP$Adductor.lbs))
   # gross profit, 10 year forecast
   # subtract COGs from the total scallops sold each year (or total lbs sold each year) * Price (total revenue)
   
- PL <- Date.Frame
- PL$Gross.Sales.Revenue <- Whole.Scallop.Price*COP$Ind.Scallops
- PL$Gross.Profit <- PL$Gross.Sales.Revenue - COP$COG.Cost.of.Goods.Sold 
- PL$Gross.Profit.Margin <- PL$Gross.Profit/PL$Gross.Sales.Revenue
- PL$Net.Profit <- PL$Gross.Profit - COP$FOC.Fixed.Overhead.Costs
- PL$Net.Profit.Margin <- PL$Net.Profit/PL$Gross.Sales.Revenue
- PL$Cash.Flow.YE <- cumsum(PL$Net.Profit-FOC$Depreciation)
+ PL.add <- Date.Frame
+ PL.add$Gross.Sales.Revenue <- ScallopAdductor.lbs*(COP$Ind.Scallops*Growth.Data$Adductor.lbs)
+ PL.add$Gross.Profit <- PL.add$Gross.Sales.Revenue - COP$COG.Cost.of.Goods.Sold 
+ PL.add$Gross.Profit.Margin <- (PL.add$Gross.Profit/PL.add$Gross.Sales.Revenue)*100
+ PL.add$Net.Profit <- PL.add$Gross.Profit - COP$FOC.Fixed.Overhead.Costs
+ PL.add$Net.Profit.Margin <- (PL.add$Net.Profit/PL.add$Gross.Sales.Revenue)*100
+ PL.add$Depreciation <- FOC$Depreciation
+ PL.add$Cash.Flow.YE <- cumsum(PL.add$Net.Profit-FOC$Depreciation)
+ 
+ PL.Whole <- Date.Frame
+ PL.Whole$Gross.Sales.Revenue <- Whole.Scallop.Price*COP$Ind.Scallops
+ PL.Whole$Gross.Profit <-  PL.Whole$Gross.Sales.Revenue - COP$COG.Cost.of.Goods.Sold 
+ PL.Whole$Gross.Profit.Margin <-  (PL.Whole$Gross.Profit/PL.Whole$Gross.Sales.Revenue)*100
+ PL.Whole$Net.Profit <-  PL.Whole$Gross.Profit - COP$FOC.Fixed.Overhead.Costs
+ PL.Whole$Net.Profit.Margin <-  (PL.Whole$Net.Profit/ PL.Whole$Gross.Sales.Revenue)*100
+ PL.Whole$Depreciation <- FOC$Depreciation
+ PL.Whole$Cash.Flow.YE <- cumsum(PL.Whole$Net.Profit-FOC$Depreciation)
   # Net Profit, 10 years
   # Subtract FOC from GP to get net profit
   
@@ -359,3 +375,99 @@ COP$Break.Even.Adductor <- COP$Debt/cumsum((COP$Ind.Scallops*COP$Adductor.lbs))
   
   # For analysis we will also be using IRR (Internal rate of return) 
   # in one instance but will mostly be using break even and run rate
+ 
+ # For the outputs, I think these should tentatively be what we give.
+ 
+# Pane 1 - Run Rate (whole and adductor), Break even 10 year (whole and adductor), Minimum lease size
+ 
+ Pane1 <- data.frame('Market Individuals' = Growth.Data$Market.Product,
+                     'Shell Height (Inches)' = Growth.Data$Sh_Height.inches,
+                     'Adductor Count/lb' = Growth.Data$count.lbs,
+                     'Run Rate (lbs)' = subset(COP, Year == 10)$Run.Rate.Adductor, 
+                     'Run Rate (Piece)' = subset(COP, Year == 10)$Run.Rate.Whole.Scallop,
+                     '10 Year Break Even (lbs)' = subset(COP, Year == 10)$Break.Even.Adductor,
+                     '10 Year Break Even (Piece)' = subset(COP, Year == 10)$Break.Even.Whole.Scallop,
+                     'Minimum Lease Size (Acres)' = Lease.Footprint$Acres)
+Pane1 <- round(Pane1, digits = 2) 
+
+# Labor metrics I think would also be simple and helpful by season (or by year?)
+
+ggplot(Labor.metrics, aes(area=Work.Days, fill = Season, label=Work.Days))  + 
+  geom_treemap(layout="squarified")+
+  geom_treemap_text(colour = "black",
+                    place = "centre",
+                    size = 15) +
+  theme_minimal() +
+  theme(panel.grid.major.x=element_blank(), panel.grid.major.y=element_blank()) + #remove gridlines
+  theme(panel.grid.minor.x=element_blank(), panel.grid.minor.y=element_blank()) + #remove gridlines
+  ggtitle("Annual Work Days") +
+  theme(panel.border = element_rect(colour = "black", fill=NA, size=1))
+
+# Next, visual representation of COG and FOC
+
+COG.plot <- COG[,-8]
+COG.plot <- gather(COG.plot, key= 'Category', value = 'Cost', Equipment,Labor,Fuel,Maintenance,Consumables)
+COG.plot$Year<- as.factor(COG.plot$Year)
+
+ggplot(COG.plot, aes(x=Year, y = Cost, fill = Category))  + 
+  geom_bar(aes(),stat='identity')+
+  theme_minimal() +
+  theme(panel.grid.major.x=element_blank(), panel.grid.major.y=element_blank()) + #remove gridlines
+  theme(panel.grid.minor.x=element_blank(), panel.grid.minor.y=element_blank()) + #remove gridlines
+  ggtitle("10 Year Cost of Goods Sold Breakdown") +
+  ylab("Cost ($USD)")+
+  xlab("Business Year")+
+  theme(panel.border = element_rect(colour = "black", fill=NA, size=1))
+
+FOC.Plot <- FOC[,-9]
+FOC.Plot <- gather(FOC.Plot, key = 'Category',value = 'Cost', Lease,Insurance,Aquaculture.License,Owner.Salary,Full.Time.Employee,Depreciation)
+FOC.Plot <- subset(FOC.Plot, Year == 10)
+FOC.Plot$Year <- as.factor(FOC.Plot$Year)
+
+
+ggplot(FOC.Plot, aes(x=Cost, y = Year, fill = Category))  + 
+  geom_bar(aes(),stat='identity')+
+  theme_minimal() +
+  theme(panel.grid.major.x=element_blank(), panel.grid.major.y=element_blank()) + #remove gridlines
+  theme(panel.grid.minor.x=element_blank(), panel.grid.minor.y=element_blank()) + #remove gridlines
+  ggtitle("Annual Fixed Operating Cost Breakdown") +
+  xlab("Cost ($USD)")+
+  theme(panel.border = element_rect(colour = "gray20", fill=NA, size=.5),
+        axis.title.y = element_blank(),
+        axis.text.y = element_blank())
+####### I think these will be a solid 'At a Glance' Section
+
+# Next pane allows growers to select price (which is set above)
+
+# Final Pane is a more traditional breakdown of Labor Metrics in a Table format for adductor and whole scallops
+# We can also include IRR and maybe allow them to set discounting rate but that is down the line
+# Let's get it working first
+
+Pane2.Adductor <- PL.add
+Pane2.Adductor <- Pane2.Adductor %>% 
+  mutate_if(is.numeric, round,digits=2)
+Pane2.Adductor[Pane2.Adductor == -Inf] <- 'No Revenue'
+Pane2.Adductor <- t(Pane2.Adductor)
+
+Pane2.Whole <- PL.Whole
+Pane2.Whole <- Pane2.Whole %>% 
+  mutate_if(is.numeric, round,digits=2)
+Pane2.Whole[Pane2.Whole == -Inf] <- 'No Revenue'
+Pane2.Whole <- t(Pane2.Whole)
+
+
+# Finally, a Downloadable series of tables in an excel or .csv format including:
+ # Equipment, Labor, Fuel, and Maintenance tables + Primary and secondary inputs and Pane2 contents
+
+Output.List <- list("Economic Metrics (Adductor)" = Pane2.Adductor, 
+                    "Economic Metrics (Whole)" = Pane2.Whole,
+                    "Cost of Production" = COP,
+                    "Equipment" = Equipment.Subset,
+                    "Labor" = Labor.Subset,
+                    "Fuel" = Fuel.Subset,
+                    "Maintenance" = Maintenance.Subset,
+                    "Primary Inputs" = Primary.Parameter.Data,
+                    "Secondary" = Secondary.Data)
+
+write.xlsx(Output.List, file = "Farm_Outputs.xlsx",rowNames = TRUE)
+
