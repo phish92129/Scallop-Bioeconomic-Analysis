@@ -259,9 +259,11 @@ Labor.Subset$Labor.Costs <- NA
   # Prior to first sale and that leads to significant deferment of costs.
   # Then add up total costs for all categories plus consumables == cost of goods sold.
 
+# Create a cost of good sold data set starting with years  
 COG <- Date.Frame  
 
-as.numeric((sum(Equipment.Subset[which(Equipment.Subset$Equipment == 'Lantern Net'),7]) * `Lantern Net Spacing`) + (sum(Equipment.Subset[which(Equipment.Subset$Equipment == 'Dropper Line'),7])/`Dropper Length` * `Dropper Line Spacing`))
+# Sum equipment, Labor, Fuel, and Maintenance by year cumulatively until the 
+# final year when it is a fully operational farm
 
 COG$Equipment <- ifelse(COG$Year == 0,sum(Equipment.Subset[which(Equipment.Subset$Year== Y0),8]),
                    ifelse(COG$Year == 1,sum(Equipment.Subset[which(Equipment.Subset$Year== 'Y1'),8]),
@@ -286,51 +288,74 @@ COG$Maintenance <- ifelse(COG$Year == 0, sum(Maintenance.Subset[which(Maintenanc
                          ifelse(COG$Year == 3, sum(Maintenance.Subset[which(Maintenance.Subset$Year %in% Y3), 4]),
                            sum(Maintenance.Subset$Maintenance.Cost)))))
 
+# Add consumables which is just an annual odds and ends expense
 COG$Consumables <- Consumables
 
+# Sum for the Cost of Goods Sold
 COG$Cost.of.Goods.Sold <- rowSums(COG[,(3:6)])
     
-  # Note, these are all variable costs
+  # Note above, these are all variable costs
   
-  # Fixed overhead costs
-
+  # Fixed overhead costs (FOC)
+  # Create a data frame for FOC costs annually.  These are mostly a flat annual fee except lease rent
+  # and depreciation which vary based on the initial application fee in year 0 and the time in which
+  # Equipment was first purchased/put to use
 FOC <- Date.Frame
 
+# Lease fees, consists of an initial application fee and then an annual fee based on acreage
 FOC$Lease <- ifelse(FOC$Year == 0, 
                           Lease.Type.M$App.Fee + (Lease.Type.M$Annual.Fee*Lease.Footprint$Acres), 
                           Lease.Type.M$Annual.Fee*Lease.Footprint$Acres)
+# Insurance is just the summed annual insurance payments
 FOC$Insurance <- Insurance
+# Annual shellfish aquaculture license fee
 FOC$Aquaculture.License <- `Shellfish License`
+# Owner Salary is an annual payment amount to the owner
 FOC$Owner.Salary <- `Owner Salary`
+# Full time employee salary is an annual salary multiplied by the number of full time employees
 FOC$Full.Time.Employee <- `Full Time Employee` * `Employee Salary`
+# Depreciation is based on the lifespan of a piece of equipment divided by the cost of the item.
+# It is an unrealized expense in that the cash is not spent, but should be considered reinvested to
+# replace gear in the future
 FOC$Depreciation <- ifelse(COG$Year == 0,sum(Equipment.Subset[which(Equipment.Subset$Year %in% Y0),9]),
                       ifelse(COG$Year == 1,sum(Equipment.Subset[which(Equipment.Subset$Year %in% Y1),9]),
                         ifelse(COG$Year == 2, sum(Equipment.Subset[which(Equipment.Subset$Year %in% Y2),9]),
                           ifelse(COG$Year == 3, sum(Equipment.Subset[which(Equipment.Subset$Year %in% Y3),9]),
                                  sum(Equipment.Subset$Depreciation)))))
-
+# Sum all rows for total annual fixed operating costs
 FOC$Fixed.Overhead.Costs <- rowSums(FOC[,(3:8)]) 
-
-
 
 # Annual costs irregardless of year and business plan
 # Sum Insurance, Shelffish/Aq License, Lease Rent, Owner Salary, Depreciation (By year)
 # These are fixed overhead costs, ie costs that cannot be circumvented 
 
-
+# Cost of production is COG+FOC and is all realized and unrealized expenses...basically the total cost
 COP <- data.frame(Date.Frame,COG$Cost.of.Goods.Sold,FOC$Fixed.Overhead.Costs)
 COP$Cost.of.Production <- rowSums(COP[,3:4])
+# Cumulative COP is what I am calling debt
 COP$Debt <- cumsum(COP$Cost.of.Production)
+# Scallops sold at market, this is a fixed amount
 COP$Ind.Scallops <-  ifelse(COP$Year == 0 & `Harvest Year` == 'Y0', Growth.Data$Market.Product,
                             ifelse(COP$Year == 1 & `Harvest Year` == 'Y1', Growth.Data$Market.Product,
                                    ifelse(COP$Year == 2 & `Harvest Year` == 'Y2', Growth.Data$Market.Product,
                                           ifelse(COP$Year == 3 & `Harvest Year` == 'Y3', Growth.Data$Market.Product,
                                                  ifelse(COP$Year >3 & `Harvest Year` %in% Y4, Growth.Data$Market.Product,0)))))
+# Shell height in millimeters of market scallops
 COP$ShellHeight.mm <- ifelse(COP$Ind.Scallops == 0, 0,Growth.Data$Sh_Height)
+# Shell height in inches for market scallops, we will use imperial units for the 
+# app since it is more valuable to fishermen
 COP$ShellHeight.Inches <- ifelse(COP$Ind.Scallops == 0, 0,Growth.Data$Sh_Height.inches)
+# Adductor weight in grams
 COP$Adductor <- ifelse(COP$Ind.Scallops == 0, 0,Growth.Data$Adductor)
+# Adductor weight in pounds
 COP$Adductor.lbs <- ifelse(COP$Ind.Scallops == 0, 0,Growth.Data$Adductor.lbs)
+# The industry standard for sale is as the amount of adductor meats in a pound.
+# Also called count per pound.  It's a psuedo weight binning strategy.
+# In general 30 count is small, 20 count is pretty normal and U10 is a large premium scallop
+# This isn't used in the calculations but is valuable to growers at a glance
 COP$count.lbs <- ifelse(COP$Ind.Scallops == 0, 0,Growth.Data$count.lbs)
+# calculate run rate and break even price for scallops, run rate is essentially constant
+# and breka even is averaged out over time.  run rate is the asymptote for break even curve
 COP$Run.Rate.Whole.Scallop <- COP$Cost.of.Production/COP$Ind.Scallops
 COP$Break.Even.Whole.Scallop <- COP$Debt/cumsum(COP$Ind.Scallops)
 COP$Run.Rate.Adductor <- COP$Cost.of.Production/(COP$Ind.Scallops*COP$Adductor.lbs)
@@ -350,6 +375,10 @@ COP$Break.Even.Adductor <- COP$Debt/cumsum((COP$Ind.Scallops*COP$Adductor.lbs))
 
   # gross profit, 10 year forecast
   # subtract COGs from the total scallops sold each year (or total lbs sold each year) * Price (total revenue)
+  # so we have gross sales revenue = total income from product, gross profit is that minus COGS
+  # Margin is the percent difference between gross profit and sales revenue
+  # Net profit adds in FOC and profit margin is sales revenue and COP differences
+  # Finally depreciation is taken out as an unrealized expense for physical cash flow.
   
  PL.add <- Date.Frame
  PL.add$Gross.Sales.Revenue <- ScallopAdductor.lbs*(COP$Ind.Scallops*Growth.Data$Adductor.lbs)
