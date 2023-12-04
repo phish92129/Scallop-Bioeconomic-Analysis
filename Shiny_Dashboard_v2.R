@@ -13,17 +13,14 @@ ui <- dashboardPage(
   dashboardHeader(title = "BioEconomic Model"),
   dashboardSidebar(
     sidebarMenu(
-      menuItem("Primary Inputs", tabName = "input1", icon = icon("dashboard")),
-      menuItem("Secondary Inputs", tabName = "input2", icon = icon("ship")),
-      menuItem("Output", tabName = "output", icon = icon("file-text")) 
-      #         menuSubItem("Lil Guy", tabName = "Spreadsheet", icon = icon("sheet-plastic"))
+      menuItem("Primary Inputs", tabName = "input1", icon = icon("gears")),
+      menuItem("Secondary Inputs", tabName = "input2", icon = icon("sliders")),
+      menuItem("Graph Outputs", tabName = "Plots", icon = icon("chart-simple")),
+      menuItem("Table Outputs", tabName = "Output", icon = icon("table"))
       )
-      
     ),
-  
 #-------------------------------------PRIMARY INPUTS -> UI Only--------------------------------------------------------------------------------------------------------------
-###                                   
-
+###
   dashboardBody(
     tabItems(
       # First tab content (Input1)
@@ -45,8 +42,7 @@ ui <- dashboardPage(
                          value = 60, min = 1),
             
             numericInput("Longline.SusDepth", label = tags$div("Long Suspended Depth:", 
-                                                              helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Depth of head rope (main line) 
-below surface.</i>"))),
+                                                              helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Depth of head rope (main line) below surface.</i>"))),
                          value = 15, min = 1),
             
             numericInput("Product", label = tags$div("Product:", 
@@ -119,7 +115,8 @@ below surface.</i>"))),
             numericInput("Spat.Site.Depth", label = tags$div("Spat Site Depth:", 
                                                                  helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Depth of spat collector placement.</i>"))),
                          value = 100, min = 1)
-          ),
+            ),
+          
           box(
             title = "Stocking Densities",
             width = 4,
@@ -135,8 +132,8 @@ below surface.</i>"))),
             numericInput("Y3.Stocking.Density", label = tags$div("Y3 Stocking Density:", 
                                                                  helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Stocking density of 3-4 year old scallops.</i>"))),
                          value = 10, min = 1),
-           
-          ),
+           ),
+          
           box(
             title = "Mortality Parameters",
             width = 4,
@@ -154,6 +151,7 @@ below surface.</i>"))),
                          value = 0.125, min = 0, max = 1),
             
           ),
+          
           box(
             title = "More Parameters",
             width = 4,
@@ -190,6 +188,7 @@ below surface.</i>"))),
                          value = 8, min = 0, max = 24)
             
             ),
+          
           box(
             title = "Latern Net Parameters",
             width = 4,
@@ -206,6 +205,7 @@ below surface.</i>"))),
                                               helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Will affect total longline length.</i>"))),
                          value = 3, min = 0),
           ),
+          
           box(
             title = "Ear Hanging Parameters",
             width = 4,
@@ -216,6 +216,7 @@ below surface.</i>"))),
                                               helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Same but for anchors.</i>"))),
                          value = 10, min = 0)
           ),
+          
           box(
             title = "Dropper Parameters",
             width = 4,
@@ -237,8 +238,8 @@ below surface.</i>"))),
             textOutput("Ear.Hanging.Droppers"),
             textOutput("Dropper.Length")
             
-            
           ),
+          
           box(
             title = "Yearly Products:",
             width = 4,
@@ -247,14 +248,31 @@ below surface.</i>"))),
             textOutput("Y3_Product"),
             textOutput("Y4_Product")
           )
-          
-          
         )
       ),
-### --------------Outputs Pane----------------------------------------------------------------------------------------------      
-      # Third tab content (Output)
+
+### ----------------------------------Plots Output Tab------------------------------------------------------
       tabItem(
-        tabName = "output",
+        tabName = "Plots",
+        fluidPage(
+          box(title = "Labor Costs",
+              width = 12,
+              plotOutput('LAB')
+              ),
+          box(title = "Cost of Good Sold",
+              width = 12,
+              plotOutput('COG')
+          ),
+          box(title = "Fixed Overhead Costs",
+            width = 12,
+            plotOutput('FOG')
+          )
+        )
+        ),
+### --------------Outputs Pane----------------------------------------------------------------------------------------------      
+# Third tab content (Output)
+      tabItem(
+        tabName = "Output",
         fluidPage(
           box(
             #collapsible = TRUE,
@@ -277,25 +295,14 @@ below surface.</i>"))),
             dataTableOutput("Primary"),
             headerPanel("Secondary Inputs"),
             dataTableOutput("Secondary")
-            ),
-          box(
-            title = "CAN WE BREAK IT",
-            verbatimTextOutput("output_text2"),
-            "kills me"
+            )
           )
         )
-      ),
-      
-### ----------------------------------Spreadsheets Output------------------------------------------------------
-      tabItem(
-        tabName = "Spreadsheet",
-        fluidPage(
-          dataTableOutput("")
-        )
-              )
-    )
-  )
 )
+)
+)
+
+
 ### --------------------------------SERVER--------------------------------------------------------------
 # God Help Us
 server <- function(input, output) {
@@ -370,7 +377,14 @@ server <- function(input, output) {
   #   })
   # })
   # 
+### -------Rendering Graphical Outputs-----------------------------------------------------------------------------------------------------  
+  output$LAB <- renderPlot(plt.List$LAB_plt)
+  output$COG <- renderPlot(plt.List$COG_plt)
+  output$FOG <- renderPlot(plt.List$FOG_plt)
   
+  
+  
+### -------Rendering table outputs-----------------------------------------------------------------------------------------------------  
   #Making a spreadsheet - for now this doesnt respond to running the moddle as the model isn't implimented
   # Its reading from the Output.List
   
@@ -561,10 +575,42 @@ server <- function(input, output) {
     )
   )
   
-  
-  
 
 }
-
+###-----------Run Application------------------------------------------------------------------------------------------------------
 # Run the application
 shinyApp(ui, server)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
