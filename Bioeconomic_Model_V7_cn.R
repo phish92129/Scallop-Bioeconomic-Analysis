@@ -265,27 +265,27 @@ COG <- Date.Frame
 # Sum equipment, Labor, Fuel, and Maintenance by year cumulatively until the 
 # final year when it is a fully operational farm
 
-COG$Equipment <- ifelse(COG$Year == 0,sum(Equipment.Subset[which(Equipment.Subset$Year== Y0),10]),
-                   ifelse(COG$Year == 1,sum(Equipment.Subset[which(Equipment.Subset$Year== 'Y1'),10]),
-                     ifelse(COG$Year == 2, sum(Equipment.Subset[which(Equipment.Subset$Year== 'Y2'),10]),
-                        ifelse(COG$Year == 3, sum(Equipment.Subset[which(Equipment.Subset$Year== 'Y3'),10]),0))))
+COG$Equipment <- ifelse(COG$Year == 0,sum(Equipment.Subset$Cost.Basis[which(Equipment.Subset$Year== Y0)]),
+                   ifelse(COG$Year == 1,sum(Equipment.Subset$Cost.Basis[which(Equipment.Subset$Year== 'Y1')]),
+                     ifelse(COG$Year == 2, sum(Equipment.Subset$Cost.Basis[which(Equipment.Subset$Year== 'Y2')]),
+                        ifelse(COG$Year == 3, sum(Equipment.Subset$Cost.Basis[which(Equipment.Subset$Year== 'Y3')]),0))))
                       
-COG$Labor <- ifelse(COG$Year == 0, sum(Labor.Subset[which(Labor.Subset$Year %in% Y0), 12]),
-               ifelse(COG$Year == 1, sum(Labor.Subset[which(Labor.Subset$Year %in% Y1), 12]),
-                 ifelse(COG$Year == 2, sum(Labor.Subset[which(Labor.Subset$Year %in% Y2), 12]),
-                   ifelse(COG$Year == 3, sum(Labor.Subset[which(Labor.Subset$Year %in% Y3), 12]),
+COG$Labor <- ifelse(COG$Year == 0, sum(Labor.Subset$Labor.Costs[which(Labor.Subset$Year %in% Y0)]),
+               ifelse(COG$Year == 1, sum(Labor.Subset$Labor.Costs[which(Labor.Subset$Year %in% Y1)]),
+                 ifelse(COG$Year == 2, sum(Labor.Subset$Labor.Costs[which(Labor.Subset$Year %in% Y2)]),
+                   ifelse(COG$Year == 3, sum(Labor.Subset$Labor.Costs[which(Labor.Subset$Year %in% Y3)]),
                           sum(Labor.Subset$Labor.Costs)))))    
 
-COG$Fuel <- ifelse(COG$Year == 0, sum(Fuel.Subset[which(Fuel.Subset$Year %in% Y0), 8]),
-              ifelse(COG$Year == 1, sum(Fuel.Subset[which(Fuel.Subset$Year %in% Y1), 8]),
-                ifelse(COG$Year == 2, sum(Fuel.Subset[which(Fuel.Subset$Year %in% Y2), 8]),
-                  ifelse(COG$Year == 3, sum(Fuel.Subset[which(Fuel.Subset$Year %in% Y3), 8]),
+COG$Fuel <- ifelse(COG$Year == 0, sum(Fuel.Subset$Fuel.Cost[which(Fuel.Subset$Year %in% Y0)]),
+              ifelse(COG$Year == 1, sum(Fuel.Subset$Fuel.Cost[which(Fuel.Subset$Year %in% Y1)]),
+                ifelse(COG$Year == 2, sum(Fuel.Subset$Fuel.Cost[which(Fuel.Subset$Year %in% Y2)]),
+                  ifelse(COG$Year == 3, sum(Fuel.Subset$Fuel.Cost[which(Fuel.Subset$Year %in% Y3)]),
                     sum(Fuel.Subset$Fuel.Cost))))) 
 
-COG$Maintenance <- ifelse(COG$Year == 0, sum(Maintenance.Subset[which(Maintenance.Subset$Year %in% Y0), 4]),
-                     ifelse(COG$Year == 1, sum(Maintenance.Subset[which(Maintenance.Subset$Year %in% Y1), 4]),
-                       ifelse(COG$Year == 2, sum(Maintenance.Subset[which(Maintenance.Subset$Year %in% Y2), 4]),
-                         ifelse(COG$Year == 3, sum(Maintenance.Subset[which(Maintenance.Subset$Year %in% Y3), 4]),
+COG$Maintenance <- ifelse(COG$Year == 0, sum(Maintenance.Subset$Maintenance.Cost[which(Maintenance.Subset$Year %in% Y0)]),
+                     ifelse(COG$Year == 1, sum(Maintenance.Subset$Maintenance.Cost[which(Maintenance.Subset$Year %in% Y1)]),
+                       ifelse(COG$Year == 2, sum(Maintenance.Subset$Maintenance.Cost[which(Maintenance.Subset$Year %in% Y2)]),
+                         ifelse(COG$Year == 3, sum(Maintenance.Subset$Maintenance.Cost[which(Maintenance.Subset$Year %in% Y3)]),
                            sum(Maintenance.Subset$Maintenance.Cost)))))
 
 # Add consumables which is just an annual odds and ends expense
@@ -317,10 +317,10 @@ FOC$Full.Time.Employee <- `Full Time Employee` * `Employee Salary`
 # Depreciation is based on the lifespan of a piece of equipment divided by the cost of the item.
 # It is an unrealized expense in that the cash is not spent, but should be considered reinvested to
 # replace gear in the future
-FOC$Depreciation <- ifelse(COG$Year == 0,sum(Equipment.Subset[which(Equipment.Subset$Year %in% Y0),11]),
-                      ifelse(COG$Year == 1,sum(Equipment.Subset[which(Equipment.Subset$Year %in% Y1),11]),
-                        ifelse(COG$Year == 2, sum(Equipment.Subset[which(Equipment.Subset$Year %in% Y2),11]),
-                          ifelse(COG$Year == 3, sum(Equipment.Subset[which(Equipment.Subset$Year %in% Y3),11]),
+FOC$Depreciation <- ifelse(COG$Year == 0,sum(Equipment.Subset$Depreciation[which(Equipment.Subset$Year %in% Y0)]),
+                      ifelse(COG$Year == 1,sum(Equipment.Subset$Depreciation[which(Equipment.Subset$Year %in% Y1)]),
+                        ifelse(COG$Year == 2, sum(Equipment.Subset$Depreciation[which(Equipment.Subset$Year %in% Y2)]),
+                          ifelse(COG$Year == 3, sum(Equipment.Subset$Depreciation[which(Equipment.Subset$Year %in% Y3)]),
                                  sum(Equipment.Subset$Depreciation)))))
 # Sum all rows for total annual fixed operating costs
 FOC$Fixed.Overhead.Costs <- rowSums(FOC[,(3:8)]) 
