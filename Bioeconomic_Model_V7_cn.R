@@ -70,7 +70,7 @@ rm(VariableName, Value)
 # Year = "Y0"         #c("Initial", "Y0", "Y1", "Y2", "Y3")
 
 # Example Here, primary input of harvest year switched from Y3 to Y2
-`Harvest Year` <- 'Y3'
+`Harvest Year` <- 'Y4'
 
 # Subset by Harvest Year, Season and Grow Out Method
 # This section creates vectors for subseting different criteria
@@ -317,10 +317,10 @@ FOC$Full.Time.Employee <- `Full Time Employee` * `Employee Salary`
 # Depreciation is based on the lifespan of a piece of equipment divided by the cost of the item.
 # It is an unrealized expense in that the cash is not spent, but should be considered reinvested to
 # replace gear in the future
-FOC$Depreciation <- ifelse(COG$Year == 0,sum(Equipment.Subset[which(Equipment.Subset$Year %in% Y0),9]),
-                      ifelse(COG$Year == 1,sum(Equipment.Subset[which(Equipment.Subset$Year %in% Y1),9]),
-                        ifelse(COG$Year == 2, sum(Equipment.Subset[which(Equipment.Subset$Year %in% Y2),9]),
-                          ifelse(COG$Year == 3, sum(Equipment.Subset[which(Equipment.Subset$Year %in% Y3),9]),
+FOC$Depreciation <- ifelse(COG$Year == 0,sum(Equipment.Subset[which(Equipment.Subset$Year %in% Y0),11]),
+                      ifelse(COG$Year == 1,sum(Equipment.Subset[which(Equipment.Subset$Year %in% Y1),11]),
+                        ifelse(COG$Year == 2, sum(Equipment.Subset[which(Equipment.Subset$Year %in% Y2),11]),
+                          ifelse(COG$Year == 3, sum(Equipment.Subset[which(Equipment.Subset$Year %in% Y3),11]),
                                  sum(Equipment.Subset$Depreciation)))))
 # Sum all rows for total annual fixed operating costs
 FOC$Fixed.Overhead.Costs <- rowSums(FOC[,(3:8)]) 
