@@ -88,7 +88,7 @@ Spring <- c('Fall','Winter','Spring')
 Summer <- c('Fall','Winter','Spring','Summer')
 
 # Matches Harvest Year vector with appropriate year vector
-Harvest.Year <- switch(`Harvest Year`, 'Y0'= Y0, 'Y1' = Y1, 'Y2'= Y2, 'Y3'= Y3)
+Harvest.Year <- switch(`Harvest Year`, 'Y0'= Y0, 'Y1' = Y1, 'Y2'= Y2, 'Y3'= Y3, 'Y4' = Y4)
 
 # TBD creates a season vector for final labor allotment
 Harvest.Season <- switch(`Harvest Season`, 'Fall'= Fall, 'Winter' = Winter, 'Spring'= Spring, 'Summer'= Summer)
@@ -265,10 +265,10 @@ COG <- Date.Frame
 # Sum equipment, Labor, Fuel, and Maintenance by year cumulatively until the 
 # final year when it is a fully operational farm
 
-COG$Equipment <- ifelse(COG$Year == 0,sum(Equipment.Subset[which(Equipment.Subset$Year== Y0),8]),
-                   ifelse(COG$Year == 1,sum(Equipment.Subset[which(Equipment.Subset$Year== 'Y1'),8]),
-                     ifelse(COG$Year == 2, sum(Equipment.Subset[which(Equipment.Subset$Year== 'Y2'),8]),
-                        ifelse(COG$Year == 3, sum(Equipment.Subset[which(Equipment.Subset$Year== 'Y3'),8]),0))))
+COG$Equipment <- ifelse(COG$Year == 0,sum(Equipment.Subset[which(Equipment.Subset$Year== Y0),10]),
+                   ifelse(COG$Year == 1,sum(Equipment.Subset[which(Equipment.Subset$Year== 'Y1'),10]),
+                     ifelse(COG$Year == 2, sum(Equipment.Subset[which(Equipment.Subset$Year== 'Y2'),10]),
+                        ifelse(COG$Year == 3, sum(Equipment.Subset[which(Equipment.Subset$Year== 'Y3'),10]),0))))
                       
 COG$Labor <- ifelse(COG$Year == 0, sum(Labor.Subset[which(Labor.Subset$Year %in% Y0), 12]),
                ifelse(COG$Year == 1, sum(Labor.Subset[which(Labor.Subset$Year %in% Y1), 12]),
@@ -276,10 +276,10 @@ COG$Labor <- ifelse(COG$Year == 0, sum(Labor.Subset[which(Labor.Subset$Year %in%
                    ifelse(COG$Year == 3, sum(Labor.Subset[which(Labor.Subset$Year %in% Y3), 12]),
                           sum(Labor.Subset$Labor.Costs)))))    
 
-COG$Fuel <- ifelse(COG$Year == 0, sum(Fuel.Subset[which(Fuel.Subset$Year %in% Y0), 7]),
-              ifelse(COG$Year == 1, sum(Fuel.Subset[which(Fuel.Subset$Year %in% Y1), 7]),
-                ifelse(COG$Year == 2, sum(Fuel.Subset[which(Fuel.Subset$Year %in% Y2), 7]),
-                  ifelse(COG$Year == 3, sum(Fuel.Subset[which(Fuel.Subset$Year %in% Y3), 7]),
+COG$Fuel <- ifelse(COG$Year == 0, sum(Fuel.Subset[which(Fuel.Subset$Year %in% Y0), 8]),
+              ifelse(COG$Year == 1, sum(Fuel.Subset[which(Fuel.Subset$Year %in% Y1), 8]),
+                ifelse(COG$Year == 2, sum(Fuel.Subset[which(Fuel.Subset$Year %in% Y2), 8]),
+                  ifelse(COG$Year == 3, sum(Fuel.Subset[which(Fuel.Subset$Year %in% Y3), 8]),
                     sum(Fuel.Subset$Fuel.Cost))))) 
 
 COG$Maintenance <- ifelse(COG$Year == 0, sum(Maintenance.Subset[which(Maintenance.Subset$Year %in% Y0), 4]),

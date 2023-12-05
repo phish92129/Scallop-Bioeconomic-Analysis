@@ -76,7 +76,7 @@ below surface.</i>"))),
                                                                helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Annual employee wage per employee.</i>"))),
                          value = 35000, min = 1),
             
-            numericInput("PartTime.Wage", label = tags$div("Part Time Wage:", 
+            numericInput("Part.Time.Wage", label = tags$div("Part Time Wage:", 
                                                                helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Minimum is based on federal minimum wage.</i>"))),
                          value = 15, min = 7.5),
             
@@ -86,7 +86,7 @@ below surface.</i>"))),
             
             selectInput("Harvest.Year", label = tags$div("Harvest Year:", 
                                                            helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Y2: Starts Fall after 2 years<br>Y3: Starts Fall after 3 years<br>Y4: Only Fall after 4 years.</i>"))),
-                        choices = c('Fall', 'Winter','Spring','Summer')),
+                        choices = c('Y2', 'Y3','Y4')),
             
             selectInput("Spat.Procurement", label = tags$div("Spat Procurement:", 
                                                          helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Two current methods of scallop seed (ie spat):<br>To collect, growers place spat collectors in Y0 Fall and collect in Y0 Spring.  Requires labor and time.<br>The other option is purchase from a third party, more expensive/scallop as scale increases.  Grower would start lease work in Y0 spring with stocking lantern nets with spat at 150-250/tier.</i>"))),
