@@ -423,7 +423,7 @@ Pane1 <- round(Pane1, digits = 2)
 
 # Labor metrics I think would also be simple and helpful by season (or by year?)
 
-ggplot(Labor.metrics, aes(area=Work.Days, fill = Season, label=Work.Days))  + 
+LAB_plt <- ggplot(Labor.metrics, aes(area=Work.Days, fill = Season, label=Work.Days))  + 
   geom_treemap(layout="squarified")+
   geom_treemap_text(colour = "black",
                     place = "centre",
@@ -440,7 +440,7 @@ COG.plot <- COG[,-8]
 COG.plot <- gather(COG.plot, key= 'Category', value = 'Cost', Equipment,Labor,Fuel,Maintenance,Consumables)
 COG.plot$Year<- as.factor(COG.plot$Year)
 
-ggplot(COG.plot, aes(x=Year, y = Cost, fill = Category))  + 
+COG_plt <- ggplot(COG.plot, aes(x=Year, y = Cost, fill = Category))  + 
   geom_bar(aes(),stat='identity')+
   theme_minimal() +
   theme(panel.grid.major.x=element_blank(), panel.grid.major.y=element_blank()) + #remove gridlines
@@ -456,7 +456,7 @@ FOC.Plot <- subset(FOC.Plot, Year == 10)
 FOC.Plot$Year <- as.factor(FOC.Plot$Year)
 
 
-ggplot(FOC.Plot, aes(x=Cost, y = Year, fill = Category))  + 
+FOC_plt <- ggplot(FOC.Plot, aes(x=Cost, y = Year, fill = Category))  + 
   geom_bar(aes(),stat='identity')+
   theme_minimal() +
   theme(panel.grid.major.x=element_blank(), panel.grid.major.y=element_blank()) + #remove gridlines
@@ -466,6 +466,9 @@ ggplot(FOC.Plot, aes(x=Cost, y = Year, fill = Category))  +
   theme(panel.border = element_rect(colour = "gray20", fill=NA, size=.5),
         axis.title.y = element_blank(),
         axis.text.y = element_blank())
+
+plt.List <- list(LAB_plt = LAB_plt, COG_plt = COG_plt, FOG_plt = FOG_plt)
+
 ####### I think these will be a solid 'At a Glance' Section
 
 # Next pane allows growers to select price (which is set above)
