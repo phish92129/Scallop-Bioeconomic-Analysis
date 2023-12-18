@@ -268,7 +268,7 @@ COG <- Date.Frame
 # Sum equipment, Labor, Fuel, and Maintenance by year cumulatively until the 
 # final year when it is a fully operational farm
 
-COG$Equipment <- ifelse(COG$Year == 0,sum(Equipment.Subset$Cost.Basis[which(Equipment.Subset$Year== Y0)]),
+COG$Equipment <- ifelse(COG$Year == 0,sum(Equipment.Subset$Cost.Basis[which(Equipment.Subset$Year %in% Y0)]),
                         ifelse(COG$Year == 1,sum(Equipment.Subset$Cost.Basis[which(Equipment.Subset$Year== 'Y1')]),
                                ifelse(COG$Year == 2, sum(Equipment.Subset$Cost.Basis[which(Equipment.Subset$Year== 'Y2')]),
                                       ifelse(COG$Year == 3, sum(Equipment.Subset$Cost.Basis[which(Equipment.Subset$Year== 'Y3')]),0))))
@@ -660,7 +660,7 @@ ui <- dashboardPage(
             
             numericInput("Mooring.Length", label = tags$div("Mooring Length:", 
                                                                 helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>This is the mooring length as a function of longline suspended depth.  Literature recommends a mooring length of 3-4 times the depth..</i>"))),
-                         value = 0.01, min = 4, max = 8),
+                         value = .1, min = 4, max = 8),
             
             numericInput("Surface.Float.Spacing", label = tags$div("Surface Float Spacing (feet):", 
                                                                 helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>space between surface buoys attached to longline meant for general visibility.</i>"))),

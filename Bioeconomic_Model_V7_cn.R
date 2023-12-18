@@ -14,6 +14,8 @@ if (!exists("Predicted.full")) {
   source("./Growth_Input.R")
   print("Completed Running Growth_Input.R")
 }
+rm(fit,Growth,Predicted,predicted.eh,predicted.ln,pri,ret,Temp,weight,d,D,pr.temp,Tmax,Tmin,Topt,
+   populate_value.eh,populate_value.ln,t.weighted)
 
 # Set file path for spreadsheet
 file_path <- "./Components_V2.xlsx"
@@ -70,7 +72,7 @@ rm(VariableName, Value)
 # Year = "Y0"         #c("Initial", "Y0", "Y1", "Y2", "Y3")
 
 # Example Here, primary input of harvest year switched from Y3 to Y2
-`Harvest Year` <- 'Y4'
+`Harvest Year` <- 'Y2'
 
 # Subset by Harvest Year, Season and Grow Out Method
 # This section creates vectors for subseting different criteria
@@ -265,7 +267,7 @@ COG <- Date.Frame
 # Sum equipment, Labor, Fuel, and Maintenance by year cumulatively until the 
 # final year when it is a fully operational farm
 
-COG$Equipment <- ifelse(COG$Year == 0,sum(Equipment.Subset$Cost.Basis[which(Equipment.Subset$Year== Y0)]),
+COG$Equipment <- ifelse(COG$Year == 0,sum(Equipment.Subset$Cost.Basis[which(Equipment.Subset$Year %in% Y0)]),
                    ifelse(COG$Year == 1,sum(Equipment.Subset$Cost.Basis[which(Equipment.Subset$Year== 'Y1')]),
                      ifelse(COG$Year == 2, sum(Equipment.Subset$Cost.Basis[which(Equipment.Subset$Year== 'Y2')]),
                         ifelse(COG$Year == 3, sum(Equipment.Subset$Cost.Basis[which(Equipment.Subset$Year== 'Y3')]),0))))
