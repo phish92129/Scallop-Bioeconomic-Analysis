@@ -1,7 +1,12 @@
-library(shiny)
+
+  library(shiny)
 library(shinydashboard)
 library(readr)
+library(tidyr)
+library(lubridate)
 library(DT)
+library(shinyBS)
+library(zoo)
 library(shinyjs)
 library(readxl) # For reading excel tables
 library(dplyr) # For data manipulation
@@ -21,7 +26,7 @@ if (!exists("Predicted.full")) {
 }
 
 # Set file path for spreadsheet
-file_path <- "./Components_V2.xlsx"
+file_path <- "./Components_V3.xlsx"
 
 # These are 'general' equipment inputs, labor tasks, fuel costs, and maintenance.  
 # I envision these will be designed to essentially be the 'entry' sections while the following sheet 
@@ -46,8 +51,8 @@ Primary.Parameter.Data<- read_excel(file_path, sheet = 'Primary')
 # loops by row to take column 1 as the variable name, and column 2 as either a character or 
 # numeric and vectorize via assign function
 for (i in 1:nrow(Primary.Parameter.Data)) {
-  VariableName <- as.character(Primary.Parameter.Data[i, 1])
-  Value <- retype(Primary.Parameter.Data[i, 2,drop=TRUE]) 
+  VariableName <- as.character(Primary.Parameter.Data$VariableName[i])
+  Value <- retype(Primary.Parameter.Data$Value[i,drop=TRUE]) 
   assign(VariableName, Value, envir = .GlobalEnv)
 }
 
@@ -59,8 +64,8 @@ Secondary.Data<- read_excel(file_path, sheet = 'Secondary')
 
 # Similar to primary, secondary parameters either based on farm layout or husbandry
 for (i in 1:nrow(Secondary.Data)) {
-  VariableName <- as.character(Secondary.Data[i, 1])
-  Value <- retype(Secondary.Data[i, 2,drop=TRUE])
+  VariableName <- as.character(Secondary.Data$VariableName[i])
+  Value <- retype(Secondary.Data$Value[i, drop=TRUE])
   Value <- eval(parse(text=Value))
   assign(VariableName, Value, envir = .GlobalEnv)
 }
@@ -268,7 +273,7 @@ COG <- Date.Frame
 # Sum equipment, Labor, Fuel, and Maintenance by year cumulatively until the 
 # final year when it is a fully operational farm
 
-COG$Equipment <- ifelse(COG$Year == 0,sum(Equipment.Subset$Cost.Basis[which(Equipment.Subset$Year %in% Y0)]),
+COG$Equipment <- ifelse(COG$Year == 0,sum(Equipment.Subset$Cost.Basis[which(Equipment.Subset$Year== Y0)]),
                         ifelse(COG$Year == 1,sum(Equipment.Subset$Cost.Basis[which(Equipment.Subset$Year== 'Y1')]),
                                ifelse(COG$Year == 2, sum(Equipment.Subset$Cost.Basis[which(Equipment.Subset$Year== 'Y2')]),
                                       ifelse(COG$Year == 3, sum(Equipment.Subset$Cost.Basis[which(Equipment.Subset$Year== 'Y3')]),0))))
@@ -516,228 +521,28 @@ ui <- dashboardPage(
       menuItem("Secondary Inputs", tabName = "input2", icon = icon("sliders")),
       menuItem("Graph Outputs", tabName = "Plots", icon = icon("chart-simple")),
       menuItem("Table Outputs", tabName = "Output", icon = icon("table"))
-      )
-    ),
-#-------------------------------------PRIMARY INPUTS -> UI Only--------------------------------------------------------------------------------------------------------------
-###
+    )
+  ),
+  #-------------------------------------PRIMARY INPUTS -> UI Only--------------------------------------------------------------------------------------------------------------
+  ###
   dashboardBody(
     tabItems(
       # First tab content (Input1)
       tabItem(
         tabName = "input1",
         fluidPage(
-          box(
-            title = "Primary Parameters",
-            width = 10,
-            selectInput("Lease.Type", "Lease Type:",
-                        choices = c("Standard Lease", "LPA", "Experimental Lease")),
-            
-            numericInput("Longline.Quantity", label = tags$div("Long Line Quantity:", 
-                                                              helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Number of Longlines.</i>"))),
-                         value = 1, min = 1, max = 20),
-            
-            numericInput("Longline.Depth", label = tags$div("Long Line Depth:", 
-                                                              helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Lease site depth at low tide.</i>"))),
-                         value = 60, min = 1),
-            
-            numericInput("Longline.SusDepth", label = tags$div("Long Suspended Depth:", 
-                                                              helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Depth of head rope (main line) below surface.</i>"))),
-                         value = 15, min = 1),
-            
-            numericInput("Product", label = tags$div("Product:", 
-                                                               helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Projected Spat.</i>"))),
-                         value = 100000, min = 10000),
-            
-            numericInput("Starting.Year", label = tags$div("Starting Year:"),
-                         value = 2024, min = 2023),
-            
-            numericInput("Consumables", label = tags$div("Consumables:", 
-                                                     helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Miscellaneous Annual Gear Ex: gloves, knifes, coffee, rain gear.</i>"))),
-                         value = 1000, min = 1),
-            
-            numericInput("Owner.Salary", label = tags$div("Owner Salary:", 
-                                                     helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Projected annual owner salary.</i>"))),
-                         value = 35000, min = 1),
-            
-            numericInput("Insurance", label = tags$div("Insurance Cost:", 
-                                                          helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Annual Insurance Costs (Combined).</i>"))),
-                         value = 5000, min = 1),
-            
-            numericInput("Employee.Number", label = tags$div("Full Time Employees:", 
-                                                       helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Salaried employees are paid an annual salary and are a fixed operating cost whereas part time employees are a variable cost of labor.</i>"))),
-                         value = 1, min = 0),
-            
-            numericInput("Employee.Salary", label = tags$div("Full Time Employee Salary:", 
-                                                               helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Annual employee wage per employee.</i>"))),
-                         value = 35000, min = 1),
-            
-            numericInput("Part.Time.Wage", label = tags$div("Part Time Wage:", 
-                                                               helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Minimum is based on federal minimum wage.</i>"))),
-                         value = 15, min = 7.5),
-            
-            selectInput("Harvest.Season", label = tags$div("Harvest Season:", 
-                                                           helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Harvest Quarter:<br>Winter: November - January<br>Spring: February - April<br>Summer: May - July<br>Fall: August - October.</i>"))),
-                        choices = c('Fall', 'Winter','Spring','Summer')),
-            
-            selectInput("Harvest.Year", label = tags$div("Harvest Year:", 
-                                                           helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Y2: Starts Fall after 2 years<br>Y3: Starts Fall after 3 years<br>Y4: Only Fall after 4 years.</i>"))),
-                        choices = c('Y2', 'Y3','Y4')),
-            
-            selectInput("Spat.Procurement", label = tags$div("Spat Procurement:", 
-                                                         helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Two current methods of scallop seed (ie spat):<br>To collect, growers place spat collectors in Y0 Fall and collect in Y0 Spring.  Requires labor and time.<br>The other option is purchase from a third party, more expensive/scallop as scale increases.  Grower would start lease work in Y0 spring with stocking lantern nets with spat at 150-250/tier.</i>"))),
-                        choices = c('Wild Spat - Collected', 'Wild Spat - Purchased')),
-            
-            selectInput("Intermediate.Culture", label = tags$div("Intermediate Culture:", 
-                                                             helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Currently the model only supports  lantern net culture the other option is pearl nets.  In this stage growers restock seed in Fall to 25-35/tier.</i>"))),
-                        choices = c('Intermediate - Lantern Net')),
-            
-            selectInput("Grow.Out", label = tags$div("Grow Out Method:", 
-                                                                 helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Grow out is the final and potentially longest phase. For lantern net growers would restock to ~10 per tier but in the second year of grow out (3-4 years) they would not need to restock.  Ear hanging requires pinning initially but then only requires cleaning after.</i>"))),
-                        choices = c('Ear Hanging', 'Lantern Net')),
-            
-            
-            actionButton("run_model", "Run Model")
-          )
+          uiOutput("primary_inputs"),
+          
+          actionButton("run_model", "Run Model")
         )
       ),
-###----------------------Secondary Inputs -> UI Only-----------------------------------------------------------------------------------------------------------
+      
+      ###----------------------Secondary Inputs -> UI Only-----------------------------------------------------------------------------------------------------------
       # Second tab content (Input2)
       tabItem(
         tabName = "input2",
         fluidPage(
-          box(
-            title = "Wild Spat Collection",
-            width = 4,
-            numericInput("Wild.Spat.Collector", label = tags$div("Wild Spat Collector:", 
-                                                            helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Predicted number of scallop spat/collector.</i>"))),
-                         value = 4000, min = 1),
-            numericInput("Spat.Site.Depth", label = tags$div("Spat Site Depth:", 
-                                                                 helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Depth of spat collector placement.</i>"))),
-                         value = 100, min = 1)
-            ),
-          
-          box(
-            title = "Stocking Densities",
-            width = 4,
-            numericInput("Seed.Net.Density", label = tags$div("Seed Net Density:", 
-                                                              helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Stocking density of 0-1 year old scallops.</i>"))),
-                         value = 250, min = 1),
-            numericInput("Y1.Stocking.Density", label = tags$div("Y1 Stocking Density:", 
-                                                              helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Stocking density of 1-2 year old scallops.</i>"))),
-                         value = 25, min = 1),
-            numericInput("Y2.Stocking.Density", label = tags$div("Y2 Stocking Density:", 
-                                                                 helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Stocking density of 2-3 year old scallops.</i>"))),
-                         value = 10, min = 1),
-            numericInput("Y3.Stocking.Density", label = tags$div("Y3 Stocking Density:", 
-                                                                 helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Stocking density of 3-4 year old scallops.</i>"))),
-                         value = 10, min = 1),
-           ),
-          
-          box(
-            title = "Mortality Parameters",
-            width = 4,
-            numericInput("Y0.Mortality", label = tags$div("Y0 Mortality:", 
-                                                              helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Annual Mortality of 0-1 year old seed scallops.</i>"))),
-                         value = 0.125, min = 0, max = 1),
-            numericInput("Y1.Mortality", label = tags$div("Y1 Mortality:", 
-                                                                 helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Annual Mortality of 1-2 year old scallops.</i>"))),
-                         value = 0.125, min = 0, max = 1),
-            numericInput("Y2.Mortality", label = tags$div("Y2 Mortality:", 
-                                                                 helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Annual Mortality of 2-3 year old scallops.</i>"))),
-                         value = 0.125, min = 0, max = 1),
-            numericInput("Y3.Mortality", label = tags$div("Y3 Mortality:", 
-                                                                 helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Annual Mortality of 3-4 year old scallops.</i>"))),
-                         value = 0.125, min = 0, max = 1),
-            
-          ),
-          
-          box(
-            title = "More Parameters",
-            width = 4,
-            numericInput("Seed.Purchace.Cost", label = tags$div("Seed Purchase Cost:", 
-                                                          helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>How much scallop seed costs.  Often sold in batches of price/1000 scallops but that varies so growers will just have to divide.</i>"))),
-                         value = 0.01, min = 0, max = 1),
-            
-            numericInput("Mooring.Length", label = tags$div("Mooring Length:", 
-                                                                helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>This is the mooring length as a function of longline suspended depth.  Literature recommends a mooring length of 3-4 times the depth..</i>"))),
-                         value = 4, min = 2, max = 8),
-            
-            numericInput("Surface.Float.Spacing", label = tags$div("Surface Float Spacing (feet):", 
-                                                                helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>space between surface buoys attached to longline meant for general visibility.</i>"))),
-                         value = 100, min = 0),
-            
-            numericInput("Longline.Spacing", label = tags$div("Longline Spacing:", 
-                                                            helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Margin between longline and lease boundary which will afect total lease area.</i>"))),
-                         value = 120, min = 0),
-            
-            numericInput("Shellfish.License", label = tags$div("Shellfish License Cost:", 
-                                                            helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>All growers require an annual shellfish license that is a fixed operating cost.</i>"))),
-                         value = 1200, min = 0),
-            
-            numericInput("Collectors.Line", label = tags$div("Collectors.Line:", 
-                                                            helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Each anchor line for spat collection has several collectors attached.</i>"))),
-                         value = 10, min = 0),
-            
-            numericInput("Gangion.Length", label = tags$div("Gangion Length:", 
-                                                            helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Gangions or rope lengths used to attach gear such as lantern nets and sub surface buoys to longline.</i>"))),
-                         value = 4, min = 0),
-            
-            numericInput("Daily.Work.Hours", label = tags$div("Daily Work Hours:", 
-                                                            helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Daily work paid for part time help.</i>"))),
-                         value = 8, min = 0, max = 24)
-            
-            ),
-          
-          box(
-            title = "Latern Net Parameters",
-            width = 4,
-            numericInput("Lantern.Net.Tiers", label = tags$div("Lantern Net Tiers:",
-                                              helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Standard is 7 or 10 but there can be 20 or more.</i>"))),
-                         value = 10, min = 0),
-            numericInput("Lantern.Net.Hardball.Spacing", label = tags$div("Lantern Net Hardball Spacing:", 
-                                              helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>hard balls or compression resistant buoys used below the surface to keep gear off the bottom.  .</i>"))),
-                         value = 10, min = 0),
-            numericInput("Lantern.Net.Anchor.Spacing", label = tags$div("Lantern Net Anchor Spacing:", 
-                                              helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Anchors are placed along longline to keep drift from current to a minimum.</i>"))),
-                         value = 25, min = 0),
-            numericInput("Lantern.Net.Spacing", label = tags$div("Lantern Net Spacing:", 
-                                              helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Will affect total longline length.</i>"))),
-                         value = 3, min = 0),
-          ),
-          
-          box(
-            title = "Ear Hanging Parameters",
-            width = 4,
-            numericInput("Ear.Hanging.Hardball.Spacing", label = tags$div("Ear Hanging Hardball Spacing:", 
-                                              helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Similar to lantern nets but less for dropper lines due to lower surface area.</i>"))),
-                         value = 40, min = 0),
-            numericInput("Ear.Hanging.Anchor.Spacing", label = tags$div("Ear Hanging Anchor Spacing:", 
-                                              helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Same but for anchors.</i>"))),
-                         value = 10, min = 0)
-          ),
-          
-          box(
-            title = "Dropper Parameters",
-            width = 4,
-            numericInput("Dropper.Line.Spacing", label = tags$div("Dropper Line Spacing:", 
-                                              helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Spacing between dropper lines.</i>"))),
-                         value = 1, min = 0),
-            
-            numericInput("Scallops.Per.Dropper", label = tags$div("Scallops Per Dropper:", 
-                                              helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Total scallops on each dropper line scallops are hung in pairs.</i>"))),
-                         value = 140, min = 0),
-            
-            numericInput("Scallop.Spacing", label = tags$div("Scallop Spacing:", 
-                                              helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Spacing between each scallop couplet.</i>"))),
-                         value = 0.5, min = 0),
-            
-            numericInput("Dropper.Margins", label = tags$div("Dropper Margins:", 
-                                              helpText(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Margin on either end, growers want a margin near the top to avoid scallops being out of the water when working the line.</i>"))),
-                         value = 10, min = 0),
-            textOutput("Ear.Hanging.Droppers"),
-            textOutput("Dropper.Length")
-            
-          ),
+          uiOutput("secondary_inputs"),
           
           box(
             title = "Yearly Products:",
@@ -749,63 +554,73 @@ ui <- dashboardPage(
           )
         )
       ),
-
-### ----------------------------------Plots Output Tab------------------------------------------------------
+      
+      ### ----------------------------------Plots Output Tab------------------------------------------------------
       tabItem(
         tabName = "Plots",
         fluidPage(
           box(title = "Labor Costs",
               width = 12,
               plotOutput('LAB')
-              ),
+          ),
           box(title = "Cost of Good Sold",
               width = 12,
               plotOutput('COG')
           ),
           box(title = "Fixed Overhead Costs",
-            width = 12,
-            plotOutput('FOG')
+              width = 12,
+              plotOutput('FOG')
           )
         )
-        ),
-### --------------Outputs Pane----------------------------------------------------------------------------------------------      
-# Third tab content (Output)
+      ),
+      ### --------------Outputs Pane----------------------------------------------------------------------------------------------      
+      # Third tab content (Output)
       tabItem(
         tabName = "Output",
         fluidPage(
-          box(
-            #collapsible = TRUE,
-            width = 14,
-            headerPanel("Economic Metrics (Abductor)"),
-            dataTableOutput("Economic.Metrics.Abductor"),
-            headerPanel("Economic Metrics (Whole)"),
-            dataTableOutput("Economic.Metrics.Whole") ,
-            headerPanel("Cost of Production"),
-            dataTableOutput("Cost.Production"),
-            headerPanel("Equipment Costs"),
-            dataTableOutput("Equipment"),
-            headerPanel("Labor"),
-            dataTableOutput("Labor"),
-            headerPanel("Fuel Cost"),
-            dataTableOutput("Fuel"),
-            headerPanel("Maintenance Costs"),
-            dataTableOutput("Maintenance"),
-            headerPanel("Primary Inputs"),
-            dataTableOutput("Primary"),
-            headerPanel("Secondary Inputs"),
-            dataTableOutput("Secondary")
+          actionButton("save_button", "Save Excel Workbook"),
+          
+          tabsetPanel(
+            tabPanel("Economic Metrics (Abductor)",
+                     dataTableOutput("Economic.Metrics.Abductor")
+            ),
+            tabPanel("Economic Metrics (Whole)",
+                     dataTableOutput("Economic.Metrics.Whole")
+            ),
+            tabPanel("Cost of Production",
+                     dataTableOutput("Cost.Production")
+            ),
+            tabPanel("Equipment Costs",
+                     dataTableOutput("Equipment")
+            ),
+            tabPanel("Labor",
+                     dataTableOutput("Labor")
+            ),
+            tabPanel("Fuel Cost",
+                     dataTableOutput("Fuel")
+            ),
+            tabPanel("Maintenance Costs",
+                     dataTableOutput("Maintenance")
+            ),
+            tabPanel("Primary Inputs",
+                     dataTableOutput("Primary")
+            ),
+            tabPanel("Secondary Inputs",
+                     dataTableOutput("Secondary")
             )
           )
         )
-)
-)
-)
+      )
+    )
+  ))
+
 
 
 ### --------------------------------SERVER--------------------------------------------------------------
 # God Help Us
 server <- function(input, output) {
-### --------Processing Mortality and Dropper Product Calculations----------------------------------------------------------------------------------------
+  
+  ### --------Processing Mortality and Dropper Product Calculations----------------------------------------------------------------------------------------
   #Initilizing Model results
   Output.List <- reactiveValues(Output.List = Output.List)              #these represent the variable that are defined going into it
   plt.List <- reactiveValues(plt.List = plt.List)
@@ -819,43 +634,43 @@ server <- function(input, output) {
                                Dropper.Length = NULL)
   
   observe({                                  #This is where calculations occur
-    Mort.Calcs$Y1.Product <- input$Product * (1 - input$Y0.Mortality)
-    Mort.Calcs$Y2.Product <- Mort.Calcs$Y1.Product * (1 - input$Y1.Mortality)
-    Mort.Calcs$Y3.Product <- Mort.Calcs$Y2.Product * (1 - input$Y2.Mortality)
-    Mort.Calcs$Y4.Product <- Mort.Calcs$Y3.Product * (1 - input$Y3.Mortality)
-    Mort.Calcs$Ear.Hanging.Droppers <- ceiling((Mort.Calcs$Y2.Product/input$Scallops.Per.Dropper))
-    Mort.Calcs$Dropper.Length <- ((input$Scallops.Per.Dropper * input$Scallop.Spacing)/2 + input$Dropper.Margins)
+    Mort.Calcs$Y1.Product <- input$pe * (1 - input$sg)
+    Mort.Calcs$Y2.Product <- Mort.Calcs$Y1.Product * (1 - input$sh)
+    Mort.Calcs$Y3.Product <- Mort.Calcs$Y2.Product * (1 - input$si)
+    Mort.Calcs$Y4.Product <- Mort.Calcs$Y3.Product * (1 - input$sj)
+    Mort.Calcs$Ear.Hanging.Droppers <- ceiling((Mort.Calcs$Y2.Product/input$sac))
+    Mort.Calcs$Dropper.Length <- ((input$sac * input$sad)/2 + input$sae)
   })
   
   
   # Update the text output when any of the input variables change
-    output$Y1_Product <- renderText({
-      return(paste("Y1.Product: ", round(Mort.Calcs$Y1.Product, 0)))
-    })
-    
-    output$Y2_Product <- renderText({
-      return(paste("Y2.Product: ", round(Mort.Calcs$Y2.Product, 0)))
-    })
-    
-    output$Y3_Product <- renderText({
-      return(paste("Y3.Product: ", round(Mort.Calcs$Y3.Product, 0)))
-    })
-    
-    output$Y4_Product <- renderText({
-      return(paste("Y4.Product: ", round(Mort.Calcs$Y4.Product, 0)))
-    })
-    
-    output$Ear.Hanging.Droppers <- renderText({
-      return(paste("Ear.Hanging.Droppers: ", round(Mort.Calcs$Ear.Hanging.Droppers, 0)))
-    })
-    
-    output$Dropper.Length <- renderText({
-      return(paste("Dropper.Length: ", round(Mort.Calcs$Dropper.Length, 0)))
-    })
+  output$Y1_Product <- renderText({
+    return(paste("Y1.Product: ", round(Mort.Calcs$Y1.Product, 0)))
+  })
+  
+  output$Y2_Product <- renderText({
+    return(paste("Y2.Product: ", round(Mort.Calcs$Y2.Product, 0)))
+  })
+  
+  output$Y3_Product <- renderText({
+    return(paste("Y3.Product: ", round(Mort.Calcs$Y3.Product, 0)))
+  })
+  
+  output$Y4_Product <- renderText({
+    return(paste("Y4.Product: ", round(Mort.Calcs$Y4.Product, 0)))
+  })
+  
+  output$Ear.Hanging.Droppers <- renderText({
+    return(paste("Ear.Hanging.Droppers: ", round(Mort.Calcs$Ear.Hanging.Droppers, 0)))
+  })
+  
+  output$Dropper.Length <- renderText({
+    return(paste("Dropper.Length: ", round(Mort.Calcs$Dropper.Length, 0)))
+  })
   
   
   
-# ---------Placeholder for Additional stuff----------------------------------------------------------------------------------------------------------------------
+  # ---------Placeholder for Additional stuff----------------------------------------------------------------------------------------------------------------------
   # Placeholder for model execution
   # observeEvent(input$run_model, {
   #   # Replace this with your actual model logic
@@ -870,35 +685,35 @@ server <- function(input, output) {
   #   })
   # })
   # 
-### -------Rendering Graphical Outputs-----------------------------------------------------------------------------------------------------  
+  ### -------Rendering Graphical Outputs-----------------------------------------------------------------------------------------------------  
   output$LAB <- renderPlot(plt.List$plt.List$LAB_plt)
   output$COG <- renderPlot(plt.List$plt.List$COG_plt)
   output$FOG <- renderPlot(plt.List$plt.List$FOG_plt)
   
   
   
-### -------Rendering table outputs-----------------------------------------------------------------------------------------------------  
+  ### -------Rendering table outputs-----------------------------------------------------------------------------------------------------  
   #Making a spreadsheet - for now this doesnt respond to running the moddle as the model isn't implimented
   # Its reading from the Output.List
   
   output$Economic.Metrics.Abductor <- renderDataTable(
-  datatable(Output.List$Output.List$`Economic Metrics (Adductor)`,
-            options = list(paging = FALSE,    ## paginate the output
-                           scrollX = TRUE,   ## enable scrolling on X axis
-                           scrollY = TRUE,   ## enable scrolling on Y axis
-                           autoWidth = FALSE, ## use smart column width handling
-                           server = FALSE,  ## use client-side processing
-                           searching = FALSE,
-                           info = FALSE,
-                           dom = 'Bfrtip',     ##Bfrtip
-                           buttons = c('csv', 'excel'),
-                           columnDefs = list(list(targets = "_all", orderable  = FALSE))
-            ),
-            extensions = 'Buttons',
-            selection = 'single', ## enable selection of a single row
-            filter = 'none',              ## include column filters at the bottom
-            rownames = TRUE, colnames = rep("", ncol(Output.List$Output.List$`Economic Metrics (Adductor)`))       ## don't show row numbers/names
-  ))
+    datatable(Output.List$Output.List$`Economic Metrics (Adductor)`,
+              options = list(paging = FALSE,    ## paginate the output
+                             scrollX = TRUE,   ## enable scrolling on X axis
+                             scrollY = TRUE,   ## enable scrolling on Y axis
+                             autoWidth = FALSE, ## use smart column width handling
+                             server = FALSE,  ## use client-side processing
+                             searching = FALSE,
+                             info = FALSE,
+                             dom = 'Bfrtip',     ##Bfrtip
+                             buttons = c('csv', 'excel'),
+                             columnDefs = list(list(targets = "_all", orderable  = FALSE))
+              ),
+              extensions = 'Buttons',
+              selection = 'single', ## enable selection of a single row
+              filter = 'none',              ## include column filters at the bottom
+              rownames = TRUE, colnames = rep("", ncol(Output.List$Output.List$`Economic Metrics (Adductor)`))       ## don't show row numbers/names
+    ))
   
   output$Economic.Metrics.Whole <- renderDataTable(
     datatable(Output.List$Output.List$`Economic Metrics (Whole)`,
@@ -939,8 +754,8 @@ server <- function(input, output) {
               selection = 'single', ## enable selection of a single row
               filter = 'none',              ## include column filters at the bottom
               rownames = FALSE       ## don't show row numbers/names
-              )
     )
+  )
   
   output$Equipment <- renderDataTable(
     datatable(Output.List$Output.List$Equipment,
@@ -1068,29 +883,120 @@ server <- function(input, output) {
     )
   )
   
-###----------Observe Model Run-------------------------------------------------------------------------------------------------------------------  
+  ###---------------------------------------Procedural Inputs!!--------------------------------------------------
+  Primary.Parameter.Data<- read_excel(file_path, sheet = 'Primary')
+  output$primary_inputs <- renderUI({
+    unique_groups <- unique(Primary.Parameter.Data$Group)
+    
+    # For each unique group, create a separate box
+    box_list <- lapply(unique_groups, function(group) {
+      group_data <- subset(Primary.Parameter.Data, Group == group)
+      
+      input_list <- lapply(1:nrow(group_data), function(i) {
+        info <- group_data[i, ]
+        if (info$Type == "cat") {
+          tagList(
+            selectInput(info$ID, info$VariableName, choices = strsplit(info$Range, ",")[[1]], selected = info$Value),
+            bsTooltip(info$ID, title = info$toolTip)
+          )
+        } else if (info$Type == "slider") {
+          tagList(
+            sliderInput(info$ID, info$VariableName, min = info$Min, max = info$Max, value = info$Value),
+            bsTooltip(info$ID, title = info$toolTip)
+          )
+        } else if (info$Type == "num") {
+          tagList(
+            numericInput(info$ID, info$VariableName, min = info$Min, max = info$Max, value = info$Value),
+            bsTooltip(info$ID, title = info$toolTip)
+          )
+        }
+      })
+      
+      box(
+        title = group,
+        status = "info",
+        solidHeader = TRUE,
+        width = 6,
+        do.call(tagList, input_list)
+      )
+    })
+    
+    do.call(tagList, box_list)
+  })
+  
+  
+  Secondary.Data<- read_excel(file_path, sheet = 'Secondary')
+  Secondary.Data <- Secondary.Data[!is.na(Secondary.Data$Type), ]
+  
+  output$secondary_inputs <- renderUI({
+    unique_groups <- unique(Secondary.Data$Group)
+    
+    # For each unique group, create a separate box
+    box_list <- lapply(unique_groups, function(group) {
+      group_data <- subset(Secondary.Data, Group == group)
+      
+      input_list <- lapply(1:nrow(group_data), function(i) {
+        info <- group_data[i, ]
+        if (info$Type == "cat") {
+          tagList(
+            selectInput(info$ID, info$VariableName, choices = strsplit(info$Range, ",")[[1]], selected = info$Value),
+            bsTooltip(info$ID, title = info$toolTip)
+          )
+        } else if (info$Type == "slider") {
+          tagList(
+            sliderInput(info$ID, info$VariableName, min = info$Min, max = info$Max, value = info$Value),
+            bsTooltip(info$ID, title = info$toolTip)
+          )
+        } else if (info$Type == "num") {
+          tagList(
+            numericInput(info$ID, info$VariableName, min = info$Min, max = info$Max, value = info$Value),
+            bsTooltip(info$ID, title = info$toolTip)
+          )
+        }
+      })
+      
+      box(
+        title = group,
+        status = "info",
+        solidHeader = TRUE,
+        width = 6,
+        if (group == "Dropper Parameters"){
+          input_list <- append(input_list, tagList(textOutput("Ear.Hanging.Droppers"),
+                                                   textOutput("Dropper.Length")))
+          do.call(tagList, input_list)
+        }else{
+          do.call(tagList, input_list)
+          
+        }
+        
+      )
+    })
+    
+    do.call(tagList, box_list)
+  })
+  
+  
+  ###----------Observe Model Run-------------------------------------------------------------------------------------------------------------------  
   observeEvent(input$run_model, {#Fake running of the model - updates all the thingy
     
     #Procedural Adding in the input variables
-    pInput.List <- c("Lease.Type","Longline.Quantity","Longline.Depth","Longline.SusDepth","Product","Starting.Year","Consumables","Owner.Salary","Insurance","Employee.Number","Employee.Salary","Part.Time.Wage","Harvest.Season","Harvest.Year","Spat.Procurement","Intermediate.Culture","Grow.Out")
-    pVar.Names <- Primary.Parameter.Data$VariableName
-  
+    pInput.List <- Primary.Parameter.Data$ID[!is.na(Primary.Parameter.Data$ID)]
+    pVar.Names <- Primary.Parameter.Data$VariableName[!is.na(Primary.Parameter.Data$ID)]
+    
     for (i in c(1:length(pInput.List))){
       inputName <- pInput.List[i]
       inputValue <- input[[inputName]]
       globName <- pVar.Names[i]
-      
       assign(globName, inputValue, envir = .GlobalEnv)
     }
     
-    sInput.List <- c( "Wild.Spat.Collector", "Spat.Site.Depth", "Seed.Net.Density", "Y1.Stocking.Density", "Y2.Stocking.Density", "Y3.Stocking.Density", "Y0.Mortality", "Y1.Mortality", "Y2.Mortality", "Y3.Mortality", "Seed.Purchace.Cost", "Mooring.Length", "Surface.Float.Spacing", "Longline.Spacing", "Shellfish.License", "Collectors.Line", "Gangion.Length", "Daily.Work.Hours", "Lantern.Net.Tiers", "Lantern.Net.Hardball.Spacing", "Lantern.Net.Anchor.Spacing", "Lantern.Net.Spacing", "Ear.Hanging.Hardball.Spacing", "Ear.Hanging.Anchor.Spacing", "Dropper.Line.Spacing", "Scallops.Per.Dropper", "Scallop.Spacing", "Dropper.Margins")
-    sVar.Names <- c( "Wild Spat Collector", "Spat Site Depth", "Seed Net Density", "Y1 Stocking Density", "Y2 Stocking Density", "Y3 Stocking Density", "Y0 Mortality", "Y1 Mortality", "Y2 Mortality", "Y3 Mortality", "Seed Purchase Cost", "Mooring Length", "Surface Float Spacing", "Longline Spacing", "Shellfish License", "Collectors Line", "Gangion Length", "Daily Work Hours", "Lantern Net Tiers", "Lantern Net Hardball Spacing", "Lantern Net Anchor Spacing", "Lantern Net Spacing", "Ear Hanging Hardball Spacing", "Ear Hanging Anchor Spacing", "Dropper Line Spacing", "Scallops Per Dropper", "Scallop Spacing", "Dropper Margins")
+    sInput.List <- Secondary.Data$ID[!is.na(Secondary.Data$ID)]
+    sVar.Names <- Secondary.Data$VariableName[!is.na(Secondary.Data$ID)]
     
     for (i in c(1:length(sInput.List))){
       inputName <- sInput.List[i]
       inputValue <- input[[inputName]]
       globName <- sVar.Names[i]
-      
       assign(globName, inputValue, envir = .GlobalEnv)
     }
     
@@ -1102,7 +1008,7 @@ server <- function(input, output) {
     `Dropper Length` <-  Mort.Calcs$Dropper.Length
     
     
-###--------This is the normal Model stuff---------------------------------------------------------------------------------------
+    ###--------This is the normal Model stuff---------------------------------------------------------------------------------------
     #Twst to make sure some change occurs!
     #`Harvest Year` <- 'Y4'
     
@@ -1526,52 +1432,47 @@ server <- function(input, output) {
     # Equipment, Labor, Fuel, and Maintenance tables + Primary and secondary inputs and Pane2 contents
     
     Output.List$Output.List <- list("Economic Metrics (Adductor)" = Pane2.Adductor, 
-                        "Economic Metrics (Whole)" = Pane2.Whole,
-                        "Cost of Production" = COP,
-                        "Equipment" = Equipment.Subset,
-                        "Labor" = Labor.Subset,
-                        "Fuel" = Fuel.Subset,
-                        "Maintenance" = Maintenance.Subset,
-                        "Primary Inputs" = Primary.Parameter.Data,
-                        "Secondary" = Secondary.Data)
+                                    "Economic Metrics (Whole)" = Pane2.Whole,
+                                    "Cost of Production" = COP,
+                                    "Equipment" = Equipment.Subset,
+                                    "Labor" = Labor.Subset,
+                                    "Fuel" = Fuel.Subset,
+                                    "Maintenance" = Maintenance.Subset,
+                                    "Primary Inputs" = Primary.Parameter.Data,
+                                    "Secondary" = Secondary.Data)
     
   })
-
+  
+  observeEvent(input$save_button, {
+    wb <- createWorkbook()
+    
+    # # Remove all existing sheets in the workbook
+    # for (i in c(length(wb$worksheets):1)) {
+    #   removeWorksheet(wb, sheet = i)
+    # }
+    
+    data_list <- Output.List$Output.List
+    
+    # Loop through data frames and add sheets to the workbook
+    for (i in seq_along(data_list)) {
+      sheet_name <- names(data_list)[i]
+      addWorksheet(wb, sheetName = sheet_name)
+      writeData(wb, sheet = sheet_name, x = data_list[[i]])
+    }
+    
+    # Get the current date and time
+    current_time <- format(Sys.time(), "%Y%m%d_%H%M%S")
+    
+    # Construct the file name with a unique timestamp
+    file_name <- paste0("BioEconomic_Model_Output_", current_time, ".xlsx")
+    
+    # Save the workbook
+    saveWorkbook(wb, file = file_name, overwrite = TRUE)
+    
+  })
+  
+  
 }
 ###-----------Run Application------------------------------------------------------------------------------------------------------
 # Run the application
 shinyApp(ui, server)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

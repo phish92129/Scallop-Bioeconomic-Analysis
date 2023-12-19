@@ -1,4 +1,4 @@
-library(shiny)
+  library(shiny)
 library(shinydashboard)
 library(readr)
 library(tidyr)
@@ -520,23 +520,23 @@ ui <- dashboardPage(
       menuItem("Secondary Inputs", tabName = "input2", icon = icon("sliders")),
       menuItem("Graph Outputs", tabName = "Plots", icon = icon("chart-simple")),
       menuItem("Table Outputs", tabName = "Output", icon = icon("table"))
-      )
-    ),
-#-------------------------------------PRIMARY INPUTS -> UI Only--------------------------------------------------------------------------------------------------------------
-###
+    )
+  ),
+  #-------------------------------------PRIMARY INPUTS -> UI Only--------------------------------------------------------------------------------------------------------------
+  ###
   dashboardBody(
     tabItems(
       # First tab content (Input1)
       tabItem(
         tabName = "input1",
         fluidPage(
-            uiOutput("primary_inputs"),
-            
-            actionButton("run_model", "Run Model")
-          )
-        ),
-
-###----------------------Secondary Inputs -> UI Only-----------------------------------------------------------------------------------------------------------
+          uiOutput("primary_inputs"),
+          
+          actionButton("run_model", "Run Model")
+        )
+      ),
+      
+      ###----------------------Secondary Inputs -> UI Only-----------------------------------------------------------------------------------------------------------
       # Second tab content (Input2)
       tabItem(
         tabName = "input2",
@@ -553,27 +553,27 @@ ui <- dashboardPage(
           )
         )
       ),
-
-### ----------------------------------Plots Output Tab------------------------------------------------------
+      
+      ### ----------------------------------Plots Output Tab------------------------------------------------------
       tabItem(
         tabName = "Plots",
         fluidPage(
           box(title = "Labor Costs",
               width = 12,
               plotOutput('LAB')
-              ),
+          ),
           box(title = "Cost of Good Sold",
               width = 12,
               plotOutput('COG')
           ),
           box(title = "Fixed Overhead Costs",
-            width = 12,
-            plotOutput('FOG')
+              width = 12,
+              plotOutput('FOG')
           )
         )
-        ),
-### --------------Outputs Pane----------------------------------------------------------------------------------------------      
-# Third tab content (Output)
+      ),
+      ### --------------Outputs Pane----------------------------------------------------------------------------------------------      
+      # Third tab content (Output)
       tabItem(
         tabName = "Output",
         fluidPage(
@@ -582,7 +582,7 @@ ui <- dashboardPage(
           tabsetPanel(
             tabPanel("Economic Metrics (Abductor)",
                      dataTableOutput("Economic.Metrics.Abductor")
-                     ),
+            ),
             tabPanel("Economic Metrics (Whole)",
                      dataTableOutput("Economic.Metrics.Whole")
             ),
@@ -608,10 +608,10 @@ ui <- dashboardPage(
                      dataTableOutput("Secondary")
             )
           )
-          )
         )
-)
-))
+      )
+    )
+  ))
 
 
 
@@ -619,7 +619,7 @@ ui <- dashboardPage(
 # God Help Us
 server <- function(input, output) {
   
-### --------Processing Mortality and Dropper Product Calculations----------------------------------------------------------------------------------------
+  ### --------Processing Mortality and Dropper Product Calculations----------------------------------------------------------------------------------------
   #Initilizing Model results
   Output.List <- reactiveValues(Output.List = Output.List)              #these represent the variable that are defined going into it
   plt.List <- reactiveValues(plt.List = plt.List)
@@ -643,33 +643,33 @@ server <- function(input, output) {
   
   
   # Update the text output when any of the input variables change
-    output$Y1_Product <- renderText({
-      return(paste("Y1.Product: ", round(Mort.Calcs$Y1.Product, 0)))
-    })
-    
-    output$Y2_Product <- renderText({
-      return(paste("Y2.Product: ", round(Mort.Calcs$Y2.Product, 0)))
-    })
-    
-    output$Y3_Product <- renderText({
-      return(paste("Y3.Product: ", round(Mort.Calcs$Y3.Product, 0)))
-    })
-    
-    output$Y4_Product <- renderText({
-      return(paste("Y4.Product: ", round(Mort.Calcs$Y4.Product, 0)))
-    })
-    
-    output$Ear.Hanging.Droppers <- renderText({
-      return(paste("Ear.Hanging.Droppers: ", round(Mort.Calcs$Ear.Hanging.Droppers, 0)))
-    })
-    
-    output$Dropper.Length <- renderText({
-      return(paste("Dropper.Length: ", round(Mort.Calcs$Dropper.Length, 0)))
-    })
+  output$Y1_Product <- renderText({
+    return(paste("Y1.Product: ", round(Mort.Calcs$Y1.Product, 0)))
+  })
+  
+  output$Y2_Product <- renderText({
+    return(paste("Y2.Product: ", round(Mort.Calcs$Y2.Product, 0)))
+  })
+  
+  output$Y3_Product <- renderText({
+    return(paste("Y3.Product: ", round(Mort.Calcs$Y3.Product, 0)))
+  })
+  
+  output$Y4_Product <- renderText({
+    return(paste("Y4.Product: ", round(Mort.Calcs$Y4.Product, 0)))
+  })
+  
+  output$Ear.Hanging.Droppers <- renderText({
+    return(paste("Ear.Hanging.Droppers: ", round(Mort.Calcs$Ear.Hanging.Droppers, 0)))
+  })
+  
+  output$Dropper.Length <- renderText({
+    return(paste("Dropper.Length: ", round(Mort.Calcs$Dropper.Length, 0)))
+  })
   
   
   
-# ---------Placeholder for Additional stuff----------------------------------------------------------------------------------------------------------------------
+  # ---------Placeholder for Additional stuff----------------------------------------------------------------------------------------------------------------------
   # Placeholder for model execution
   # observeEvent(input$run_model, {
   #   # Replace this with your actual model logic
@@ -684,35 +684,35 @@ server <- function(input, output) {
   #   })
   # })
   # 
-### -------Rendering Graphical Outputs-----------------------------------------------------------------------------------------------------  
+  ### -------Rendering Graphical Outputs-----------------------------------------------------------------------------------------------------  
   output$LAB <- renderPlot(plt.List$plt.List$LAB_plt)
   output$COG <- renderPlot(plt.List$plt.List$COG_plt)
   output$FOG <- renderPlot(plt.List$plt.List$FOG_plt)
   
   
   
-### -------Rendering table outputs-----------------------------------------------------------------------------------------------------  
+  ### -------Rendering table outputs-----------------------------------------------------------------------------------------------------  
   #Making a spreadsheet - for now this doesnt respond to running the moddle as the model isn't implimented
   # Its reading from the Output.List
   
   output$Economic.Metrics.Abductor <- renderDataTable(
-  datatable(Output.List$Output.List$`Economic Metrics (Adductor)`,
-            options = list(paging = FALSE,    ## paginate the output
-                           scrollX = TRUE,   ## enable scrolling on X axis
-                           scrollY = TRUE,   ## enable scrolling on Y axis
-                           autoWidth = FALSE, ## use smart column width handling
-                           server = FALSE,  ## use client-side processing
-                           searching = FALSE,
-                           info = FALSE,
-                           dom = 'Bfrtip',     ##Bfrtip
-                           buttons = c('csv', 'excel'),
-                           columnDefs = list(list(targets = "_all", orderable  = FALSE))
-            ),
-            extensions = 'Buttons',
-            selection = 'single', ## enable selection of a single row
-            filter = 'none',              ## include column filters at the bottom
-            rownames = TRUE, colnames = rep("", ncol(Output.List$Output.List$`Economic Metrics (Adductor)`))       ## don't show row numbers/names
-  ))
+    datatable(Output.List$Output.List$`Economic Metrics (Adductor)`,
+              options = list(paging = FALSE,    ## paginate the output
+                             scrollX = TRUE,   ## enable scrolling on X axis
+                             scrollY = TRUE,   ## enable scrolling on Y axis
+                             autoWidth = FALSE, ## use smart column width handling
+                             server = FALSE,  ## use client-side processing
+                             searching = FALSE,
+                             info = FALSE,
+                             dom = 'Bfrtip',     ##Bfrtip
+                             buttons = c('csv', 'excel'),
+                             columnDefs = list(list(targets = "_all", orderable  = FALSE))
+              ),
+              extensions = 'Buttons',
+              selection = 'single', ## enable selection of a single row
+              filter = 'none',              ## include column filters at the bottom
+              rownames = TRUE, colnames = rep("", ncol(Output.List$Output.List$`Economic Metrics (Adductor)`))       ## don't show row numbers/names
+    ))
   
   output$Economic.Metrics.Whole <- renderDataTable(
     datatable(Output.List$Output.List$`Economic Metrics (Whole)`,
@@ -753,8 +753,8 @@ server <- function(input, output) {
               selection = 'single', ## enable selection of a single row
               filter = 'none',              ## include column filters at the bottom
               rownames = FALSE       ## don't show row numbers/names
-              )
     )
+  )
   
   output$Equipment <- renderDataTable(
     datatable(Output.List$Output.List$Equipment,
@@ -882,7 +882,7 @@ server <- function(input, output) {
     )
   )
   
-###---------------------------------------Procedural Inputs!!--------------------------------------------------
+  ###---------------------------------------Procedural Inputs!!--------------------------------------------------
   Primary.Parameter.Data<- read_excel(file_path, sheet = 'Primary')
   output$primary_inputs <- renderUI({
     unique_groups <- unique(Primary.Parameter.Data$Group)
@@ -965,9 +965,9 @@ server <- function(input, output) {
           do.call(tagList, input_list)
         }else{
           do.call(tagList, input_list)
-
-        }
           
+        }
+        
       )
     })
     
@@ -975,13 +975,13 @@ server <- function(input, output) {
   })
   
   
-###----------Observe Model Run-------------------------------------------------------------------------------------------------------------------  
+  ###----------Observe Model Run-------------------------------------------------------------------------------------------------------------------  
   observeEvent(input$run_model, {#Fake running of the model - updates all the thingy
     
     #Procedural Adding in the input variables
     pInput.List <- Primary.Parameter.Data$ID[!is.na(Primary.Parameter.Data$ID)]
     pVar.Names <- Primary.Parameter.Data$VariableName[!is.na(Primary.Parameter.Data$ID)]
-  
+    
     for (i in c(1:length(pInput.List))){
       inputName <- pInput.List[i]
       inputValue <- input[[inputName]]
@@ -1007,7 +1007,7 @@ server <- function(input, output) {
     `Dropper Length` <-  Mort.Calcs$Dropper.Length
     
     
-###--------This is the normal Model stuff---------------------------------------------------------------------------------------
+    ###--------This is the normal Model stuff---------------------------------------------------------------------------------------
     #Twst to make sure some change occurs!
     #`Harvest Year` <- 'Y4'
     
@@ -1431,14 +1431,14 @@ server <- function(input, output) {
     # Equipment, Labor, Fuel, and Maintenance tables + Primary and secondary inputs and Pane2 contents
     
     Output.List$Output.List <- list("Economic Metrics (Adductor)" = Pane2.Adductor, 
-                        "Economic Metrics (Whole)" = Pane2.Whole,
-                        "Cost of Production" = COP,
-                        "Equipment" = Equipment.Subset,
-                        "Labor" = Labor.Subset,
-                        "Fuel" = Fuel.Subset,
-                        "Maintenance" = Maintenance.Subset,
-                        "Primary Inputs" = Primary.Parameter.Data,
-                        "Secondary" = Secondary.Data)
+                                    "Economic Metrics (Whole)" = Pane2.Whole,
+                                    "Cost of Production" = COP,
+                                    "Equipment" = Equipment.Subset,
+                                    "Labor" = Labor.Subset,
+                                    "Fuel" = Fuel.Subset,
+                                    "Maintenance" = Maintenance.Subset,
+                                    "Primary Inputs" = Primary.Parameter.Data,
+                                    "Secondary" = Secondary.Data)
     
   })
   
@@ -1469,9 +1469,13 @@ server <- function(input, output) {
     saveWorkbook(wb, file = file_name, overwrite = TRUE)
     
   })
- 
+  
   
 }
 ###-----------Run Application------------------------------------------------------------------------------------------------------
 # Run the application
 shinyApp(ui, server)
+
+
+
+
