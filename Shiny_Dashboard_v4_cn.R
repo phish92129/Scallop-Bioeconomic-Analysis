@@ -367,6 +367,9 @@ COP$`Run Rate (Adductor)` <- COP$`Cost of Production`/(COP$`Individual Scallops`
 COP$`Break Even Price (Adductor)` <- COP$Debt/cumsum((COP$`Individual Scallops`*COP$`Adductor (lb)`))
 COP <- COP %>% 
   mutate_if(is.numeric, round,digits=2)
+COP$Date <- year(COP$Date)
+COP$`Individual Scallops` <- round(COP$`Individual Scallops`, digits = 0)
+
 
 # COG + FOC = Cost of Production
 # We calculate from here two values, 10 year break even and run rate.
@@ -1305,6 +1308,9 @@ server <- function(input, output) {
     COP$`Break Even Price (Adductor)` <- COP$Debt/cumsum((COP$`Individual Scallops`*COP$`Adductor (lb)`))
     COP <- COP %>% 
       mutate_if(is.numeric, round,digits=2)
+    COP$Date <- year(COP$Date)
+    COP$`Individual Scallops` <- round(COP$`Individual Scallops`, digits = 0)
+    
     
     # COG + FOC = Cost of Production
     # We calculate from here two values, 10 year break even and run rate.
