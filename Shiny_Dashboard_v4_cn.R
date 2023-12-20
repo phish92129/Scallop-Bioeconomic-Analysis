@@ -25,7 +25,7 @@ if (!exists("Predicted.full")) {
 }
 
 # Set file path for spreadsheet
-file_path <- "./Components_V3.xlsx"
+file_path <- "./Components_V4.xlsx"
 
 # These are 'general' equipment inputs, labor tasks, fuel costs, and maintenance.  
 # I envision these will be designed to essentially be the 'entry' sections while the following sheet 
@@ -71,10 +71,6 @@ for (i in 1:nrow(Secondary.Data)) {
 
 # Remove extra stuff for clarity and good data practice
 rm(VariableName, Value)
-
-
-# Alright, I think I get it, so we can change the model assumptions for the analysis here
-# Year = "Y0"         #c("Initial", "Y0", "Y1", "Y2", "Y3")
 
 # Example Here, primary input of harvest year switched from Y3 to Y2
 # `Harvest Year` <- 'Y4'
@@ -299,7 +295,7 @@ COG$Maintenance <- ifelse(COG$Year == 0, sum(Maintenance.Subset$Maintenance.Cost
 COG$Consumables <- Consumables
 
 # Sum for the Cost of Goods Sold
-COG$Cost.of.Goods.Sold <- rowSums(COG[,(3:6)])
+COG$`Cost of Goods Sold` <- rowSums(COG[,(3:6)])
 
 # Note above, these are all variable costs
 
@@ -316,11 +312,11 @@ FOC$Lease <- ifelse(FOC$Year == 0,
 # Insurance is just the summed annual insurance payments
 FOC$Insurance <- Insurance
 # Annual shellfish aquaculture license fee
-FOC$Aquaculture.License <- `Shellfish License`
+FOC$`Aquaculture License` <- `Shellfish License`
 # Owner Salary is an annual payment amount to the owner
-FOC$Owner.Salary <- `Owner Salary`
+FOC$`Owner Salary` <- `Owner Salary`
 # Full time employee salary is an annual salary multiplied by the number of full time employees
-FOC$Full.Time.Employee <- `Full Time Employee` * `Employee Salary`
+FOC$`Full Time Employee` <- `Full Time Employee` * `Employee Salary`
 # Depreciation is based on the lifespan of a piece of equipment divided by the cost of the item.
 # It is an unrealized expense in that the cash is not spent, but should be considered reinvested to
 # replace gear in the future
@@ -330,43 +326,47 @@ FOC$Depreciation <- ifelse(COG$Year == 0,sum(Equipment.Subset$Depreciation[which
                                          ifelse(COG$Year == 3, sum(Equipment.Subset$Depreciation[which(Equipment.Subset$Year %in% Y3)]),
                                                 sum(Equipment.Subset$Depreciation)))))
 # Sum all rows for total annual fixed operating costs
-FOC$Fixed.Overhead.Costs <- rowSums(FOC[,(3:8)]) 
+FOC$`Fixed Overhead Costs` <- rowSums(FOC[,(3:8)]) 
 
 # Annual costs irregardless of year and business plan
 # Sum Insurance, Shelffish/Aq License, Lease Rent, Owner Salary, Depreciation (By year)
 # These are fixed overhead costs, ie costs that cannot be circumvented 
 
 # Cost of production is COG+FOC and is all realized and unrealized expenses...basically the total cost
-COP <- data.frame(Date.Frame,COG$Cost.of.Goods.Sold,FOC$Fixed.Overhead.Costs)
-COP$Cost.of.Production <- rowSums(COP[,3:4])
+COP <- data.frame(Date.Frame,COG$`Cost of Goods Sold`,FOC$`Fixed Overhead Costs`)
+colnames(COP)[3] <- "Cost of Goods Sold"
+colnames(COP)[4] <- "Fixed Overhead Costs"
+COP$`Cost of Production` <- rowSums(COP[,3:4])
 # Cumulative COP is what I am calling debt
-COP$Debt <- cumsum(COP$Cost.of.Production)
+COP$Debt <- cumsum(COP$`Cost of Production`)
 # Scallops sold at market, this is a fixed amount
-COP$Ind.Scallops <-  ifelse(COP$Year == 0 & `Harvest Year` == 'Y0', Growth.Data$Market.Product,
+COP$`Individual Scallops` <-  ifelse(COP$Year == 0 & `Harvest Year` == 'Y0', Growth.Data$Market.Product,
                             ifelse(COP$Year == 1 & `Harvest Year` == 'Y1', Growth.Data$Market.Product,
                                    ifelse(COP$Year == 2 & `Harvest Year` == 'Y2', Growth.Data$Market.Product,
                                           ifelse(COP$Year == 3 & `Harvest Year` == 'Y3', Growth.Data$Market.Product,
                                                  ifelse(COP$Year >3 & `Harvest Year` %in% Y4, Growth.Data$Market.Product,0)))))
 # Shell height in millimeters of market scallops
-COP$ShellHeight.mm <- ifelse(COP$Ind.Scallops == 0, 0,Growth.Data$Sh_Height)
+COP$`ShellHeight (mm)` <- ifelse(COP$`Individual Scallops` == 0, 0,Growth.Data$Sh_Height)
 # Shell height in inches for market scallops, we will use imperial units for the 
 # app since it is more valuable to fishermen
-COP$ShellHeight.Inches <- ifelse(COP$Ind.Scallops == 0, 0,Growth.Data$Sh_Height.inches)
+COP$`ShellHeight (Inches)` <- ifelse(COP$`Individual Scallops` == 0, 0,Growth.Data$Sh_Height.inches)
 # Adductor weight in grams
-COP$Adductor <- ifelse(COP$Ind.Scallops == 0, 0,Growth.Data$Adductor)
+COP$`Adductor (g)` <- ifelse(COP$`Individual Scallops` == 0, 0,Growth.Data$Adductor)
 # Adductor weight in pounds
-COP$Adductor.lbs <- ifelse(COP$Ind.Scallops == 0, 0,Growth.Data$Adductor.lbs)
+COP$`Adductor (lb)` <- ifelse(COP$`Individual Scallops` == 0, 0,Growth.Data$Adductor.lbs)
 # The industry standard for sale is as the amount of adductor meats in a pound.
 # Also called count per pound.  It's a psuedo weight binning strategy.
 # In general 30 count is small, 20 count is pretty normal and U10 is a large premium scallop
 # This isn't used in the calculations but is valuable to growers at a glance
-COP$count.lbs <- ifelse(COP$Ind.Scallops == 0, 0,Growth.Data$count.lbs)
+COP$`Adductor Count per lb` <- ifelse(COP$`Individual Scallops` == 0, 0,Growth.Data$count.lbs)
 # calculate run rate and break even price for scallops, run rate is essentially constant
 # and breka even is averaged out over time.  run rate is the asymptote for break even curve
-COP$Run.Rate.Whole.Scallop <- COP$Cost.of.Production/COP$Ind.Scallops
-COP$Break.Even.Whole.Scallop <- COP$Debt/cumsum(COP$Ind.Scallops)
-COP$Run.Rate.Adductor <- COP$Cost.of.Production/(COP$Ind.Scallops*COP$Adductor.lbs)
-COP$Break.Even.Adductor <- COP$Debt/cumsum((COP$Ind.Scallops*COP$Adductor.lbs))
+COP$`Run Rate (Whole Scallop)` <- COP$`Cost of Production`/COP$`Individual Scallops`
+COP$`Break Even Price (Whole Scallop)` <- COP$Debt/cumsum(COP$`Individual Scallops`)
+COP$`Run Rate (Adductor)` <- COP$`Cost of Production`/(COP$`Individual Scallops`*COP$`Adductor (lb)`)
+COP$`Break Even Price (Adductor)` <- COP$Debt/cumsum((COP$`Individual Scallops`*COP$`Adductor (lb)`))
+COP <- COP %>% 
+  mutate_if(is.numeric, round,digits=2)
 
 # COG + FOC = Cost of Production
 # We calculate from here two values, 10 year break even and run rate.
@@ -388,22 +388,22 @@ ScallopAdductor.lbs <- 30
 # Finally depreciation is taken out as an unrealized expense for physical cash flow.
 
 PL.add <- Date.Frame
-PL.add$Gross.Sales.Revenue <- ScallopAdductor.lbs*(COP$Ind.Scallops*Growth.Data$Adductor.lbs)
-PL.add$Gross.Profit <- PL.add$Gross.Sales.Revenue - COP$COG.Cost.of.Goods.Sold 
-PL.add$Gross.Profit.Margin <- (PL.add$Gross.Profit/PL.add$Gross.Sales.Revenue)*100
-PL.add$Net.Profit <- PL.add$Gross.Profit - COP$FOC.Fixed.Overhead.Costs
-PL.add$Net.Profit.Margin <- (PL.add$Net.Profit/PL.add$Gross.Sales.Revenue)*100
+PL.add$`Gross Sales Revenue` <- ScallopAdductor.lbs*(COP$`Individual Scallops`*Growth.Data$Adductor.lbs)
+PL.add$`Gross Profit` <- PL.add$`Gross Sales Revenue` - COP$`Cost of Goods Sold` 
+PL.add$`Gross Profit Margin` <- (PL.add$`Gross Profit`/PL.add$`Gross Sales Revenue`)*100
+PL.add$`Net Profit` <- PL.add$`Gross Profit` - COP$`Fixed Overhead Costs`
+PL.add$`Net Profit Margin` <- (PL.add$`Net Profit`/PL.add$`Gross Sales Revenue`)*100
 PL.add$Depreciation <- FOC$Depreciation
-PL.add$Cash.Flow.YE <- cumsum(PL.add$Net.Profit-FOC$Depreciation)
+PL.add$`Year End Cash Flow` <- cumsum(PL.add$`Net Profit`-FOC$Depreciation)
 
 PL.Whole <- Date.Frame
-PL.Whole$Gross.Sales.Revenue <- Whole.Scallop.Price*COP$Ind.Scallops
-PL.Whole$Gross.Profit <-  PL.Whole$Gross.Sales.Revenue - COP$COG.Cost.of.Goods.Sold 
-PL.Whole$Gross.Profit.Margin <-  (PL.Whole$Gross.Profit/PL.Whole$Gross.Sales.Revenue)*100
-PL.Whole$Net.Profit <-  PL.Whole$Gross.Profit - COP$FOC.Fixed.Overhead.Costs
-PL.Whole$Net.Profit.Margin <-  (PL.Whole$Net.Profit/ PL.Whole$Gross.Sales.Revenue)*100
+PL.Whole$`Gross Sales Revenue` <- Whole.Scallop.Price*COP$`Individual Scallops`
+PL.Whole$`Gross Profit` <-  PL.Whole$`Gross Sales Revenue` - COP$`Cost of Goods Sold` 
+PL.Whole$`Gross Profit Margin` <-  (PL.Whole$`Gross Profit`/PL.Whole$`Gross Sales Revenue`)*100
+PL.Whole$`Net Profit` <-  PL.Whole$`Gross Profit` - COP$`Fixed Overhead Costs`
+PL.Whole$`Net Profit Margin` <-  (PL.Whole$`Net Profit`/ PL.Whole$`Gross Sales Revenue`)*100
 PL.Whole$Depreciation <- FOC$Depreciation
-PL.Whole$Cash.Flow.YE <- cumsum(PL.Whole$Net.Profit-FOC$Depreciation)
+PL.Whole$`Year End Cash Flow` <- cumsum(PL.Whole$`Net Profit`-FOC$Depreciation)
 # Net Profit, 10 years
 # Subtract FOC from GP to get net profit
 
@@ -421,24 +421,26 @@ PL.Whole$Cash.Flow.YE <- cumsum(PL.Whole$Net.Profit-FOC$Depreciation)
 Pane1 <- data.frame('Market Individuals' = Growth.Data$Market.Product,
                     'Shell Height (Inches)' = Growth.Data$Sh_Height.inches,
                     'Adductor Count/lb' = Growth.Data$count.lbs,
-                    'Run Rate (lbs)' = subset(COP, Year == 10)$Run.Rate.Adductor, 
-                    'Run Rate (Piece)' = subset(COP, Year == 10)$Run.Rate.Whole.Scallop,
-                    '10 Year Break Even (lbs)' = subset(COP, Year == 10)$Break.Even.Adductor,
-                    '10 Year Break Even (Piece)' = subset(COP, Year == 10)$Break.Even.Whole.Scallop,
+                    'Run Rate (lbs)' = subset(COP, Year == 10)$`Run Rate (Adductor)`, 
+                    'Run Rate (Piece)' = subset(COP, Year == 10)$`Run Rate (Whole Scallop)`,
+                    '10 Year Break Even (lbs)' = subset(COP, Year == 10)$`Break Even Price (Adductor)`,
+                    '10 Year Break Even (Piece)' = subset(COP, Year == 10)$`Break Even Price (Whole Scallop)`,
                     'Minimum Lease Size (Acres)' = Lease.Footprint$Acres)
-Pane1 <- round(Pane1, digits = 2) 
-
+Pane1 <- round(Pane1, digits = 2)
 # Labor metrics I think would also be simple and helpful by season (or by year?)
 
-LAB_plt <- ggplot(Labor.metrics, aes(area=Work.Days, fill = Season, label=Work.Days))  + 
+LAB_plt <- ggplot(Labor.Subset, aes(area=Hours.Paid/8, fill = Season, label=paste(Category, 
+                    (Hours.Paid/8), sep = "\n Work Days:"), subgroup=Season))  + 
   geom_treemap(layout="squarified")+
   geom_treemap_text(colour = "black",
                     place = "centre",
-                    size = 15) +
+                    size = 10) +
+  geom_treemap_subgroup_border(colour = "white", size = 2) +
   theme_minimal() +
+  scale_fill_manual(values = c('#e09f3e','#559e2c','#15b2d3','#66676d' )) +
   theme(panel.grid.major.x=element_blank(), panel.grid.major.y=element_blank()) + #remove gridlines
   theme(panel.grid.minor.x=element_blank(), panel.grid.minor.y=element_blank()) + #remove gridlines
-  ggtitle("Annual Work Days") +
+  ggtitle("Annual Work Days by Season and Task") +
   theme(panel.border = element_rect(colour = "black", fill=NA, size=1))
 
 # Next, visual representation of COG and FOC
@@ -450,6 +452,7 @@ COG.plot$Year<- as.factor(COG.plot$Year)
 COG_plt <- ggplot(COG.plot, aes(x=Year, y = Cost, fill = Category))  + 
   geom_bar(aes(),stat='identity')+
   theme_minimal() +
+  scale_fill_brewer(palette = 'Set1') +
   theme(panel.grid.major.x=element_blank(), panel.grid.major.y=element_blank()) + #remove gridlines
   theme(panel.grid.minor.x=element_blank(), panel.grid.minor.y=element_blank()) + #remove gridlines
   ggtitle("10 Year Cost of Goods Sold Breakdown") +
@@ -458,7 +461,7 @@ COG_plt <- ggplot(COG.plot, aes(x=Year, y = Cost, fill = Category))  +
   theme(panel.border = element_rect(colour = "black", fill=NA, size=1))
 
 FOC.Plot <- FOC[,-9]
-FOC.Plot <- gather(FOC.Plot, key = 'Category',value = 'Cost', Lease,Insurance,Aquaculture.License,Owner.Salary,Full.Time.Employee,Depreciation)
+FOC.Plot <- gather(FOC.Plot, key = 'Category',value = 'Cost', Lease,Insurance,`Aquaculture License`,`Owner Salary`,`Full Time Employee`,Depreciation)
 FOC.Plot <- subset(FOC.Plot, Year == 10)
 FOC.Plot$Year <- as.factor(FOC.Plot$Year)
 
@@ -511,32 +514,33 @@ Output.List <- list("Economic Metrics (Adductor)" = Pane2.Adductor,
                     "Secondary" = Secondary.Data)
 
 
+
 ###-----------------------------Define UI------------------------------------------------------
 ui <- dashboardPage(
-  dashboardHeader(title = "BioEconomic Model"),
+  dashboardHeader(title = "Build Your Scallop Farm"),
   dashboardSidebar(
     sidebarMenu(
       menuItem("Primary Inputs", tabName = "input1", icon = icon("gears")),
       menuItem("Secondary Inputs", tabName = "input2", icon = icon("sliders")),
-      menuItem("Graph Outputs", tabName = "Plots", icon = icon("chart-simple")),
-      menuItem("Table Outputs", tabName = "Output", icon = icon("table"))
-      )
-    ),
-#-------------------------------------PRIMARY INPUTS -> UI Only--------------------------------------------------------------------------------------------------------------
-###
+      menuItem("Farm at a Glance", tabName = "Plots", icon = icon("chart-simple")),
+      menuItem("Detailed Metrics", tabName = "Output", icon = icon("table"))
+    )
+  ),
+  #-------------------------------------PRIMARY INPUTS -> UI Only--------------------------------------------------------------------------------------------------------------
+  ###
   dashboardBody(
     tabItems(
       # First tab content (Input1)
       tabItem(
         tabName = "input1",
         fluidPage(
-            uiOutput("primary_inputs"),
-            
-            actionButton("run_model", "Run Model")
-          )
-        ),
-
-###----------------------Secondary Inputs -> UI Only-----------------------------------------------------------------------------------------------------------
+          uiOutput("primary_inputs"),
+          
+          actionButton("run_model", "Run Model")
+        )
+      ),
+      
+      ###----------------------Secondary Inputs -> UI Only-----------------------------------------------------------------------------------------------------------
       # Second tab content (Input2)
       tabItem(
         tabName = "input2",
@@ -553,27 +557,27 @@ ui <- dashboardPage(
           )
         )
       ),
-
-### ----------------------------------Plots Output Tab------------------------------------------------------
+      
+      ### ----------------------------------Plots Output Tab------------------------------------------------------
       tabItem(
         tabName = "Plots",
         fluidPage(
           box(title = "Labor Costs",
               width = 12,
               plotOutput('LAB')
-              ),
+          ),
           box(title = "Cost of Good Sold",
               width = 12,
               plotOutput('COG')
           ),
           box(title = "Fixed Overhead Costs",
-            width = 12,
-            plotOutput('FOG')
+              width = 12,
+              plotOutput('FOG')
           )
         )
-        ),
-### --------------Outputs Pane----------------------------------------------------------------------------------------------      
-# Third tab content (Output)
+      ),
+      ### --------------Outputs Pane----------------------------------------------------------------------------------------------      
+      # Third tab content (Output)
       tabItem(
         tabName = "Output",
         fluidPage(
@@ -582,7 +586,7 @@ ui <- dashboardPage(
           tabsetPanel(
             tabPanel("Economic Metrics (Abductor)",
                      dataTableOutput("Economic.Metrics.Abductor")
-                     ),
+            ),
             tabPanel("Economic Metrics (Whole)",
                      dataTableOutput("Economic.Metrics.Whole")
             ),
@@ -608,10 +612,10 @@ ui <- dashboardPage(
                      dataTableOutput("Secondary")
             )
           )
-          )
         )
-)
-))
+      )
+    )
+  ))
 
 
 
@@ -619,7 +623,7 @@ ui <- dashboardPage(
 # God Help Us
 server <- function(input, output) {
   
-### --------Processing Mortality and Dropper Product Calculations----------------------------------------------------------------------------------------
+  ### --------Processing Mortality and Dropper Product Calculations----------------------------------------------------------------------------------------
   #Initilizing Model results
   Output.List <- reactiveValues(Output.List = Output.List)              #these represent the variable that are defined going into it
   plt.List <- reactiveValues(plt.List = plt.List)
@@ -643,33 +647,33 @@ server <- function(input, output) {
   
   
   # Update the text output when any of the input variables change
-    output$Y1_Product <- renderText({
-      return(paste("Y1.Product: ", round(Mort.Calcs$Y1.Product, 0)))
-    })
-    
-    output$Y2_Product <- renderText({
-      return(paste("Y2.Product: ", round(Mort.Calcs$Y2.Product, 0)))
-    })
-    
-    output$Y3_Product <- renderText({
-      return(paste("Y3.Product: ", round(Mort.Calcs$Y3.Product, 0)))
-    })
-    
-    output$Y4_Product <- renderText({
-      return(paste("Y4.Product: ", round(Mort.Calcs$Y4.Product, 0)))
-    })
-    
-    output$Ear.Hanging.Droppers <- renderText({
-      return(paste("Ear.Hanging.Droppers: ", round(Mort.Calcs$Ear.Hanging.Droppers, 0)))
-    })
-    
-    output$Dropper.Length <- renderText({
-      return(paste("Dropper.Length: ", round(Mort.Calcs$Dropper.Length, 0)))
-    })
+  output$Y1_Product <- renderText({
+    return(paste("Y1.Product: ", round(Mort.Calcs$Y1.Product, 0)))
+  })
+  
+  output$Y2_Product <- renderText({
+    return(paste("Y2.Product: ", round(Mort.Calcs$Y2.Product, 0)))
+  })
+  
+  output$Y3_Product <- renderText({
+    return(paste("Y3.Product: ", round(Mort.Calcs$Y3.Product, 0)))
+  })
+  
+  output$Y4_Product <- renderText({
+    return(paste("Y4.Product: ", round(Mort.Calcs$Y4.Product, 0)))
+  })
+  
+  output$Ear.Hanging.Droppers <- renderText({
+    return(paste("Ear.Hanging.Droppers: ", round(Mort.Calcs$Ear.Hanging.Droppers, 0)))
+  })
+  
+  output$Dropper.Length <- renderText({
+    return(paste("Dropper.Length: ", round(Mort.Calcs$Dropper.Length, 0)))
+  })
   
   
   
-# ---------Placeholder for Additional stuff----------------------------------------------------------------------------------------------------------------------
+  # ---------Placeholder for Additional stuff----------------------------------------------------------------------------------------------------------------------
   # Placeholder for model execution
   # observeEvent(input$run_model, {
   #   # Replace this with your actual model logic
@@ -684,35 +688,35 @@ server <- function(input, output) {
   #   })
   # })
   # 
-### -------Rendering Graphical Outputs-----------------------------------------------------------------------------------------------------  
+  ### -------Rendering Graphical Outputs-----------------------------------------------------------------------------------------------------  
   output$LAB <- renderPlot(plt.List$plt.List$LAB_plt)
   output$COG <- renderPlot(plt.List$plt.List$COG_plt)
   output$FOG <- renderPlot(plt.List$plt.List$FOG_plt)
   
   
   
-### -------Rendering table outputs-----------------------------------------------------------------------------------------------------  
+  ### -------Rendering table outputs-----------------------------------------------------------------------------------------------------  
   #Making a spreadsheet - for now this doesnt respond to running the moddle as the model isn't implimented
   # Its reading from the Output.List
   
   output$Economic.Metrics.Abductor <- renderDataTable(
-  datatable(Output.List$Output.List$`Economic Metrics (Adductor)`,
-            options = list(paging = FALSE,    ## paginate the output
-                           scrollX = TRUE,   ## enable scrolling on X axis
-                           scrollY = TRUE,   ## enable scrolling on Y axis
-                           autoWidth = FALSE, ## use smart column width handling
-                           server = FALSE,  ## use client-side processing
-                           searching = FALSE,
-                           info = FALSE,
-                           dom = 'Bfrtip',     ##Bfrtip
-                           buttons = c('csv', 'excel'),
-                           columnDefs = list(list(targets = "_all", orderable  = FALSE))
-            ),
-            extensions = 'Buttons',
-            selection = 'single', ## enable selection of a single row
-            filter = 'none',              ## include column filters at the bottom
-            rownames = TRUE, colnames = rep("", ncol(Output.List$Output.List$`Economic Metrics (Adductor)`))       ## don't show row numbers/names
-  ))
+    datatable(Output.List$Output.List$`Economic Metrics (Adductor)`,
+              options = list(paging = FALSE,    ## paginate the output
+                             scrollX = TRUE,   ## enable scrolling on X axis
+                             scrollY = TRUE,   ## enable scrolling on Y axis
+                             autoWidth = FALSE, ## use smart column width handling
+                             server = FALSE,  ## use client-side processing
+                             searching = FALSE,
+                             info = FALSE,
+                             dom = 'Bfrtip',     ##Bfrtip
+                             buttons = c('csv', 'excel'),
+                             columnDefs = list(list(targets = "_all", orderable  = FALSE))
+              ),
+              extensions = 'Buttons',
+              selection = 'single', ## enable selection of a single row
+              filter = 'none',              ## include column filters at the bottom
+              rownames = TRUE, colnames = rep("", ncol(Output.List$Output.List$`Economic Metrics (Adductor)`))       ## don't show row numbers/names
+    ))
   
   output$Economic.Metrics.Whole <- renderDataTable(
     datatable(Output.List$Output.List$`Economic Metrics (Whole)`,
@@ -753,8 +757,8 @@ server <- function(input, output) {
               selection = 'single', ## enable selection of a single row
               filter = 'none',              ## include column filters at the bottom
               rownames = FALSE       ## don't show row numbers/names
-              )
     )
+  )
   
   output$Equipment <- renderDataTable(
     datatable(Output.List$Output.List$Equipment,
@@ -882,7 +886,7 @@ server <- function(input, output) {
     )
   )
   
-###---------------------------------------Procedural Inputs!!--------------------------------------------------
+  ###---------------------------------------Procedural Inputs!!--------------------------------------------------
   Primary.Parameter.Data<- read_excel(file_path, sheet = 'Primary')
   output$primary_inputs <- renderUI({
     unique_groups <- unique(Primary.Parameter.Data$Group)
@@ -965,9 +969,9 @@ server <- function(input, output) {
           do.call(tagList, input_list)
         }else{
           do.call(tagList, input_list)
-
-        }
           
+        }
+        
       )
     })
     
@@ -975,13 +979,13 @@ server <- function(input, output) {
   })
   
   
-###----------Observe Model Run-------------------------------------------------------------------------------------------------------------------  
+  ###----------Observe Model Run-------------------------------------------------------------------------------------------------------------------  
   observeEvent(input$run_model, {#Fake running of the model - updates all the thingy
     
     #Procedural Adding in the input variables
     pInput.List <- Primary.Parameter.Data$ID[!is.na(Primary.Parameter.Data$ID)]
     pVar.Names <- Primary.Parameter.Data$VariableName[!is.na(Primary.Parameter.Data$ID)]
-  
+    
     for (i in c(1:length(pInput.List))){
       inputName <- pInput.List[i]
       inputValue <- input[[inputName]]
@@ -1007,7 +1011,7 @@ server <- function(input, output) {
     `Dropper Length` <-  Mort.Calcs$Dropper.Length
     
     
-###--------This is the normal Model stuff---------------------------------------------------------------------------------------
+    ###--------This is the normal Model stuff---------------------------------------------------------------------------------------
     #Twst to make sure some change occurs!
     #`Harvest Year` <- 'Y4'
     
@@ -1229,7 +1233,7 @@ server <- function(input, output) {
     COG$Consumables <- Consumables
     
     # Sum for the Cost of Goods Sold
-    COG$Cost.of.Goods.Sold <- rowSums(COG[,(3:6)])
+    COG$`Cost of Goods Sold` <- rowSums(COG[,(3:6)])
     
     # Note above, these are all variable costs
     
@@ -1246,11 +1250,11 @@ server <- function(input, output) {
     # Insurance is just the summed annual insurance payments
     FOC$Insurance <- Insurance
     # Annual shellfish aquaculture license fee
-    FOC$Aquaculture.License <- `Shellfish License`
+    FOC$`Aquaculture License` <- `Shellfish License`
     # Owner Salary is an annual payment amount to the owner
-    FOC$Owner.Salary <- `Owner Salary`
+    FOC$`Owner Salary` <- `Owner Salary`
     # Full time employee salary is an annual salary multiplied by the number of full time employees
-    FOC$Full.Time.Employee <- `Full Time Employee` * `Employee Salary`
+    FOC$`Full Time Employee` <- `Full Time Employee` * `Employee Salary`
     # Depreciation is based on the lifespan of a piece of equipment divided by the cost of the item.
     # It is an unrealized expense in that the cash is not spent, but should be considered reinvested to
     # replace gear in the future
@@ -1260,43 +1264,47 @@ server <- function(input, output) {
                                              ifelse(COG$Year == 3, sum(Equipment.Subset$Depreciation[which(Equipment.Subset$Year %in% Y3)]),
                                                     sum(Equipment.Subset$Depreciation)))))
     # Sum all rows for total annual fixed operating costs
-    FOC$Fixed.Overhead.Costs <- rowSums(FOC[,(3:8)]) 
+    FOC$`Fixed Overhead Costs` <- rowSums(FOC[,(3:8)]) 
     
     # Annual costs irregardless of year and business plan
     # Sum Insurance, Shelffish/Aq License, Lease Rent, Owner Salary, Depreciation (By year)
     # These are fixed overhead costs, ie costs that cannot be circumvented 
     
     # Cost of production is COG+FOC and is all realized and unrealized expenses...basically the total cost
-    COP <- data.frame(Date.Frame,COG$Cost.of.Goods.Sold,FOC$Fixed.Overhead.Costs)
-    COP$Cost.of.Production <- rowSums(COP[,3:4])
+    COP <- data.frame(Date.Frame,COG$`Cost of Goods Sold`,FOC$`Fixed Overhead Costs`)
+    colnames(COP)[3] <- "Cost of Goods Sold"
+    colnames(COP)[4] <- "Fixed Overhead Costs"
+    COP$`Cost of Production` <- rowSums(COP[,3:4])
     # Cumulative COP is what I am calling debt
-    COP$Debt <- cumsum(COP$Cost.of.Production)
+    COP$Debt <- cumsum(COP$`Cost of Production`)
     # Scallops sold at market, this is a fixed amount
-    COP$Ind.Scallops <-  ifelse(COP$Year == 0 & `Harvest Year` == 'Y0', Growth.Data$Market.Product,
-                                ifelse(COP$Year == 1 & `Harvest Year` == 'Y1', Growth.Data$Market.Product,
-                                       ifelse(COP$Year == 2 & `Harvest Year` == 'Y2', Growth.Data$Market.Product,
-                                              ifelse(COP$Year == 3 & `Harvest Year` == 'Y3', Growth.Data$Market.Product,
-                                                     ifelse(COP$Year >3 & `Harvest Year` %in% Y4, Growth.Data$Market.Product,0)))))
+    COP$`Individual Scallops` <-  ifelse(COP$Year == 0 & `Harvest Year` == 'Y0', Growth.Data$Market.Product,
+                                         ifelse(COP$Year == 1 & `Harvest Year` == 'Y1', Growth.Data$Market.Product,
+                                                ifelse(COP$Year == 2 & `Harvest Year` == 'Y2', Growth.Data$Market.Product,
+                                                       ifelse(COP$Year == 3 & `Harvest Year` == 'Y3', Growth.Data$Market.Product,
+                                                              ifelse(COP$Year >3 & `Harvest Year` %in% Y4, Growth.Data$Market.Product,0)))))
     # Shell height in millimeters of market scallops
-    COP$ShellHeight.mm <- ifelse(COP$Ind.Scallops == 0, 0,Growth.Data$Sh_Height)
+    COP$`ShellHeight (mm)` <- ifelse(COP$`Individual Scallops` == 0, 0,Growth.Data$Sh_Height)
     # Shell height in inches for market scallops, we will use imperial units for the 
     # app since it is more valuable to fishermen
-    COP$ShellHeight.Inches <- ifelse(COP$Ind.Scallops == 0, 0,Growth.Data$Sh_Height.inches)
+    COP$`ShellHeight (Inches)` <- ifelse(COP$`Individual Scallops` == 0, 0,Growth.Data$Sh_Height.inches)
     # Adductor weight in grams
-    COP$Adductor <- ifelse(COP$Ind.Scallops == 0, 0,Growth.Data$Adductor)
+    COP$`Adductor (g)` <- ifelse(COP$`Individual Scallops` == 0, 0,Growth.Data$Adductor)
     # Adductor weight in pounds
-    COP$Adductor.lbs <- ifelse(COP$Ind.Scallops == 0, 0,Growth.Data$Adductor.lbs)
+    COP$`Adductor (lb)` <- ifelse(COP$`Individual Scallops` == 0, 0,Growth.Data$Adductor.lbs)
     # The industry standard for sale is as the amount of adductor meats in a pound.
     # Also called count per pound.  It's a psuedo weight binning strategy.
     # In general 30 count is small, 20 count is pretty normal and U10 is a large premium scallop
     # This isn't used in the calculations but is valuable to growers at a glance
-    COP$count.lbs <- ifelse(COP$Ind.Scallops == 0, 0,Growth.Data$count.lbs)
+    COP$`Adductor Count per lb` <- ifelse(COP$`Individual Scallops` == 0, 0,Growth.Data$count.lbs)
     # calculate run rate and break even price for scallops, run rate is essentially constant
     # and breka even is averaged out over time.  run rate is the asymptote for break even curve
-    COP$Run.Rate.Whole.Scallop <- COP$Cost.of.Production/COP$Ind.Scallops
-    COP$Break.Even.Whole.Scallop <- COP$Debt/cumsum(COP$Ind.Scallops)
-    COP$Run.Rate.Adductor <- COP$Cost.of.Production/(COP$Ind.Scallops*COP$Adductor.lbs)
-    COP$Break.Even.Adductor <- COP$Debt/cumsum((COP$Ind.Scallops*COP$Adductor.lbs))
+    COP$`Run Rate (Whole Scallop)` <- COP$`Cost of Production`/COP$`Individual Scallops`
+    COP$`Break Even Price (Whole Scallop)` <- COP$Debt/cumsum(COP$`Individual Scallops`)
+    COP$`Run Rate (Adductor)` <- COP$`Cost of Production`/(COP$`Individual Scallops`*COP$`Adductor (lb)`)
+    COP$`Break Even Price (Adductor)` <- COP$Debt/cumsum((COP$`Individual Scallops`*COP$`Adductor (lb)`))
+    COP <- COP %>% 
+      mutate_if(is.numeric, round,digits=2)
     
     # COG + FOC = Cost of Production
     # We calculate from here two values, 10 year break even and run rate.
@@ -1318,22 +1326,22 @@ server <- function(input, output) {
     # Finally depreciation is taken out as an unrealized expense for physical cash flow.
     
     PL.add <- Date.Frame
-    PL.add$Gross.Sales.Revenue <- ScallopAdductor.lbs*(COP$Ind.Scallops*Growth.Data$Adductor.lbs)
-    PL.add$Gross.Profit <- PL.add$Gross.Sales.Revenue - COP$COG.Cost.of.Goods.Sold 
-    PL.add$Gross.Profit.Margin <- (PL.add$Gross.Profit/PL.add$Gross.Sales.Revenue)*100
-    PL.add$Net.Profit <- PL.add$Gross.Profit - COP$FOC.Fixed.Overhead.Costs
-    PL.add$Net.Profit.Margin <- (PL.add$Net.Profit/PL.add$Gross.Sales.Revenue)*100
+    PL.add$`Gross Sales Revenue` <- ScallopAdductor.lbs*(COP$`Individual Scallops`*Growth.Data$Adductor.lbs)
+    PL.add$`Gross Profit` <- PL.add$`Gross Sales Revenue` - COP$`Cost of Goods Sold` 
+    PL.add$`Gross Profit Margin` <- (PL.add$`Gross Profit`/PL.add$`Gross Sales Revenue`)*100
+    PL.add$`Net Profit` <- PL.add$`Gross Profit` - COP$`Fixed Overhead Costs`
+    PL.add$`Net Profit Margin` <- (PL.add$`Net Profit`/PL.add$`Gross Sales Revenue`)*100
     PL.add$Depreciation <- FOC$Depreciation
-    PL.add$Cash.Flow.YE <- cumsum(PL.add$Net.Profit-FOC$Depreciation)
+    PL.add$`Year End Cash Flow` <- cumsum(PL.add$`Net Profit`-FOC$Depreciation)
     
     PL.Whole <- Date.Frame
-    PL.Whole$Gross.Sales.Revenue <- Whole.Scallop.Price*COP$Ind.Scallops
-    PL.Whole$Gross.Profit <-  PL.Whole$Gross.Sales.Revenue - COP$COG.Cost.of.Goods.Sold 
-    PL.Whole$Gross.Profit.Margin <-  (PL.Whole$Gross.Profit/PL.Whole$Gross.Sales.Revenue)*100
-    PL.Whole$Net.Profit <-  PL.Whole$Gross.Profit - COP$FOC.Fixed.Overhead.Costs
-    PL.Whole$Net.Profit.Margin <-  (PL.Whole$Net.Profit/ PL.Whole$Gross.Sales.Revenue)*100
+    PL.Whole$`Gross Sales Revenue` <- Whole.Scallop.Price*COP$`Individual Scallops`
+    PL.Whole$`Gross Profit` <-  PL.Whole$`Gross Sales Revenue` - COP$`Cost of Goods Sold` 
+    PL.Whole$`Gross Profit Margin` <-  (PL.Whole$`Gross Profit`/PL.Whole$`Gross Sales Revenue`)*100
+    PL.Whole$`Net Profit` <-  PL.Whole$`Gross Profit` - COP$`Fixed Overhead Costs`
+    PL.Whole$`Net Profit Margin` <-  (PL.Whole$`Net Profit`/ PL.Whole$`Gross Sales Revenue`)*100
     PL.Whole$Depreciation <- FOC$Depreciation
-    PL.Whole$Cash.Flow.YE <- cumsum(PL.Whole$Net.Profit-FOC$Depreciation)
+    PL.Whole$`Year End Cash Flow` <- cumsum(PL.Whole$`Net Profit`-FOC$Depreciation)
     # Net Profit, 10 years
     # Subtract FOC from GP to get net profit
     
@@ -1351,24 +1359,27 @@ server <- function(input, output) {
     Pane1 <- data.frame('Market Individuals' = Growth.Data$Market.Product,
                         'Shell Height (Inches)' = Growth.Data$Sh_Height.inches,
                         'Adductor Count/lb' = Growth.Data$count.lbs,
-                        'Run Rate (lbs)' = subset(COP, Year == 10)$Run.Rate.Adductor, 
-                        'Run Rate (Piece)' = subset(COP, Year == 10)$Run.Rate.Whole.Scallop,
-                        '10 Year Break Even (lbs)' = subset(COP, Year == 10)$Break.Even.Adductor,
-                        '10 Year Break Even (Piece)' = subset(COP, Year == 10)$Break.Even.Whole.Scallop,
+                        'Run Rate (lbs)' = subset(COP, Year == 10)$`Run Rate (Adductor)`, 
+                        'Run Rate (Piece)' = subset(COP, Year == 10)$`Run Rate (Whole Scallop)`,
+                        '10 Year Break Even (lbs)' = subset(COP, Year == 10)$`Break Even Price (Adductor)`,
+                        '10 Year Break Even (Piece)' = subset(COP, Year == 10)$`Break Even Price (Whole Scallop)`,
                         'Minimum Lease Size (Acres)' = Lease.Footprint$Acres)
-    Pane1 <- round(Pane1, digits = 2) 
+    Pane1 <- round(Pane1, digits = 2)
     
     # Labor metrics I think would also be simple and helpful by season (or by year?)
     
-    LAB_plt <- ggplot(Labor.metrics, aes(area=Work.Days, fill = Season, label=Work.Days))  + 
+    LAB_plt <- ggplot(Labor.Subset, aes(area=Hours.Paid/8, fill = Season, label=paste(Category, 
+                                                                                      (Hours.Paid/8), sep = "\n Work Days:"), subgroup=Season))  + 
       geom_treemap(layout="squarified")+
       geom_treemap_text(colour = "black",
                         place = "centre",
-                        size = 15) +
+                        size = 10) +
+      geom_treemap_subgroup_border(colour = "white", size = 2) +
       theme_minimal() +
+      scale_fill_manual(values = c('#e09f3e','#559e2c','#15b2d3','#66676d' )) +
       theme(panel.grid.major.x=element_blank(), panel.grid.major.y=element_blank()) + #remove gridlines
       theme(panel.grid.minor.x=element_blank(), panel.grid.minor.y=element_blank()) + #remove gridlines
-      ggtitle("Annual Work Days") +
+      ggtitle("Annual Work Days by Season and Task") +
       theme(panel.border = element_rect(colour = "black", fill=NA, size=1))
     
     # Next, visual representation of COG and FOC
@@ -1380,6 +1391,7 @@ server <- function(input, output) {
     COG_plt <- ggplot(COG.plot, aes(x=Year, y = Cost, fill = Category))  + 
       geom_bar(aes(),stat='identity')+
       theme_minimal() +
+      scale_fill_brewer(palette = 'Set1') +
       theme(panel.grid.major.x=element_blank(), panel.grid.major.y=element_blank()) + #remove gridlines
       theme(panel.grid.minor.x=element_blank(), panel.grid.minor.y=element_blank()) + #remove gridlines
       ggtitle("10 Year Cost of Goods Sold Breakdown") +
@@ -1388,7 +1400,7 @@ server <- function(input, output) {
       theme(panel.border = element_rect(colour = "black", fill=NA, size=1))
     
     FOC.Plot <- FOC[,-9]
-    FOC.Plot <- gather(FOC.Plot, key = 'Category',value = 'Cost', Lease,Insurance,Aquaculture.License,Owner.Salary,Full.Time.Employee,Depreciation)
+    FOC.Plot <- gather(FOC.Plot, key = 'Category',value = 'Cost', Lease,Insurance,`Aquaculture License`,`Owner Salary`,`Full Time Employee`,Depreciation)
     FOC.Plot <- subset(FOC.Plot, Year == 10)
     FOC.Plot$Year <- as.factor(FOC.Plot$Year)
     
@@ -1431,14 +1443,14 @@ server <- function(input, output) {
     # Equipment, Labor, Fuel, and Maintenance tables + Primary and secondary inputs and Pane2 contents
     
     Output.List$Output.List <- list("Economic Metrics (Adductor)" = Pane2.Adductor, 
-                        "Economic Metrics (Whole)" = Pane2.Whole,
-                        "Cost of Production" = COP,
-                        "Equipment" = Equipment.Subset,
-                        "Labor" = Labor.Subset,
-                        "Fuel" = Fuel.Subset,
-                        "Maintenance" = Maintenance.Subset,
-                        "Primary Inputs" = Primary.Parameter.Data,
-                        "Secondary" = Secondary.Data)
+                                    "Economic Metrics (Whole)" = Pane2.Whole,
+                                    "Cost of Production" = COP,
+                                    "Equipment" = Equipment.Subset,
+                                    "Labor" = Labor.Subset,
+                                    "Fuel" = Fuel.Subset,
+                                    "Maintenance" = Maintenance.Subset,
+                                    "Primary Inputs" = Primary.Parameter.Data,
+                                    "Secondary" = Secondary.Data)
     
   })
   
@@ -1469,9 +1481,10 @@ server <- function(input, output) {
     saveWorkbook(wb, file = file_name, overwrite = TRUE)
     
   })
- 
+  
   
 }
 ###-----------Run Application------------------------------------------------------------------------------------------------------
 # Run the application
 shinyApp(ui, server)
+

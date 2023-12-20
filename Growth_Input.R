@@ -61,7 +61,7 @@ populate_value.eh <- function(x){
                                                     Trial = 'Ear Hanging', 
                                                     Site = 'NA',
                                                     Cohort = 'NA'),
-                       type = "response")))+x[i-1]
+                       type = "response", allow.new.levels = TRUE)))+x[i-1]
   }
   x
 }
@@ -74,7 +74,7 @@ populate_value.ln <- function(x){
                                                     Trial = 'Lantern Net', 
                                                     Site = 'NA',
                                                     Cohort = 'NA'),
-                       type = "response")))+x[i-1]
+                       type = "response", allow.new.levels = TRUE)))+x[i-1]
   }
   x
 }

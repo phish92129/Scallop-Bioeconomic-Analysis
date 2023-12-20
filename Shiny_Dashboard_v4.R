@@ -1,5 +1,4 @@
-
-  library(shiny)
+library(shiny)
 library(shinydashboard)
 library(readr)
 library(tidyr)
@@ -1008,11 +1007,6 @@ server <- function(input, output) {
     `Dropper Length` <-  Mort.Calcs$Dropper.Length
     
     
-    ###--------This is the normal Model stuff---------------------------------------------------------------------------------------
-    #Twst to make sure some change occurs!
-    #`Harvest Year` <- 'Y4'
-    
-    
     # Creates vectors for Year steps
     Y0 <- c('Y0','all')
     Y1 <- c('Y0','Y1','all')
@@ -1394,7 +1388,7 @@ server <- function(input, output) {
     FOC.Plot$Year <- as.factor(FOC.Plot$Year)
     
     
-    FOC_plt <- ggplot(FOC.Plot, aes(x=Cost, y = Year, fill = Category))  + 
+    FOG_plt <- ggplot(FOC.Plot, aes(x=Cost, y = Year, fill = Category))  + 
       geom_bar(aes(),stat='identity')+
       theme_minimal() +
       theme(panel.grid.major.x=element_blank(), panel.grid.major.y=element_blank()) + #remove gridlines
