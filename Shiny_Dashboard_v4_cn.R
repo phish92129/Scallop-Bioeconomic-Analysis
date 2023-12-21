@@ -268,7 +268,7 @@ COG <- Date.Frame
 # Sum equipment, Labor, Fuel, and Maintenance by year cumulatively until the 
 # final year when it is a fully operational farm
 
-COG$Equipment <- ifelse(COG$Year == 0,sum(Equipment.Subset$Cost.Basis[which(Equipment.Subset$Year== Y0)]),
+COG$Equipment <- ifelse(COG$Year == 0,sum(Equipment.Subset$Cost.Basis[which(Equipment.Subset$Year=='Y0' | Equipment.Subset$Year=='all')]),
                         ifelse(COG$Year == 1,sum(Equipment.Subset$Cost.Basis[which(Equipment.Subset$Year== 'Y1')]),
                                ifelse(COG$Year == 2, sum(Equipment.Subset$Cost.Basis[which(Equipment.Subset$Year== 'Y2')]),
                                       ifelse(COG$Year == 3, sum(Equipment.Subset$Cost.Basis[which(Equipment.Subset$Year== 'Y3')]),0))))
@@ -1209,7 +1209,7 @@ server <- function(input, output) {
     # Sum equipment, Labor, Fuel, and Maintenance by year cumulatively until the 
     # final year when it is a fully operational farm
     
-    COG$Equipment <- ifelse(COG$Year == 0,sum(Equipment.Subset$Cost.Basis[which(Equipment.Subset$Year== Y0)]),
+    COG$Equipment <- ifelse(COG$Year == 0,sum(Equipment.Subset$Cost.Basis[which(Equipment.Subset$Year=='Y0' | Equipment.Subset$Year=='all')]),
                             ifelse(COG$Year == 1,sum(Equipment.Subset$Cost.Basis[which(Equipment.Subset$Year== 'Y1')]),
                                    ifelse(COG$Year == 2, sum(Equipment.Subset$Cost.Basis[which(Equipment.Subset$Year== 'Y2')]),
                                           ifelse(COG$Year == 3, sum(Equipment.Subset$Cost.Basis[which(Equipment.Subset$Year== 'Y3')]),0))))
