@@ -162,9 +162,13 @@ rm(Equipment.Subset.Global, Equipment.Subset.Year)
 Labor <- read_excel(file_path, sheet = 'Labor_Output')
 Labor.Subset <- left_join(Labor,Task.Data, by = 'Task')
 
+# Assign Harvest task to final year and season
+Labor.Subset$Year[Labor.Subset$Task == 'Harvest'] <- `Harvest Year`
+Labor.Subset$Season[Labor.Subset$Task == 'Harvest'] <- `Harvest Season`
+
 # Subset by Harvest Year, Farm type, and whether a task is completed (used for the cleaning)
 Labor.Subset <- Labor.Subset[which(Labor.Subset$Year %in% Harvest.Year & Labor.Subset$Type %in% Farm.strat & Labor.Subset$Completed %in% 'Y'),]
-Labor.Subset <- Labor.Subset[!(Labor.Subset$Year == `Harvest Year` & Labor.Subset$Season != Harvest.Season), ]
+Labor.Subset <- Labor.Subset[!(Labor.Subset$Year == `Harvest Year` & !(Labor.Subset$Season %in% Harvest.Season)), ]
 # Create initialized columns because it annoys me to see a warnng message
 Labor.Subset$Hours.Paid <- NA
 Labor.Subset$Labor.Costs <- NA
@@ -587,8 +591,8 @@ ui <- dashboardPage(
           actionButton("save_button", "Save Excel Workbook"),
           
           tabsetPanel(
-            tabPanel("Economic Metrics (Abductor)",
-                     dataTableOutput("Economic.Metrics.Abductor")
+            tabPanel("Economic Metrics (Adductor)",
+                     dataTableOutput("Economic.Metrics.Adductor")
             ),
             tabPanel("Economic Metrics (Whole)",
                      dataTableOutput("Economic.Metrics.Whole")
@@ -702,7 +706,7 @@ server <- function(input, output) {
   #Making a spreadsheet - for now this doesnt respond to running the moddle as the model isn't implimented
   # Its reading from the Output.List
   
-  output$Economic.Metrics.Abductor <- renderDataTable(
+  output$Economic.Metrics.Adductor <- renderDataTable(
     datatable(Output.List$Output.List$`Economic Metrics (Adductor)`,
               options = list(paging = FALSE,    ## paginate the output
                              scrollX = TRUE,   ## enable scrolling on X axis
@@ -1103,9 +1107,13 @@ server <- function(input, output) {
     Labor <- read_excel(file_path, sheet = 'Labor_Output')
     Labor.Subset <- left_join(Labor,Task.Data, by = 'Task')
     
+    # Assign Harvest task to final year and season
+    Labor.Subset$Year[Labor.Subset$Task == 'Harvest'] <- `Harvest Year`
+    Labor.Subset$Season[Labor.Subset$Task == 'Harvest'] <- `Harvest Season`
+    
     # Subset by Harvest Year, Farm type, and whether a task is completed (used for the cleaning)
     Labor.Subset <- Labor.Subset[which(Labor.Subset$Year %in% Harvest.Year & Labor.Subset$Type %in% Farm.strat & Labor.Subset$Completed %in% 'Y'),]
-    Labor.Subset <- Labor.Subset[!(Labor.Subset$Year == `Harvest Year` & Labor.Subset$Season != Harvest.Season), ]
+    Labor.Subset <- Labor.Subset[!(Labor.Subset$Year == `Harvest Year` & !(Labor.Subset$Season %in% Harvest.Season)), ]
     # Create initialized columns because it annoys me to see a warnng message
     Labor.Subset$Hours.Paid <- NA
     Labor.Subset$Labor.Costs <- NA
@@ -1422,7 +1430,7 @@ server <- function(input, output) {
             axis.title.y = element_blank(),
             axis.text.y = element_blank())
     
-    plt.List$plt.List <- list(LAB_plt = LAB_plt, COG_plt = COG_plt, FOG_plt = FOG_plt)
+    plt.List$plt.List <- list(LAB_plt = LAB_plt, COG_plt = COG_plt, FOG_plt = FOC_plt)
     
     ####### I think these will be a solid 'At a Glance' Section
     
@@ -1447,6 +1455,31 @@ server <- function(input, output) {
     
     # Finally, a Downloadable series of tables in an excel or .csv format including:
     # Equipment, Labor, Fuel, and Maintenance tables + Primary and secondary inputs and Pane2 contents
+    
+    # Clean up outputs
+    
+    Equipment.Subset <- Equipment.Subset[,-c(6,8)]
+    colnames(Equipment.Subset)[which(names(Equipment.Subset) == 'Unit.Cost')] <- 'Unit Cost'
+    colnames(Equipment.Subset)[which(names(Equipment.Subset) == 'Cost.Basis')] <- 'Cost Basis'
+    Equipment.Subset <- Equipment.Subset %>% 
+      mutate_if(is.numeric, round,digits=2)
+    
+    
+    Labor.Subset <- Labor.Subset[,-c(4,12)]
+    colnames(Labor.Subset)[which(names(Labor.Subset) == 'Task.Rate')] <- 'Task Rate'
+    colnames(Labor.Subset)[which(names(Labor.Subset) == 'Part.Time')] <- 'Part Time'
+    colnames(Labor.Subset)[which(names(Labor.Subset) == 'Hours.Paid')] <- 'Hours Paid'
+    colnames(Labor.Subset)[which(names(Labor.Subset) == 'Labor.Costs')] <- 'Part Time Labor Costs'
+    
+    Fuel.Subset <- Fuel.Subset[,-c(4)]
+    colnames(Fuel.Subset)[which(names(Fuel.Subset) == 'Price.Gallon')] <- 'Price Per Gallon'
+    colnames(Fuel.Subset)[which(names(Fuel.Subset) == 'Usage.Trip')] <- 'Usage per Trip'
+    colnames(Fuel.Subset)[which(names(Fuel.Subset) == 'Fuel.Cost')] <- 'Fuel Cost'
+    
+    Maintenance.Subset <- Maintenance.Subset[,c(1,2,3,5,6,4,7)]
+    colnames(Maintenance.Subset)[which(names(Maintenance.Subset) == 'Maintenance.Cost')] <- 'Maintenance Cost'
+    colnames(Maintenance.Subset)[which(names(Maintenance.Subset) == 'Unit.Type')] <- 'Unit Type'
+    colnames(Maintenance.Subset)[which(names(Maintenance.Subset) == 'Cost')] <- 'Unit Cost'
     
     Output.List$Output.List <- list("Economic Metrics (Adductor)" = Pane2.Adductor, 
                                     "Economic Metrics (Whole)" = Pane2.Whole,
