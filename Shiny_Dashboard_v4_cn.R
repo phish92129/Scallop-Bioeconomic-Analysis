@@ -4,6 +4,7 @@ library(readr)
 library(tidyr)
 library(lubridate)
 library(DT)
+library(shinyvalidate)
 library(shinyBS)
 library(zoo)
 library(shinyjs)
@@ -14,22 +15,32 @@ library(hablar) # For the function 'retype' that assigns values to data frame co
 library(ggplot2) # For graphics 
 library(treemapify) # Create a treemap even though donut charts are prettier
 library(openxlsx)
+library(flextable)
+library(grid)
+library(magick)
+library(cowplot)
+library(tidyverse)
+
+file_path <- "./Components_V4.xlsx"
 
 
 ###------------Model Run on Intital Conditions---------------------------
-if (!exists("Predicted.full")) {
-  # If the variable doesn't exist, run the specific R script
-  print("Running Growth_Input.R")
-  source("./Growth_Input.R")
-  print("Completed Running Growth_Input.R")
-}
+# if (!exists("Predicted.full")) {
+#   # If the variable doesn't exist, run the specific R script
+#   print("Running Growth_Input.R")
+#   source("./Growth_Input.R")
+#   print("Completed Running Growth_Input.R")
+# }
+#Just read in the Growth Input instead of running the whole program
+Predicted.full <- read_excel(file_path, sheet = 'Growth_Input')
+
 
 # Set file path for spreadsheet
-file_path <- "./Components_V4.xlsx"
 
 # These are 'general' equipment inputs, labor tasks, fuel costs, and maintenance.  
 # I envision these will be designed to essentially be the 'entry' sections while the following sheet 
 # Will be the hard coding not meant to be altered.
+
 
 # Load all equipment
 Equipment.Data <- read_excel(file_path, sheet = 'Equipment')
@@ -345,10 +356,10 @@ COP$`Cost of Production` <- rowSums(COP[,3:4])
 COP$Debt <- cumsum(COP$`Cost of Production`)
 # Scallops sold at market, this is a fixed amount
 COP$`Individual Scallops` <-  ifelse(COP$Year == 0 & `Harvest Year` == 'Y0', Growth.Data$Market.Product,
-                            ifelse(COP$Year == 1 & `Harvest Year` == 'Y1', Growth.Data$Market.Product,
-                                   ifelse(COP$Year == 2 & `Harvest Year` == 'Y2', Growth.Data$Market.Product,
-                                          ifelse(COP$Year == 3 & `Harvest Year` == 'Y3', Growth.Data$Market.Product,
-                                                 ifelse(COP$Year >3 & `Harvest Year` %in% Y4, Growth.Data$Market.Product,0)))))
+                                     ifelse(COP$Year == 1 & `Harvest Year` == 'Y1', Growth.Data$Market.Product,
+                                            ifelse(COP$Year == 2 & `Harvest Year` == 'Y2', Growth.Data$Market.Product,
+                                                   ifelse(COP$Year == 3 & `Harvest Year` == 'Y3', Growth.Data$Market.Product,
+                                                          ifelse(COP$Year >3 & `Harvest Year` %in% Y4, Growth.Data$Market.Product,0)))))
 # Shell height in millimeters of market scallops
 COP$`ShellHeight (mm)` <- ifelse(COP$`Individual Scallops` == 0, 0,Growth.Data$Sh_Height)
 # Shell height in inches for market scallops, we will use imperial units for the 
@@ -437,7 +448,7 @@ Pane1 <- round(Pane1, digits = 2)
 # Labor metrics I think would also be simple and helpful by season (or by year?)
 
 LAB_plt <- ggplot(Labor.Subset, aes(area=Hours.Paid/8, fill = Season, label=paste(Category, 
-                    (Hours.Paid/8), sep = "\n Work Days:"), subgroup=Season))  + 
+                                                                                  (Hours.Paid/8), sep = "\n Work Days:"), subgroup=Season))  + 
   geom_treemap(layout="squarified")+
   geom_treemap_text(colour = "black",
                     place = "centre",
@@ -524,26 +535,26 @@ Output.List <- list("Economic Metrics (Adductor)" = Pane2.Adductor,
 
 ###-----------------------------Define UI------------------------------------------------------
 ui <- dashboardPage(
-  dashboardHeader(title = "Build Your Scallop Farm"),
+  dashboardHeader(title = "Build Your Scallop Farm", titleWidth = 250),
   dashboardSidebar(
     sidebarMenu(
       menuItem("Primary Inputs", tabName = "input1", icon = icon("gears")),
       menuItem("Secondary Inputs", tabName = "input2", icon = icon("sliders")),
       menuItem("Farm at a Glance", tabName = "Plots", icon = icon("chart-simple")),
-      menuItem("Detailed Metrics", tabName = "Output", icon = icon("table"))
+      menuItem("Detailed Metrics", tabName = "Output", icon = icon("table")),
+      actionButton("run_model", "Run Model")
     )
   ),
   #-------------------------------------PRIMARY INPUTS -> UI Only--------------------------------------------------------------------------------------------------------------
   ###
   dashboardBody(
+    useShinyjs(),
     tabItems(
       # First tab content (Input1)
       tabItem(
         tabName = "input1",
         fluidPage(
-          uiOutput("primary_inputs"),
-          
-          actionButton("run_model", "Run Model")
+          uiOutput("primary_inputs")
         )
       ),
       
@@ -569,18 +580,53 @@ ui <- dashboardPage(
       tabItem(
         tabName = "Plots",
         fluidPage(
-          box(title = "Labor Costs",
-              width = 12,
-              plotOutput('LAB')
-          ),
-          box(title = "Cost of Good Sold",
-              width = 12,
-              plotOutput('COG')
-          ),
-          box(title = "Fixed Overhead Costs",
-              width = 12,
-              plotOutput('FOG')
+          fluidRow(
+            column(6,
+                   {
+                     box(title = "Labor Costs",
+                         width = 12,
+                         plotOutput('LAB')
+                     )
+                   }
+            ),
+            column(6,
+                   {
+                     box(title = "Cost of Good Sold",
+                         width = 12,
+                         plotOutput('COG')
+                     )
+                   }
+            ),
+            column(6,
+                   {
+                     box(title = "Fixed Overhead Costs",
+                         width = 12,
+                         plotOutput('FOG')
+                     )
+                   }
+            ),
+            column(6,
+                   {
+                     box(title = "Primary Variables",
+                         width = 12,
+                         plotOutput('VarsTable')
+                     )
+                   })
+            
           )
+          
+          # box(title = "Labor Costs",
+          #     width = 12,
+          #     plotOutput('LAB')
+          # ),
+          # box(title = "Cost of Good Sold",
+          #     width = 12,
+          #     plotOutput('COG')
+          # ),
+          # box(title = "Fixed Overhead Costs",
+          #     width = 12,
+          #     plotOutput('FOG')
+          # )
         )
       ),
       ### --------------Outputs Pane----------------------------------------------------------------------------------------------      
@@ -588,7 +634,20 @@ ui <- dashboardPage(
       tabItem(
         tabName = "Output",
         fluidPage(
-          actionButton("save_button", "Save Excel Workbook"),
+          box(
+            title = "Set Costs",
+            width = 12,
+            fluidRow(
+              
+              column(width = 6,
+                     numericInput("Whole.Scallop.Price", "Whole Scallop Price:", min = 0.05, max = 20, value = 3.5, step = 1)
+              ),
+              column(width = 6,
+                     numericInput("ScallopAdductor.lbs", "Scallop Adductor (lbs):", min = 10, max = 70, value = 30, step = 1)
+              )
+            )
+            
+          ),
           
           tabsetPanel(
             tabPanel("Economic Metrics (Adductor)",
@@ -618,7 +677,8 @@ ui <- dashboardPage(
             tabPanel("Secondary Inputs",
                      dataTableOutput("Secondary")
             )
-          )
+          ),
+          actionButton("save_button", "Save Excel Workbook")
         )
       )
     )
@@ -630,6 +690,10 @@ ui <- dashboardPage(
 # God Help Us
 server <- function(input, output) {
   
+  load_all_tabs <- function() {
+    shinyjs::runjs("$('.nav-tabs a[data-toggle=\"tab\"]').each(function() { $(this).click(); });")
+  }
+  load_all_tabs()
   ### --------Processing Mortality and Dropper Product Calculations----------------------------------------------------------------------------------------
   #Initilizing Model results
   Output.List <- reactiveValues(Output.List = Output.List)              #these represent the variable that are defined going into it
@@ -699,6 +763,7 @@ server <- function(input, output) {
   output$LAB <- renderPlot(plt.List$plt.List$LAB_plt)
   output$COG <- renderPlot(plt.List$plt.List$COG_plt)
   output$FOG <- renderPlot(plt.List$plt.List$FOG_plt)
+  output$VarsTable <- renderPlot(plt.List$plt.List$VarsTable)
   
   
   
@@ -716,10 +781,8 @@ server <- function(input, output) {
                              searching = FALSE,
                              info = FALSE,
                              dom = 'Bfrtip',     ##Bfrtip
-                             buttons = c('csv', 'excel'),
                              columnDefs = list(list(targets = "_all", orderable  = FALSE))
               ),
-              extensions = 'Buttons',
               selection = 'single', ## enable selection of a single row
               filter = 'none',              ## include column filters at the bottom
               rownames = TRUE, colnames = rep("", ncol(Output.List$Output.List$`Economic Metrics (Adductor)`))       ## don't show row numbers/names
@@ -736,10 +799,8 @@ server <- function(input, output) {
                              searching = FALSE,
                              info = FALSE,
                              dom = 'Bfrtip',
-                             buttons = c('csv', 'excel'),
                              columnDefs = list(list(targets = "_all", orderable  = FALSE))
               ),
-              extensions = 'Buttons',
               selection = 'single', ## enable selection of a single row
               filter = 'none',              ## include column filters at the bottom
               rownames = TRUE,
@@ -757,10 +818,8 @@ server <- function(input, output) {
                              searching = FALSE,
                              info = FALSE,
                              dom = 'Bfrtip',
-                             buttons = c('csv', 'excel'),
                              columnDefs = list(list(targets = "_all", orderable  = FALSE))
               ),
-              extensions = 'Buttons',
               selection = 'single', ## enable selection of a single row
               filter = 'none',              ## include column filters at the bottom
               rownames = FALSE       ## don't show row numbers/names
@@ -778,10 +837,8 @@ server <- function(input, output) {
                              searching = FALSE,
                              info = FALSE,
                              dom = 'Bfrtip',
-                             buttons = c('csv', 'excel'),
                              columnDefs = list(list(targets = "_all", orderable  = FALSE))
               ),
-              extensions = 'Buttons',
               selection = 'single', ## enable selection of a single row
               filter = 'none',              ## include column filters at the bottom
               rownames = FALSE      ## don't show row numbers/names
@@ -799,10 +856,8 @@ server <- function(input, output) {
                              searching = FALSE,
                              info = FALSE,
                              dom = 'Bfrtip',
-                             buttons = c('csv', 'excel'),
                              columnDefs = list(list(targets = "_all", orderable  = FALSE))
               ),
-              extensions = 'Buttons',
               selection = 'single', ## enable selection of a single row
               filter = 'none',              ## include column filters at the bottom
               rownames = FALSE     ## don't show row numbers/names
@@ -820,10 +875,8 @@ server <- function(input, output) {
                              searching = FALSE,
                              info = FALSE,
                              dom = 'Bfrtip',
-                             buttons = c('csv', 'excel'),
                              columnDefs = list(list(targets = "_all", orderable  = FALSE))
               ),
-              extensions = 'Buttons',
               selection = 'single', ## enable selection of a single row
               filter = 'none',              ## include column filters at the bottom
               rownames = FALSE       ## don't show row numbers/names
@@ -841,17 +894,16 @@ server <- function(input, output) {
                              searching = FALSE,
                              info = FALSE,
                              dom = 'Bfrtip',
-                             buttons = c('csv', 'excel'),
                              columnDefs = list(list(targets = "_all", orderable  = FALSE))
               ),
-              extensions = 'Buttons',
               selection = 'single', ## enable selection of a single row
               filter = 'none',              ## include column filters at the bottom
               rownames = FALSE       ## don't show row numbers/names
     )
   )
   
-  output$Primary <- renderDataTable(
+  output$Primary <- renderDataTable({
+    # print(Output.List$Output.List$`Primary Inputs`)
     datatable(Output.List$Output.List$`Primary Inputs`,
               options = list(paging = FALSE,    ## paginate the output
                              scrollX = TRUE,   ## enable scrolling on X axis
@@ -862,15 +914,13 @@ server <- function(input, output) {
                              searching = FALSE,
                              info = FALSE,
                              dom = 'Bfrtip',
-                             buttons = c('csv', 'excel'),
                              columnDefs = list(list(targets = "_all", orderable  = FALSE))
               ),
-              extensions = 'Buttons',
               selection = 'single', ## enable selection of a single row
               filter = 'none',              ## include column filters at the bottom
               rownames = FALSE       ## don't show row numbers/names
     )
-  )
+  })
   
   output$Secondary <- renderDataTable(
     datatable(Output.List$Output.List$Secondary,
@@ -883,10 +933,8 @@ server <- function(input, output) {
                              searching = FALSE,
                              info = FALSE,
                              dom = 'Bfrtip',
-                             buttons = c('csv', 'excel'),
                              columnDefs = list(list(targets = "_all", orderable  = FALSE))
               ),
-              extensions = 'Buttons',
               selection = 'single', ## enable selection of a single row
               filter = 'none',              ## include column filters at the bottom
               rownames = FALSE       ## don't show row numbers/names
@@ -894,6 +942,9 @@ server <- function(input, output) {
   )
   
   ###---------------------------------------Procedural Inputs!!--------------------------------------------------
+  
+  iv <- InputValidator$new()
+  
   Primary.Parameter.Data<- read_excel(file_path, sheet = 'Primary')
   output$primary_inputs <- renderUI({
     unique_groups <- unique(Primary.Parameter.Data$Group)
@@ -915,10 +966,13 @@ server <- function(input, output) {
             bsTooltip(info$ID, title = info$toolTip)
           )
         } else if (info$Type == "num") {
+          if (info$IntOnly){iv$add_rule(info$ID, sv_integer())}
+          iv$add_rule(info$ID, sv_between(info$Min, info$Max))
           tagList(
-            numericInput(info$ID, info$VariableName, min = info$Min, max = info$Max, value = info$Value),
+            numericInput(info$ID, info$VariableName, min = info$Min, max = info$Max, value = info$Value, step = 1),
             bsTooltip(info$ID, title = info$toolTip)
           )
+          
         }
       })
       
@@ -933,7 +987,6 @@ server <- function(input, output) {
     
     do.call(tagList, box_list)
   })
-  
   
   Secondary.Data<- read_excel(file_path, sheet = 'Secondary')
   Secondary.Data <- Secondary.Data[!is.na(Secondary.Data$Type), ]
@@ -958,6 +1011,8 @@ server <- function(input, output) {
             bsTooltip(info$ID, title = info$toolTip)
           )
         } else if (info$Type == "num") {
+          if (info$IntOnly){iv$add_rule(info$ID, sv_integer())}
+          iv$add_rule(info$ID, sv_between(info$Min, info$Max))
           tagList(
             numericInput(info$ID, info$VariableName, min = info$Min, max = info$Max, value = info$Value),
             bsTooltip(info$ID, title = info$toolTip)
@@ -970,7 +1025,7 @@ server <- function(input, output) {
         status = "info",
         solidHeader = TRUE,
         width = 6,
-        if (group == "Dropper Parameters"){
+        if (group == "Ear Hanging Parameters"){
           input_list <- append(input_list, tagList(textOutput("Ear.Hanging.Droppers"),
                                                    textOutput("Dropper.Length")))
           do.call(tagList, input_list)
@@ -985,10 +1040,18 @@ server <- function(input, output) {
     do.call(tagList, box_list)
   })
   
+  iv$enable()
+  
   
   ###----------Observe Model Run-------------------------------------------------------------------------------------------------------------------  
   observeEvent(input$run_model, {#Fake running of the model - updates all the thingy
-    
+    if (!iv$is_valid()) {
+      showNotification(
+        "Please fix the errors in the model before continuing",
+        type = "error"
+      )
+    } else {
+      
     #Procedural Adding in the input variables
     pInput.List <- Primary.Parameter.Data$ID[!is.na(Primary.Parameter.Data$ID)]
     pVar.Names <- Primary.Parameter.Data$VariableName[!is.na(Primary.Parameter.Data$ID)]
@@ -998,6 +1061,7 @@ server <- function(input, output) {
       inputValue <- input[[inputName]]
       globName <- pVar.Names[i]
       assign(globName, inputValue, envir = .GlobalEnv)
+      Primary.Parameter.Data$Value[Primary.Parameter.Data$VariableName == globName] <- as.character(inputValue)
     }
     
     sInput.List <- Secondary.Data$ID[!is.na(Secondary.Data$ID)]
@@ -1008,6 +1072,8 @@ server <- function(input, output) {
       inputValue <- input[[inputName]]
       globName <- sVar.Names[i]
       assign(globName, inputValue, envir = .GlobalEnv)
+      Secondary.Data$Value[Secondary.Data$VariableName == globName] <- as.character(inputValue)
+      
     }
     
     `Y1 Product` <- Mort.Calcs$Y1.Product
@@ -1016,6 +1082,8 @@ server <- function(input, output) {
     `Y4 Product` <- Mort.Calcs$Y4.Product
     `Ear Hanging Droppers` <-  Mort.Calcs$Ear.Hanging.Droppers
     `Dropper Length` <-  Mort.Calcs$Dropper.Length
+    
+    # Updating the primary and second 
     
     
     ###--------This is the normal Model stuff---------------------------------------------------------------------------------------
@@ -1329,8 +1397,8 @@ server <- function(input, output) {
     
     # Next allow growers to set a price (maybe in primary inputs?) or in this section if possible
     # Allow entry of scallop price/individual and adductor/lbs
-    Whole.Scallop.Price <- 3.50
-    ScallopAdductor.lbs <- 30
+    Whole.Scallop.Price <- input$Whole.Scallop.Price
+    ScallopAdductor.lbs <- input$ScallopAdductor.lbs
     
     # gross profit, 10 year forecast
     # subtract COGs from the total scallops sold each year (or total lbs sold each year) * Price (total revenue)
@@ -1430,7 +1498,25 @@ server <- function(input, output) {
             axis.title.y = element_blank(),
             axis.text.y = element_blank())
     
-    plt.List$plt.List <- list(LAB_plt = LAB_plt, COG_plt = COG_plt, FOG_plt = FOC_plt)
+    #--------------------------------------------------------Making the data table
+    SelVars <- c("Product",
+                 "Owner Salary",
+                 "Employee Salary",
+                 "Part Time Wage",
+                 "Harvest Year",
+                 "Grow Out Method")
+    
+    Tableframe <- data.frame(Variable = Primary.Parameter.Data$VariableName[Primary.Parameter.Data$VariableName %in% SelVars], 
+                             Value =    Primary.Parameter.Data$Value[Primary.Parameter.Data$VariableName %in% SelVars])
+    
+    ft <- Tableframe %>% flextable()
+    ft_raster <- as_raster(ft) #takes a second, patience
+    VarsTable <- ggplot() + 
+      theme_void() + 
+      annotation_custom(rasterGrob(ft_raster), xmin=-Inf, xmax=Inf, ymin=-Inf, ymax=Inf)
+    ## ------------------------------------------------------------------------------------
+    
+    plt.List$plt.List <- list(LAB_plt = LAB_plt, COG_plt = COG_plt, FOG_plt = FOC_plt, VarsTable = VarsTable)
     
     ####### I think these will be a solid 'At a Glance' Section
     
@@ -1490,7 +1576,8 @@ server <- function(input, output) {
                                     "Maintenance" = Maintenance.Subset,
                                     "Primary Inputs" = Primary.Parameter.Data,
                                     "Secondary" = Secondary.Data)
-    
+
+  }
   })
   
   observeEvent(input$save_button, {
