@@ -1499,15 +1499,20 @@ server <- function(input, output) {
             axis.text.y = element_blank())
     
     #--------------------------------------------------------Making the data table
-    SelVars <- c("Product",
-                 "Owner Salary",
-                 "Employee Salary",
-                 "Part Time Wage",
-                 "Harvest Year",
-                 "Grow Out Method")
+    SelVars <- c('Market Individuals',
+                 'Shell Height (Inches)',
+                 'Adductor Count/lb',
+                 'Run Rate (lbs)',
+                 'Run Rate (Piece)',
+                 '10 Year Break Even (lbs)',
+                 '10 Year Break Even (Piece)',
+                 'Minimum Lease Size (Acres)')
     
-    Tableframe <- data.frame(Variable = Primary.Parameter.Data$VariableName[Primary.Parameter.Data$VariableName %in% SelVars], 
-                             Value =    Primary.Parameter.Data$Value[Primary.Parameter.Data$VariableName %in% SelVars])
+    Pane1s <- stack(Pane1)
+    Pane1s <- Pane1s[ ,-c(2) ]
+    
+    Tableframe <- data.frame(Metric = SelVars, 
+                             Value =    Pane1s)
     
     ft <- Tableframe %>% flextable()
     ft_raster <- as_raster(ft) #takes a second, patience
