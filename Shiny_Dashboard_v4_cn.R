@@ -903,8 +903,12 @@ server <- function(input, output) {
   )
   
   output$Primary <- renderDataTable({
-    # print(Output.List$Output.List$`Primary Inputs`)
-    datatable(Output.List$Output.List$`Primary Inputs`,
+    
+    data <- Output.List$Output.List$`Primary Inputs`
+    showList <- c("VariableName", "Value", "Description")
+    data <- data[, showList] #filters so that only specific columns show
+    
+    datatable(data,
               options = list(paging = FALSE,    ## paginate the output
                              scrollX = TRUE,   ## enable scrolling on X axis
                              scrollY = TRUE,   ## enable scrolling on Y axis
@@ -922,8 +926,12 @@ server <- function(input, output) {
     )
   })
   
-  output$Secondary <- renderDataTable(
-    datatable(Output.List$Output.List$Secondary,
+  output$Secondary <- renderDataTable({
+    data <- Output.List$Output.List$Secondary
+    showList <- c("VariableName", "Value", "Description")
+    data <- data[, showList] #filters so that only specific columns show
+  
+    datatable(data,
               options = list(paging = FALSE,    ## paginate the output
                              scrollX = TRUE,   ## enable scrolling on X axis
                              scrollY = TRUE,   ## enable scrolling on Y axis
@@ -939,8 +947,9 @@ server <- function(input, output) {
               filter = 'none',              ## include column filters at the bottom
               rownames = FALSE       ## don't show row numbers/names
     )
+  }
   )
-  
+
   ###---------------------------------------Procedural Inputs!!--------------------------------------------------
   
   iv <- InputValidator$new()
