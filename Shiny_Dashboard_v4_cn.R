@@ -678,7 +678,7 @@ ui <- dashboardPage(
                      dataTableOutput("Secondary")
             )
           ),
-          actionButton("save_button", "Save Excel Workbook")
+          downloadButton("save_button", "Save Excel Workbook")
         )
       )
     )
@@ -1585,33 +1585,25 @@ server <- function(input, output) {
   }
   })
   
-  observeEvent(input$save_button, {
-    wb <- createWorkbook()
-    
-    # # Remove all existing sheets in the workbook
-    # for (i in c(length(wb$worksheets):1)) {
-    #   removeWorksheet(wb, sheet = i)
-    # }
-    
-    data_list <- Output.List$Output.List
-    
-    # Loop through data frames and add sheets to the workbook
-    for (i in seq_along(data_list)) {
-      sheet_name <- names(data_list)[i]
-      addWorksheet(wb, sheetName = sheet_name)
-      writeData(wb, sheet = sheet_name, x = data_list[[i]])
+  output$save_button <- downloadHandler(
+    filename = function() {
+      paste("ScallopAquaculture-", Sys.Date(), ".xlsx", sep="")
+    },
+    content = function(file) {
+      wb <- createWorkbook()
+      
+      # Loop through data frames and add sheets to the workbook
+      data_list <- Output.List$Output.List
+      for (i in seq_along(data_list)) {
+        sheet_name <- names(data_list)[i]
+        addWorksheet(wb, sheetName = sheet_name)
+        writeData(wb, sheet = sheet_name, x = data_list[[i]])
+      }
+      
+      # Save the workbook
+      saveWorkbook(wb, file)
     }
-    
-    # Get the current date and time
-    current_time <- format(Sys.time(), "%Y%m%d_%H%M%S")
-    
-    # Construct the file name with a unique timestamp
-    file_name <- paste0("BioEconomic_Model_Output_", current_time, ".xlsx")
-    
-    # Save the workbook
-    saveWorkbook(wb, file = file_name, overwrite = TRUE)
-    
-  })
+  )
   
   
 }
