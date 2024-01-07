@@ -554,7 +554,8 @@ ui <- dashboardPage(
       tabItem(
         tabName = "input1",
         fluidPage(
-          uiOutput("primary_inputs")
+          uiOutput("primary_inputs"),
+          DTOutput("editable_table")
         )
       ),
       
@@ -1050,7 +1051,68 @@ server <- function(input, output) {
   })
   
   iv$enable()
+  ### -----Messing with Equiptment--------------------------------------------------------------------------
   
+  full_df <- reactiveVal(Equipment.Data)
+  full_rows <- Equipment.Data$Equipment
+  full_cols <- colnames(Equipment.Data)
+  edit_df <- subset(Equipment.Data,
+                                          Equipment %in% c("Vessel",
+                                                           "Truck",
+                                                           "Miscellaneous Equipment",
+                                                           "Scallop Washer",
+                                                           "Scallop Grader",
+                                                           "Power Pack",
+                                                           "Drill (Dremel)",
+                                                           "Drill (Automated)",
+                                                           "Automated Drill and Pin"),
+                                          select = c("Equipment", "Unit.Cost", "Lifespan", "Quantity"))
+  edit_rows <- edit_df$Equipment
+  edit_cols <- colnames(edit_df)
+  edit_df <- reactiveVal(edit_df)
+
+  output$editable_table <- renderDT({
+    datatable(
+      edit_df(),
+      editable = 'cell',
+      rownames = FALSE,
+      options = list(paging = FALSE,    ## paginate the output 
+                     autoWidth = TRUE, ## use smart column width handling
+                     server = FALSE, ## use client-side processing
+                     search = NULL,
+                     searching = FALSE,
+                     info = FALSE,
+                     dom = 'Bfrtip',
+                     columnDefs = list(list(targets = "_all", orderable  = FALSE))
+      ),
+      selection = 'single', ## enable selection of a single row
+      filter = 'none'
+    )
+  })
+  
+  observeEvent(input$editable_table_cell_edit, {
+    info <- input$editable_table_cell_edit
+    #print(paste(info$row, info$col+1, sep = " - "))
+    
+    if (!is.null(edit_df)) {
+      data <- edit_df()
+      data[info$row, info$col+1] <- info$value
+      edit_df(data)
+      
+      full_df <- full_df()
+      full_df[full_rows == edit_rows[info$row], full_cols == edit_cols[info$col+1]] <- info$value
+      #print(full_df)
+      full_df(full_df)
+      # Render the updated result data table
+
+      # output$output_table <- renderDT({     #this is for debugging
+      #   datatable(
+      #     full_df(),
+      #     rownames = FALSE
+      #   )
+      # })
+    }
+  })
   
   ###----------Observe Model Run-------------------------------------------------------------------------------------------------------------------  
   observeEvent(input$run_model, {#Fake running of the model - updates all the thingy
@@ -1060,7 +1122,8 @@ server <- function(input, output) {
         type = "error"
       )
     } else {
-      
+
+    Equipment.Data <- full_df()
     #Procedural Adding in the input variables
     pInput.List <- Primary.Parameter.Data$ID[!is.na(Primary.Parameter.Data$ID)]
     pVar.Names <- Primary.Parameter.Data$VariableName[!is.na(Primary.Parameter.Data$ID)]
