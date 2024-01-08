@@ -395,8 +395,8 @@ COP$`Individual Scallops` <- round(COP$`Individual Scallops`, digits = 0)
 
 # Next allow growers to set a price (maybe in primary inputs?) or in this section if possible
 # Allow entry of scallop price/individual and adductor/lbs
-Whole.Scallop.Price <- 2.50
-ScallopAdductor.lbs <- 35
+Whole.Scallop.Price <- 3.50
+ScallopAdductor.lbs <- 30
 
 # gross profit, 10 year forecast
 # subtract COGs from the total scallops sold each year (or total lbs sold each year) * Price (total revenue)
@@ -642,10 +642,10 @@ ui <- dashboardPage(
             fluidRow(
               
               column(width = 6,
-                     numericInput("Whole.Scallop.Price", "Whole Scallop Price:", min = 0.05, max = 20, value = 2.5, step = 1)
+                     numericInput("Whole.Scallop.Price", "Whole Scallop Price:", min = 0.05, max = 20, value = 3.5, step = 1)
               ),
               column(width = 6,
-                     numericInput("ScallopAdductor.lbs", "Scallop Adductor (lbs):", min = 10, max = 70, value = 35, step = 1)
+                     numericInput("ScallopAdductor.lbs", "Scallop Adductor (lbs):", min = 10, max = 70, value = 30, step = 1)
               )
             )
             
@@ -999,7 +999,7 @@ server <- function(input, output) {
                                              width = 12,
                                              status = "info",
                                              solidHeader = TRUE,
-                                             DTOutput("editable_table"))))
+                                             DTOutput("editable_table"))))#, DTOutput("output_table")
     do.call(tagList, box_list)
   })
   
@@ -1066,7 +1066,7 @@ server <- function(input, output) {
   ### Fuctionalizing this:
   #
   #    Inputs: Original Data, Edited Data, restrited editing rows and columns (python indexing)
-          # Additionall: ID for DT, and identifed column for id (in this case Equipment)
+  # Additionall: ID for DT, and identifed column for id (in this case Equipment)
   #    Outputs: renderDT block and full reactive variable 
   #   
   #   Must have unique column and row names
@@ -1075,14 +1075,13 @@ server <- function(input, output) {
   #   
   #   
   #   
-  
   edTable <- function(full_df, edit_df, IDcol, DT_ID){
     #NOTE this will not work across multiple full_df's as full_df_r isn't different between calls of the funtion, this works great for sharing between Equipment.data but won't work if you try to do this with labor or something else - just be careful
     og_Name <- deparse(substitute(full_df))
     
     full_rows <- full_df[IDcol]
     full_cols <- colnames(full_df)
-    full_df_r <- reactiveVal(full_df)
+    full_df_r <<- reactiveVal(full_df)
     
     edit_rows <- edit_df[IDcol]
     edit_cols <- colnames(edit_df)
@@ -1114,15 +1113,22 @@ server <- function(input, output) {
         data <- edit_df()
         data[info$row, info$col+1] <- info$value
         edit_df(data)
-
+        
         #Changes full to edited values
         full_df <- full_df_r()
         full_df[full_rows[,1] == pull(edit_rows[info$row,1]), full_cols == edit_cols[info$col+1]] <- info$value
-        assign(og_Name, full_df, envir = .GlobalEnv)
+        assign('Equipment.Data', full_df, envir = globalenv())
         full_df_r(full_df)
       }
     })
   }
+  
+  output$output_table <- renderDT({
+    datatable(
+      full_df_r(),
+      rownames = FALSE
+    )
+  })
   
   edit_df <- subset(Equipment.Data,
                     Equipment %in% c("Vessel",
@@ -1133,13 +1139,13 @@ server <- function(input, output) {
   edTable(Equipment.Data, edit_df, 'Equipment', 'editable_table')
   
   edit_df2 <- subset(Equipment.Data,
-                    Equipment %in% c("Scallop Washer",
-                                     "Scallop Grader",
-                                     "Power Pack",
-                                     "Drill (Dremel)",
-                                     "Drill (Automated)",
-                                     "Automated Drill and Pin"),
-                    select = c("Equipment", "Unit.Cost", "Lifespan", "Quantity"))
+                     Equipment %in% c("Scallop Washer",
+                                      "Scallop Grader",
+                                      "Power Pack",
+                                      "Drill (Dremel)",
+                                      "Drill (Automated)",
+                                      "Automated Drill and Pin"),
+                     select = c("Equipment", "Unit.Cost", "Lifespan", "Quantity"))
   
   edTable(Equipment.Data, edit_df2, 'Equipment', 'editable_table2')
   
@@ -1152,6 +1158,8 @@ server <- function(input, output) {
         type = "error"
       )
     } else {
+      
+      Equipment.Data <- full_df_r()
       #Procedural Adding in the input variables
       pInput.List <- Primary.Parameter.Data$ID[!is.na(Primary.Parameter.Data$ID)]
       pVar.Names <- Primary.Parameter.Data$VariableName[!is.na(Primary.Parameter.Data$ID)]
