@@ -395,8 +395,8 @@ COP$`Individual Scallops` <- round(COP$`Individual Scallops`, digits = 0)
 
 # Next allow growers to set a price (maybe in primary inputs?) or in this section if possible
 # Allow entry of scallop price/individual and adductor/lbs
-Whole.Scallop.Price <- 3.50
-ScallopAdductor.lbs <- 30
+Whole.Scallop.Price <- 2.50
+ScallopAdductor.lbs <- 35
 
 # gross profit, 10 year forecast
 # subtract COGs from the total scallops sold each year (or total lbs sold each year) * Price (total revenue)
@@ -642,10 +642,10 @@ ui <- dashboardPage(
             fluidRow(
               
               column(width = 6,
-                     numericInput("Whole.Scallop.Price", "Whole Scallop Price:", min = 0.05, max = 20, value = 3.5, step = 1)
+                     numericInput("Whole.Scallop.Price", "Whole Scallop Price:", min = 0.05, max = 20, value = 2.5, step = 1)
               ),
               column(width = 6,
-                     numericInput("ScallopAdductor.lbs", "Scallop Adductor (lbs):", min = 10, max = 70, value = 30, step = 1)
+                     numericInput("ScallopAdductor.lbs", "Scallop Adductor (lbs):", min = 10, max = 70, value = 35, step = 1)
               )
             )
             
