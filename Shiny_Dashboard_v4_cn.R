@@ -540,6 +540,7 @@ ui <- dashboardPage(
     sidebarMenu(
       menuItem("Primary Inputs", tabName = "input1", icon = icon("gears")),
       menuItem("Secondary Inputs", tabName = "input2", icon = icon("sliders")),
+      menuItem("Equipment", tabName = "Equip", icon = icon("list")),
       menuItem("Farm at a Glance", tabName = "Plots", icon = icon("chart-simple")),
       menuItem("Detailed Metrics", tabName = "Output", icon = icon("table")),
       actionButton("run_model", "Run Model")
@@ -577,6 +578,8 @@ ui <- dashboardPage(
           )
         )
       ),
+      
+
       
       ### ----------------------------------Plots Output Tab------------------------------------------------------
       tabItem(

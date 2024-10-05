@@ -1,0 +1,94 @@
+"","Task","Year","Type","Completed","Time","Trips","Unit","Task.Rate","Part.Time","Season","Description","Category","Hours.Paid","Labor.Costs"
+"1","Set Settlement Devices","Y0","Wild Spat - Collected","Y",20,3,"Devices/Hour",12,0,"Fall","In Fall, set settlement devices for spat collection
+~ August-September","Seed Procurement","24",0
+"2","Collect Settlement Device","Y0","Wild Spat - Collected","Y",40,5,"Devices/Hour",6,0,"Spring","In Spring/Winter collect settlement devices
+with spat in them ~January-April","Seed Procurement","40",0
+"3","Process Settlement Device","Y0","Wild Spat - Collected","Y",40,5,"Devices/Hour",6,0,"Spring","Process settlement devices by separating scallop
+spat from fouling organisms","Seed Procurement","40",0
+"4","Spat Stocking","Y0","Wild Spat - Collected","Y",19.2,3,"Scallops/Hour",12500,1,"Spring","Stock spat into lantern nets, usually a volumetric
+stocking of ~250 scallops/tier","Seed Procurement","24",480
+"5","Spat Collector Construction","Y0","Wild Spat - Collected","Y",9.6,0,"Devices/Hour",25,0,"Winter","Building of spat collector bags","Seed procurement","9.6",0
+"6","Restock","Y1","Intermediate - Lantern Net","Y",84,11,"Devices/Hour",10,1,"Summer","Restock lantern nets to optimize density
+density of ~10/tier in Spring/Summer","Restocking","88",1760
+"7","Lantern Net Cleaning (Spring)","Y1","Intermediate - Lantern Net","Y",84,11,"Devices/Hour",10,2,"Spring","Spring lantern net cleaning, usually involves emptying
+net and putting scallops into clean net.  Then 
+cleaning old net","Cleaning","88",3520
+"8","Lantern Net Cleaning (Summer)","Y1","Intermediate - Lantern Net","Y",84,11,"Devices/Hour",10,2,"Summer","Summer lantern net cleaning, usually involves emptying
+net and putting scallops into clean net.  Then 
+cleaning old net","Cleaning","88",3520
+"9","Lantern Net Cleaning (Fall)","Y2","Intermediate - Lantern Net","Y",84,11,"Devices/Hour",10,2,"Fall","Fall lantern net cleaning, usually involves emptying
+net and putting scallops into clean net.  Then 
+cleaning old net","Cleaning","88",3520
+"10","Previous Year Net Cleaning (on Land)","Y1","Intermediate - Lantern Net","Y",3.84,0,"Devices/Hour",25,0,"Fall","Cleaning of nets on land from previous year of 
+scallops","Cleaning","3.84",0
+"11","Restock","Y2","Lantern Net","Y",183.75,23,"Devices/Hour",10,1,"Summer","Restock lantern nets to optimize density
+density of ~10/tier in Spring/Summer","Restocking","184",3680
+"12","Lantern Net Cleaning (Spring)","Y2","Lantern Net","Y",183.75,23,"Devices/Hour",10,2,"Spring","Spring lantern net cleaning, usually involves emptying
+net and putting scallops into clean net.  Then 
+cleaning old net","Cleaning","184",7360
+"13","Lantern Net Cleaning (Summer)","Y2","Lantern Net","Y",183.75,23,"Devices/Hour",10,2,"Summer","Summer lantern net cleaning, usually involves emptying
+net and putting scallops into clean net.  Then 
+cleaning old net","Cleaning","184",7360
+"14","Lantern Net Cleaning (Fall)","Y3","Lantern Net","Y",183.75,23,"Devices/Hour",10,2,"Fall","Fall lantern net cleaning, usually involves emptying
+net and putting scallops into clean net.  Then 
+cleaning old net","Cleaning","184",7360
+"15","Previous Year Net Cleaning (on Land)","Y2","Lantern Net","Y",33.6,0,"Devices/Hour",25,0,"Fall","Cleaning of nets on land from previous year of 
+scallops","Cleaning","33.6",0
+"16","Lantern Net Cleaning (Spring)","Y3","Lantern Net","Y",160.78125,21,"Devices/Hour",10,2,"Spring","Spring lantern net cleaning, usually involves emptying
+net and putting scallops into clean net.  Then 
+cleaning old net","Cleaning","168",6720
+"17","Lantern Net Cleaning (Summer)","Y3","Lantern Net","Y",160.78125,21,"Devices/Hour",10,2,"Summer","Summer lantern net cleaning, usually involves emptying
+net and putting scallops into clean net.  Then 
+cleaning old net","Cleaning","168",6720
+"18","Harvest","Y4","Global","Y",375.15625,47,"Scallops/Hour",375,3,"Fall","Harvest, similar time frame for whole scallops
+and adductor only.  Does not account for
+delivery to market","Harvest","376",22560
+"19","Harvest Net Cleaning","Y4","Lantern Net","Y",73.5,0,"Devices/Hour",25,0,"Fall","Cleaning of lantern nets following harvest","Cleaning","73.5",0
+"20","Set Settlement Devices","Y0","Wild Spat - Collected","Y",32.5,5,"Devices/Hour",12,0,"Fall","In Fall, set settlement devices for spat collection
+~ August-September","Seed Procurement","40",0
+"21","Collect Settlement Device","Y0","Wild Spat - Collected","Y",65,9,"Devices/Hour",6,0,"Spring","In Spring/Winter collect settlement devices
+with spat in them ~January-April","Seed Procurement","72",0
+"22","Process Settlement Device","Y0","Wild Spat - Collected","Y",65,9,"Devices/Hour",6,0,"Spring","Process settlement devices by separating scallop
+spat from fouling organisms","Seed Procurement","72",0
+"23","Spat Stocking","Y0","Wild Spat - Collected","Y",31.2,4,"Scallops/Hour",12500,1,"Spring","Stock spat into lantern nets, usually a volumetric
+stocking of ~250 scallops/tier","Seed Procurement","32",640
+"24","Spat Collector Construction","Y0","Wild Spat - Collected","Y",15.6,0,"Devices/Hour",25,0,"Winter","Building of spat collector bags","Seed procurement","15.6",0
+"25","Restock","Y1","Intermediate - Lantern Net","Y",136.5,18,"Devices/Hour",10,1,"Summer","Restock lantern nets to optimize density
+density of ~10/tier in Spring/Summer","Restocking","144",2880
+"26","Lantern Net Cleaning (Spring)","Y1","Intermediate - Lantern Net","Y",136.5,18,"Devices/Hour",10,2,"Spring","Spring lantern net cleaning, usually involves emptying
+net and putting scallops into clean net.  Then 
+cleaning old net","Cleaning","144",5760
+"27","Lantern Net Cleaning (Summer)","Y1","Intermediate - Lantern Net","Y",136.5,18,"Devices/Hour",10,2,"Summer","Summer lantern net cleaning, usually involves emptying
+net and putting scallops into clean net.  Then 
+cleaning old net","Cleaning","144",5760
+"28","Lantern Net Cleaning (Fall)","Y2","Intermediate - Lantern Net","Y",136.5,18,"Devices/Hour",10,2,"Fall","Fall lantern net cleaning, usually involves emptying
+net and putting scallops into clean net.  Then 
+cleaning old net","Cleaning","144",5760
+"29","Previous Year Net Cleaning (on Land)","Y1","Intermediate - Lantern Net","Y",6.24,0,"Devices/Hour",25,0,"Fall","Cleaning of nets on land from previous year of 
+scallops","Cleaning","6.24",0
+"30","Drilling + Pinning: Automated Drilling","Y2","Ear Hanging","Y",199.0625,25,"Scallops/Hour",1500,4,"Fall","Automated drilling machine is the fastest method of
+drilling however requires","Ear Hanging","200",16000
+"31","Dropper Line Construction","Y2","Ear Hanging","Y",60.9428571428571,8,"Devices/Hour",35,0,"Fall","Dropper Line construction can be done at 
+almost any time.  Uses pinning machine
+to insert age-pins into dropper line","Ear Hanging","64",0
+"32","Dropper Line Cleaning (Spring)","Y2","Ear Hanging","Y",32.8153846153846,5,"Devices/Hour",65,1,"Spring","Dropper line cleaning, important for growth and 
+shell quality in whole scallop market.  Cleaning 
+requires a specialized system to do easily","Cleaning","40",800
+"33","Dropper Line Cleaning (Summer)","Y2","Ear Hanging","Y",32.8153846153846,5,"Devices/Hour",65,1,"Summer","Dropper line cleaning, important for growth and 
+shell quality in whole scallop market.  Cleaning 
+requires a specialized system to do easily","Cleaning","40",800
+"34","Dropper Line Cleaning (Fall)","Y3","Ear Hanging","Y",32.8153846153846,5,"Devices/Hour",65,1,"Fall","Dropper line cleaning, important for growth and 
+shell quality in whole scallop market.  Cleaning 
+requires a specialized system to do easily","Cleaning","40",800
+"35","Previous Year Net Cleaning (on Land)","Y2","Ear Hanging","Y",54.6,0,"Devices/Hour",25,0,"Fall","Cleaning of nets on land from previous year of 
+scallops","Cleaning","54.6",0
+"36","Dropper Line Cleaning (Spring)","Y3","Ear Hanging","Y",32.8153846153846,5,"Devices/Hour",65,1,"Spring","Dropper line cleaning, important for growth and 
+shell quality in whole scallop market.  Cleaning 
+requires a specialized system to do easily","Cleaning","40",800
+"37","Dropper Line Cleaning (Summer)","Y3","Ear Hanging","Y",32.8153846153846,5,"Devices/Hour",65,1,"Summer","Dropper line cleaning, important for growth and 
+shell quality in whole scallop market.  Cleaning 
+requires a specialized system to do easily","Cleaning","40",800
+"38","Harvest","Y4","Global","Y",609.62890625,77,"Scallops/Hour",375,3,"Fall","Harvest, similar time frame for whole scallops
+and adductor only.  Does not account for
+delivery to market","Harvest","616",36960
+"39","Harvest Depinning + Cleaning","Y4","Ear Hanging","Y",28.44,0,"Devices/Hour",75,0,"Fall","Depinning and cleaning of dropper lines after harvest","Cleaning","28.44",0
