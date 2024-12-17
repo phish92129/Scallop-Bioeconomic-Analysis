@@ -67,7 +67,9 @@ Fall <- 'August-October'
 Winter <- c('August-October','November-January')
 Spring <- c('August-October','November-January','February-April')
 Summer <- c('August-October','November-January','February-April','May-July')
-  
+ 
+`Harvest Year` <- '2-3 Years'
+ 
   # Matches Harvest Year vector with appropriate year vector
   Harvest.Year <- switch(`Harvest Year`, '0-1 Years'= Y0, '1-2 Years' = Y1, '2-3 Years'= Y2, '3-4 Years'= Y3, '4 Years (August-October only)' = Y4)
   
@@ -340,7 +342,7 @@ Summer <- c('August-October','November-January','February-April','May-July')
   COP$`Individual Scallops` <-  ifelse(COP$Year == 0 & `Harvest Year` == '0-1 Years', Growth.Data$Market.Product,
                                        ifelse(COP$Year == 1 & `Harvest Year` == '1-2 Years', Growth.Data$Market.Product,
                                               ifelse(COP$Year == 2 & `Harvest Year` == '2-3 Years', Growth.Data$Market.Product,
-                                                     ifelse(COP$Year == 3 & `Harvest Year` == '3-4 Years', Growth.Data$Market.Product,
+                                                     ifelse(COP$Year == 3 & (`Harvest Year` == '3-4 Years' | `Harvest Year` == '2-3 Years'), Growth.Data$Market.Product,
                                                             ifelse(COP$Year >3 & `Harvest Year` %in% Y4, Growth.Data$Market.Product,0)))))
   # Shell height in millimeters of market scallops
   COP$`ShellHeight (mm)` <- ifelse(COP$`Individual Scallops` == 0, 0,Growth.Data$Sh_Height)
@@ -377,7 +379,7 @@ Summer <- c('August-October','November-January','February-April','May-July')
   
   # Next allow growers to set a price (maybe in primary inputs?) or in this section if possible
   # Allow entry of scallop price/individual and adductor/lbs
-  Whole.Scallop.Price <- 2.50
+  Whole.Scallop.Price <- 3.16
   ScallopAdductor.lbs <- 35
   
   # gross profit, 10 year forecast
@@ -403,7 +405,7 @@ Summer <- c('August-October','November-January','February-April','May-July')
   PL.Whole$`Net Profit` <-  PL.Whole$`Gross Profit` - COP$`Fixed Overhead Costs`
   PL.Whole$`Net Profit Margin` <-  (PL.Whole$`Net Profit`/ PL.Whole$`Gross Sales Revenue`)*100
   PL.Whole$Depreciation <- FOC$Depreciation
-  PL.Whole$`Year End Cash Flow` <- cumsum(PL.Whole$`Net Profit`-FOC$Depreciation)
+  PL.Whole$`Year End Cash Flow` <- cumsum(PL.Whole$`Net Profit`)
   
   
   # For the outputs, I think these should tentatively be what we give.

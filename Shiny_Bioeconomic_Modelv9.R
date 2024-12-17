@@ -347,7 +347,7 @@ COP$Debt <- cumsum(COP$`Cost of Production`)
 COP$`Individual Scallops` <-  ifelse(COP$Year == 0 & `Harvest Year` == '0-1 Years', Growth.Data$Market.Product,
                                      ifelse(COP$Year == 1 & `Harvest Year` == '1-2 Years', Growth.Data$Market.Product,
                                             ifelse(COP$Year == 2 & `Harvest Year` == '2-3 Years', Growth.Data$Market.Product,
-                                                   ifelse(COP$Year == 3 & `Harvest Year` == '3-4 Years', Growth.Data$Market.Product,
+                                                   ifelse(COP$Year == 3 & (`Harvest Year` == '3-4 Years' | `Harvest Year` == '2-3 Years'), Growth.Data$Market.Product,
                                                           ifelse(COP$Year >3 & `Harvest Year` %in% Y4, Growth.Data$Market.Product,0)))))
 # Shell height in millimeters of market scallops
 COP$`ShellHeight (mm)` <- ifelse(COP$`Individual Scallops` == 0, 0,Growth.Data$Sh_Height)
@@ -1479,7 +1479,7 @@ server <- function(input, output) {
       COP$`Individual Scallops` <-  ifelse(COP$Year == 0 & `Harvest Year` == '0-1 Years', Growth.Data$Market.Product,
                                            ifelse(COP$Year == 1 & `Harvest Year` == '1-2 Years', Growth.Data$Market.Product,
                                                   ifelse(COP$Year == 2 & `Harvest Year` == '2-3 Years', Growth.Data$Market.Product,
-                                                         ifelse(COP$Year == 3 & `Harvest Year` == '3-4 Years', Growth.Data$Market.Product,
+                                                         ifelse(COP$Year == 3 & (`Harvest Year` == '3-4 Years' | `Harvest Year` == '2-3 Years'), Growth.Data$Market.Product,
                                                                 ifelse(COP$Year >3 & `Harvest Year` %in% Y4, Growth.Data$Market.Product,0)))))
       # Shell height in millimeters of market scallops
       COP$`ShellHeight (mm)` <- ifelse(COP$`Individual Scallops` == 0, 0,Growth.Data$Sh_Height)
