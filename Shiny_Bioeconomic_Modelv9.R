@@ -401,7 +401,7 @@ PL.add$`Gross Profit Margin` <- (PL.add$`Gross Profit`/PL.add$`Gross Sales Reven
 PL.add$`Net Profit` <- PL.add$`Gross Profit` - COP$`Fixed Overhead Costs`
 PL.add$`Net Profit Margin` <- (PL.add$`Net Profit`/PL.add$`Gross Sales Revenue`)*100
 PL.add$Depreciation <- FOC$Depreciation
-PL.add$`Year End Cash Flow` <- cumsum(PL.add$`Net Profit`-FOC$Depreciation)
+PL.add$`Year End Cash Flow` <- cumsum(PL.add$`Net Profit`+FOC$Depreciation)
 
 PL.Whole <- Date.Frame
 PL.Whole$`Gross Sales Revenue` <- Whole.Scallop.Price*COP$`Individual Scallops`
@@ -410,7 +410,7 @@ PL.Whole$`Gross Profit Margin` <-  (PL.Whole$`Gross Profit`/PL.Whole$`Gross Sale
 PL.Whole$`Net Profit` <-  PL.Whole$`Gross Profit` - COP$`Fixed Overhead Costs`
 PL.Whole$`Net Profit Margin` <-  (PL.Whole$`Net Profit`/ PL.Whole$`Gross Sales Revenue`)*100
 PL.Whole$Depreciation <- FOC$Depreciation
-PL.Whole$`Year End Cash Flow` <- cumsum(PL.Whole$`Net Profit`-FOC$Depreciation)
+PL.Whole$`Year End Cash Flow` <- cumsum(PL.Whole$`Net Profit`+FOC$Depreciation)
 
 # For the outputs, I think these should tentatively be what we give.
 
@@ -1533,7 +1533,7 @@ server <- function(input, output) {
       PL.add$`Net Profit` <- PL.add$`Gross Profit` - COP$`Fixed Overhead Costs`
       PL.add$`Net Profit Margin` <- (PL.add$`Net Profit`/PL.add$`Gross Sales Revenue`)*100
       PL.add$Depreciation <- FOC$Depreciation
-      PL.add$`Year End Cash Flow` <- cumsum(PL.add$`Net Profit`-FOC$Depreciation)
+      PL.add$`Year End Cash Flow` <- cumsum(PL.add$`Net Profit`+FOC$Depreciation)
       
       PL.Whole <- Date.Frame
       PL.Whole$`Gross Sales Revenue` <- Whole.Scallop.Price*COP$`Individual Scallops`
@@ -1542,7 +1542,7 @@ server <- function(input, output) {
       PL.Whole$`Net Profit` <-  PL.Whole$`Gross Profit` - COP$`Fixed Overhead Costs`
       PL.Whole$`Net Profit Margin` <-  (PL.Whole$`Net Profit`/ PL.Whole$`Gross Sales Revenue`)*100
       PL.Whole$Depreciation <- FOC$Depreciation
-      PL.Whole$`Year End Cash Flow` <- cumsum(PL.Whole$`Net Profit`-FOC$Depreciation)
+      PL.Whole$`Year End Cash Flow` <- cumsum(PL.Whole$`Net Profit`+FOC$Depreciation)
       
       # For the outputs, I think these should tentatively be what we give.
       

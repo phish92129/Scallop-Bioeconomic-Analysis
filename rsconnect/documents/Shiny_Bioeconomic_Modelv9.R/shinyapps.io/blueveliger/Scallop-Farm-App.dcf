@@ -1,0 +1,13 @@
+name: Scallop-Farm-App
+title: Scallop-Farm-App
+username: blueveliger
+account: blueveliger
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 13614898
+bundleId: 9536588
+url: https://blueveliger.shinyapps.io/Scallop-Farm-App/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: .gitattributes|.RData|Bio_Ec_scenarios.R|Bio_Ec_Scenarios_2.R|Bio_Ec_Scenarios_3.R|Bioec_Scenarios.R|Bioeconomic_Model_V4.R|Bioeconomic_Model_V5.R|Bioeconomic_Model_V6.R|Bioeconomic_Model_V7.R|Bioeconomic_Model_V7_cn.R|Bioeconomic_Model_V8.R|Bioeconomic_Model_VFinal.R|BusinessIter.R|cbn_try.R|Components.xlsx|Components_V2.xlsx|Components_V3.xlsx|Components_V4.xlsx|Components_V5.xlsx|F01_wind.csv|Gantt.R|Growth.rda|Growth_Input.R|IRR_Interactive.html|Labor_tot.csv|Labortot2.csv|Output_Analysis_1.csv|Output_Analysis_2.csv|Output_Analysis_3.csv|Output_Analysis_punit.csv|ReactMockUp.R|README.md|Shiny_Bioeconomic_Model_V8.R|Shiny_Dashboard_v1.R|Shiny_Dashboard_v2.R|Shiny_Dashboard_v3.R|Shiny_Dashboard_v4.R|Shiny_Dashboard_v4_cn.R|Temp.csv|Wind_UB.R|yeardays.csv
